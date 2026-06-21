@@ -19,7 +19,7 @@
 <meta name="twitter:image" content="https://nuviestudio.com/og.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"LocalBusiness","name":"누비 스튜디오 NUVIE STUDIO","description":"코스프레 촬영을 위한 컨셉 렌탈 스튜디오. 동양풍 블랙 호리존 A룸, 자연광 B룸. 무인 운영.","url":"https://nuviestudio.com/","image":"https://nuviestudio.com/og.jpg","areaServed":"서울","address":{"@type":"PostalAddress","addressLocality":"서울 강서구","addressRegion":"서울","addressCountry":"KR"},"sameAs":["https://x.com/nuvie_studio","https://www.instagram.com/nuvie_studio"],"keywords":"코스프레 스튜디오, 코스프레 렌탈, 컨셉 스튜디오, 까치산 스튜디오, 강서구 코스프레, 동양풍 스튜디오, 자연광 스튜디오"}
 </script>
@@ -27,293 +27,407 @@
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"예약은 어떻게 하나요?","acceptedAnswer":{"@type":"Answer","text":"아워플레이스에서 A룸·B룸을 각각 예약하실 수 있습니다."}},
 {"@type":"Question","name":"무인으로 운영되나요?","acceptedAnswer":{"@type":"Answer","text":"네, 무인으로 운영됩니다. 예약 확정 후 이용 당일 오전에 비밀번호와 주차 위치를 안내드립니다."}},
-{"@type":"Question","name":"몇 명까지 이용할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"1~4인 단독 대관입니다. 최소 2시간부터이며 세트체인지는 무제한입니다."}},
+{"@type":"Question","name":"몇 명까지 이용할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"기본인원은 4인입니다. 최소 대여 시간은 2시간입니다."}},
 {"@type":"Question","name":"위치가 어디인가요?","acceptedAnswer":{"@type":"Answer","text":"서울 강서구, 까치산역에서 도보 10분입니다."}}]}
 </script>
 <style>
-  :root{
-    --bg:#0a0a0b; --bg2:#101012; --panel:#15151a; --side:#0c0c0e; --line:#262428;
-    --ink:#f4f0e8; --dim:#a8a097; --faint:#6f6961; --gold:#c9a24b; --gold2:#e0c07a; --red:#cf6a5e; --grn:#7fae7a;
-    --sw:300px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
-  body{background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",system-ui,sans-serif;font-weight:300;line-height:1.8;-webkit-font-smoothing:antialiased}
-  h1,h2,h3,.serif{font-family:"Noto Serif KR",serif}
-  a{color:inherit;text-decoration:none}
-  img{display:block;width:100%;height:100%;object-fit:cover}
-  .label{font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold)}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--gold);color:#15110a;font-weight:500;
-    padding:13px 24px;border-radius:2px;font-size:14px;letter-spacing:.02em;transition:background .2s,transform .2s}
-  .btn:hover{background:var(--gold2);transform:translateY(-1px)}
-  .btn.line{background:transparent;color:var(--ink);border:1px solid var(--line)}
-  .btn.line:hover{border-color:var(--gold);color:var(--gold2)}
-  .btn.full{width:100%}
-  /* ===== SIDEBAR ===== */
-  .side{position:fixed;left:0;top:0;bottom:0;width:var(--sw);background:var(--side);border-right:1px solid var(--line);
-    display:flex;flex-direction:column;padding:36px 30px;overflow-y:auto;z-index:50}
-  .side .brand{font-family:"Noto Serif KR",serif;font-weight:600;font-size:23px;letter-spacing:.03em;line-height:1.3}
-  .side .brand b{color:var(--gold)}
-  .side .tag{color:var(--dim);font-size:13px;margin-top:10px;font-weight:300}
-  .side .rule{height:1px;background:var(--line);margin:28px 0}
-  .side nav{display:flex;flex-direction:column;gap:3px}
-  .side nav a{color:var(--dim);font-size:15px;padding:9px 0;display:flex;align-items:center;gap:12px;transition:color .2s}
-  .side nav a:hover{color:var(--ink)}
-  .side nav a .no{font-family:"Noto Serif KR",serif;font-size:12px;color:var(--gold);min-width:22px}
-  .side .book{margin-top:26px;display:flex;flex-direction:column;gap:9px}
-  .side .foot{margin-top:auto;padding-top:28px;color:var(--faint);font-size:12px;line-height:1.9}
-  .side .foot .soc{display:flex;gap:14px;margin:10px 0;color:var(--dim);font-size:13px}
-  .side .foot .soc a:hover{color:var(--gold)}
-  /* mobile topbar */
-  .mtop{display:none}
-  /* ===== MAIN ===== */
-  .main{margin-left:var(--sw);min-width:0}
-  .inner{max-width:920px;margin:0 auto;padding:0 40px}
-  /* hero */
-  .hero{position:relative;height:78vh;min-height:520px;display:flex;align-items:flex-end}
-  .hero .bg{position:absolute;inset:0}
-  .hero .bg img{filter:brightness(.56) saturate(.92)}
-  .hero .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,11,.25),rgba(10,10,11,.9))}
-  .hero .in{position:relative;z-index:2;padding:0 40px 52px;max-width:920px;margin:0 auto;width:100%}
-  .hero h1{font-size:clamp(30px,5vw,52px);font-weight:600;line-height:1.2;letter-spacing:-.01em;margin-top:16px}
-  .hero h1 em{font-style:normal;color:var(--gold2)}
-  .hero p{margin-top:18px;color:var(--dim);max-width:520px;font-size:15.5px}
-  /* sections */
-  section.s{padding:74px 0;border-top:1px solid var(--line)}
-  .eyebrow{margin-bottom:12px}
-  h2.title{font-size:clamp(23px,3.4vw,32px);font-weight:600;letter-spacing:-.01em}
-  .gold-rule{width:44px;height:2px;background:var(--gold);margin:14px 0 24px}
-  .desc{color:var(--dim);max-width:620px;font-size:14.5px;margin-bottom:36px}
-  /* room */
-  .room{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);margin-bottom:18px;overflow:hidden}
-  .room .ph{aspect-ratio:4/3;position:relative;background:var(--bg2)}
-  .room .ph .nophoto{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--faint);font-size:13px;background:linear-gradient(135deg,#131318,#1a1a20)}
-  .room .body{padding:34px 32px;display:flex;flex-direction:column;justify-content:center}
-  .room .rtag{font-size:11px;letter-spacing:.2em;color:var(--gold);border:1px solid var(--line);padding:4px 11px;border-radius:2px;width:max-content;margin-bottom:16px}
-  .room h3{font-size:21px;font-weight:600;margin-bottom:11px}
-  .room p{color:var(--dim);font-size:14px;margin-bottom:9px}
-  .room .meta{color:var(--faint);font-size:12.5px;margin:6px 0 20px}
-  @media(max-width:680px){.room{grid-template-columns:1fr}}
-  .common{text-align:center;color:var(--dim);font-size:13.5px;margin-top:6px}
-  .common b{color:var(--ink);font-weight:500}
-  /* gallery */
-  .gal{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  .gal .g{aspect-ratio:4/5;overflow:hidden;border:1px solid var(--line)}
-  .gal .g img{transition:transform .6s,filter .6s;filter:brightness(.92)}
-  .gal .g:hover img{transform:scale(1.04);filter:brightness(1.03)}
-  @media(max-width:560px){.gal{grid-template-columns:1fr 1fr}.gal .g:last-child{grid-column:span 2;aspect-ratio:16/10}}
-  /* specs */
-  .specs{display:grid;grid-template-columns:repeat(2,1fr);border:1px solid var(--line)}
-  .specs .it{padding:26px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
-  .specs .it:nth-child(2n){border-right:none}
-  .specs .it .n{font-family:"Noto Serif KR",serif;color:var(--gold);font-size:13px;margin-bottom:7px}
-  .specs .it h3{font-size:16px;font-weight:500;margin-bottom:5px}
-  .specs .it p{color:var(--dim);font-size:13px}
-  @media(max-width:560px){.specs{grid-template-columns:1fr}.specs .it{border-right:none}}
-  /* calendar */
-  #cal{border:1px solid var(--line);padding:24px}
-  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-  .cal-head h3{font-size:15px;font-weight:500} .cal-legend{font-size:11.5px;color:var(--faint)}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center}
-  .cal-grid .dow{font-size:11px;color:var(--faint);padding:3px 0}
-  .cal-grid .day{aspect-ratio:1;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:12.5px;background:var(--bg2);border:1px solid var(--line);color:var(--dim)}
-  .cal-grid .day.free{border-color:rgba(127,174,122,.45);color:#bfe6bc}
-  .cal-grid .day.busy{background:rgba(207,106,94,.12);border-color:rgba(207,106,94,.45);color:#e0a89f;text-decoration:line-through}
-  .cal-grid .day.empty{background:transparent;border:none}
-  .cal-note{margin-top:14px;font-size:12px;color:var(--faint)}
-  /* faq */
-  .faq details{border-bottom:1px solid var(--line);padding:18px 0}
-  .faq summary{cursor:pointer;font-size:15.5px;font-weight:400;list-style:none;display:flex;justify-content:space-between;gap:12px}
-  .faq summary::-webkit-details-marker{display:none}
-  .faq summary::after{content:"+";color:var(--gold);font-size:19px;font-weight:300}
-  .faq details[open] summary::after{content:"−"}
-  .faq p{color:var(--dim);margin-top:12px;font-size:14px}
-  /* end cta */
-  .endcta{text-align:center;padding:70px 0}
-  .endcta h2{font-size:clamp(22px,3.4vw,30px);font-weight:600;margin-bottom:8px}
-  .endcta p{color:var(--dim);margin-bottom:26px}
-  .endcta .row{display:flex;gap:11px;justify-content:center;flex-wrap:wrap}
-  .botbar{border-top:1px solid var(--line);padding:30px 0;text-align:center;color:var(--faint);font-size:12px;line-height:1.9}
-  /* reveal */
-  .reveal{opacity:0;transform:translateY(18px);transition:opacity .8s,transform .8s}
-  .reveal.in{opacity:1;transform:none}
-  @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
-  /* ===== responsive: sidebar -> topbar ===== */
-  @media(max-width:920px){
-    .side{position:sticky;width:auto;left:auto;top:0;bottom:auto;height:auto;flex-direction:row;align-items:center;
-      padding:14px 20px;border-right:none;border-bottom:1px solid var(--line);background:rgba(10,10,11,.92);backdrop-filter:blur(10px)}
-    .side .tag,.side .rule,.side nav,.side .foot{display:none}
-    .side .book{margin:0 0 0 auto;flex-direction:row}
-    .side .book .btn{padding:9px 16px;font-size:13px}
-    .side .book #side-book2{display:none}
-    .main{margin-left:0}
-    .inner,.hero .in{padding-left:24px;padding-right:24px}
-    .hero{height:64vh;min-height:420px}
+  body{margin:0}
+  *{box-sizing:border-box}
+  :root{
+    --bg:#131317; --panel:#191920; --elev:#20202a; --line:#2b2930;
+    --ink:#f2efe9; --dim:#aaa49b; --faint:#6f6a63;
+    --accent:#c87e57; --accentSoft:#dda37e; --onAccent:#1a120c;
+    --roomA:#d6976f; --roomB:#86b482;
+    --label-font:'Pretendard',sans-serif;
   }
+  [data-theme="light"]{
+    --bg:#f6f3ed; --panel:#ffffff; --elev:#ffffff; --line:#e6e0d6;
+    --ink:#1b1813; --dim:#645f57; --faint:#9a948b;
+    --accent:#ad5e3c; --accentSoft:#c4795b; --onAccent:#ffffff;
+    --roomA:#a85f3c; --roomB:#4f8b66;
+  }
+  body{font-family:'Pretendard',system-ui,sans-serif;font-weight:400;line-height:1.7;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+  [data-theme] *{transition:background-color .45s ease, border-color .45s ease, color .35s ease}
+  a{color:inherit}
+  @keyframes nvKen{from{transform:scale(1.05)}to{transform:scale(1.13)}}
+  @keyframes nvFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+  .side{position:fixed;left:0;top:0;bottom:0;width:284px;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:32px 26px;overflow-y:auto;z-index:50}
+  .side a.nav{color:var(--dim);font-size:15.5px;padding:9px 0;display:flex;align-items:center;gap:14px;text-decoration:none}
+  .side a.nav:hover{color:var(--ink)}
+  .side a.nav .no{font-family:var(--label-font);font-size:11px;color:var(--accent);min-width:18px;font-variant-numeric:tabular-nums}
+  .book a{transition:background .25s,transform .25s,border-color .25s,color .25s}
+  .main{margin-left:284px;min-width:0}
+  .inner{max-width:1380px;margin:0 auto;padding:0 40px}
+  .sec{padding:96px 0;border-top:1px solid var(--line)}
+  .sechead{display:flex;align-items:flex-start;gap:18px;margin-bottom:18px}
+  .sechead .snum{font-family:var(--label-font);font-weight:700;font-size:clamp(30px,3.4vw,50px);line-height:.9;letter-spacing:-.02em;color:var(--accent)}
+  .sechead .skick{font-family:var(--label-font);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+  .sechead h2{font-weight:700;font-size:clamp(28px,3.8vw,44px);letter-spacing:-.025em;margin:0;line-height:1.08}
+  .desc{color:var(--dim);max-width:560px;font-size:15px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--accent);color:var(--onAccent);font-weight:600;padding:12px 26px;border-radius:3px;font-size:14px;text-decoration:none;transition:background .25s,transform .25s}
+  .btn:hover{background:var(--accentSoft);transform:translateY(-2px)}
+  .btn.line{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:500}
+  .btn.line:hover{border-color:var(--accent);color:var(--accent);background:transparent;transform:translateY(-1px)}
+  /* calendar */
+  #calGrid .cell{min-height:96px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 7px 9px;display:flex;flex-direction:column;gap:3px;overflow:hidden}
+  #calGrid .ev{font-size:10px;line-height:1.45;border-radius:3px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+  @media(max-width:920px){
+    .side{position:sticky;width:auto;left:auto;top:0;bottom:auto;height:auto;flex-direction:row;align-items:center;gap:10px;padding:11px 18px;border-right:none;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--panel) 86%,transparent);backdrop-filter:blur(12px)}
+    .sidetag,.siderule,.sidenav,.sidefoot{display:none}
+    .sidetop{flex:0 0 auto}
+    .book{margin:0 0 0 auto;flex-direction:row;gap:8px}
+    .book a{padding:9px 16px;font-size:13px;width:auto;white-space:nowrap}
+    .book .book2{display:none}
+    .brandsub,.herotop{display:none}
+    .main{margin-left:0}
+    .inner,.heroin,.herotop{padding-left:22px;padding-right:22px}
+    .hero{height:78vh;min-height:440px}
+    .info{grid-template-columns:1fr 1fr}
+    .info .it:nth-child(2){border-right:none}
+  }
+  @media(max-width:760px){.room{grid-template-columns:1fr!important}.room .rimg{min-height:300px!important}.roomwrap{direction:ltr!important}}
+  @media(max-width:560px){.gal{grid-template-columns:1fr!important}.specs{grid-template-columns:1fr!important}.specs .it{border-right:none!important}.info{grid-template-columns:1fr 1fr}.sechead{flex-wrap:wrap}}
 </style>
 </head>
-<body>
+<body data-theme="dark">
+<div id="root">
 
-<aside class="side">
-  <a class="brand" href="#top">누비<br><b>스튜디오</b></a>
-  <div class="tag">코스프레 컨셉 렌탈 스튜디오<br>서울 강서구 · 까치산</div>
-  <div class="rule"></div>
-  <nav>
-    <a href="#rooms"><span class="no">01</span> 룸</a>
-    <a href="#gallery"><span class="no">02</span> 공간</a>
-    <a href="#availability"><span class="no">03</span> 예약현황</a>
-    <a href="#location"><span class="no">04</span> 오시는 길</a>
-    <a href="#faq"><span class="no">05</span> FAQ</a>
-  </nav>
-  <div class="book">
-    <a class="btn full" id="side-book" href="#" target="_blank" rel="noopener">아워플레이스 예약</a>
-    <a class="btn line full" id="side-book2" href="#rooms">룸 둘러보기</a>
-  </div>
-  <div class="foot">
-    <div class="soc">
-      <a href="https://x.com/nuvie_studio" target="_blank" rel="noopener">X</a>
-      <a href="https://www.instagram.com/nuvie_studio" target="_blank" rel="noopener">Instagram</a>
+  <aside class="side">
+    <div class="sidetop" style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+      <a href="#top" style="text-decoration:none;display:block">
+        <div style="font-family:var(--label-font);font-weight:700;font-size:25px;letter-spacing:.16em;color:var(--ink);line-height:1">NUVIE</div>
+        <div class="brandsub" style="font-size:12px;letter-spacing:.02em;color:var(--accent);margin-top:6px;white-space:nowrap">누비 스튜디오</div>
+      </a>
+      <button id="themeBtn" aria-label="테마 전환" style="width:34px;height:34px;flex:none;border:1px solid var(--line);background:transparent;color:var(--dim);border-radius:3px;cursor:pointer;font-size:15px;display:inline-flex;align-items:center;justify-content:center">☀</button>
     </div>
-    📍 강서구 까치산역 도보 10분<br>예약·문의는 아워플레이스에서
-  </div>
-</aside>
-
-<main class="main" id="top">
-  <header class="hero">
-    <div class="bg"><img src="/img/room-a.jpg" alt="누비 스튜디오 A룸 동양풍 블랙 호리존 세트"></div>
-    <div class="in">
-      <div class="label reveal">Cosplay Concept Studio</div>
-      <h1 class="reveal">눈치 보지 않는<br><em>코스프레 무인 스튜디오</em></h1>
-      <p class="reveal">한 자리에 동양풍과 자연광. 까치산역 도보 10분, 무인 단독 대관입니다.</p>
+    <div class="sidetag" style="color:var(--dim);font-size:12.5px;margin-top:14px;line-height:1.7">무인 코스프레 컨셉 스튜디오<br>서울 강서구 · 까치산</div>
+    <div class="siderule" style="height:1px;background:var(--line);margin:24px 0"></div>
+    <nav class="sidenav" style="display:flex;flex-direction:column;gap:1px">
+      <a href="#rooms" class="nav" data-nav="rooms"><span class="no">01</span> 룸</a>
+      <a href="#gallery" class="nav" data-nav="gallery"><span class="no">02</span> 공간</a>
+      <a href="#availability" class="nav" data-nav="availability"><span class="no">03</span> 예약</a>
+      <a href="#location" class="nav" data-nav="location"><span class="no">04</span> 오시는 길</a>
+      <a href="#faq" class="nav" data-nav="faq"><span class="no">05</span> FAQ</a>
+    </nav>
+    <div class="book" style="margin-top:24px;display:flex;flex-direction:column;gap:9px">
+      <a class="btn" id="book-side" href="#" target="_blank" rel="noopener" style="width:100%">예약하기</a>
+      <a class="book2 btn line" href="#rooms" style="width:100%">룸 둘러보기</a>
     </div>
-  </header>
-
-  <section class="s" id="rooms"><div class="inner">
-    <div class="label eyebrow reveal">Rooms</div>
-    <h2 class="title reveal">두 개의 컨셉룸</h2>
-    <div class="gold-rule reveal"></div>
-    <p class="desc reveal">A룸과 B룸은 무드가 다릅니다. 정확한 요금과 예약 가능 시간은 아워플레이스에서 확인하실 수 있습니다.</p>
-
-    <div class="room reveal">
-      <div class="ph"><img src="/img/room-a.jpg" alt="A룸 동양풍 블랙 호리존 — 월문과 격자문 세트"></div>
-      <div class="body">
-        <span class="rtag">A룸</span>
-        <h3>동양풍 &amp; 블랙 호리존</h3>
-        <p>월문과 격자문의 동양풍 세트, 그리고 블랙 호리존(BLACK CYC). 무협·다크·중화풍 등 어두운 컨셉 촬영에 어울리는 메인 룸입니다.</p>
-        <div class="meta">한 룸, 두 컨셉 — 동양풍 세트 + 블랙 호리존</div>
-        <div><a class="btn" id="book-a" href="#" target="_blank" rel="noopener">A룸 예약하기</a></div>
+    <div class="sidefoot" style="margin-top:auto;padding-top:26px;color:var(--faint);font-size:12px;line-height:1.9">
+      <div style="display:flex;gap:14px;margin-bottom:10px;color:var(--dim);font-size:13px">
+        <a href="https://x.com/nuvie_studio" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:7px;color:var(--dim);text-decoration:none"><span style="font-family:var(--label-font);font-weight:700;font-size:14px;line-height:1">𝕏</span><span>@nuvie_studio</span></a>
       </div>
+      까치산역 도보 10분<br>문의는 아워플레이스 메시지
     </div>
+  </aside>
 
-    <div class="room reveal">
-      <div class="ph"><div class="nophoto"><span style="font-size:22px">☀</span><span>B룸 사진 준비중</span></div></div>
-      <div class="body">
-        <span class="rtag">B룸</span>
-        <h3>자연광 스튜디오</h3>
-        <p>통창으로 들어오는 자연광, 헤링본 바닥과 빈티지 무드. 룩북·프로필·교복·밝은 톤 촬영에 잘 맞습니다.</p>
-        <div class="meta">약 17평 · 통창 자연광 · 헤링본</div>
-        <div><a class="btn" id="book-b" href="#" target="_blank" rel="noopener">B룸 예약하기</a></div>
+  <main class="main" id="top">
+    <header class="hero" style="position:relative;height:90vh;min-height:560px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden">
+      <div style="position:absolute;inset:0;background:linear-gradient(135deg,#16161c,#23232d)"></div>
+      <div style="position:absolute;inset:0"><img data-fallback="1" data-ken src="/img/moon.jpg" alt="누비 스튜디오 A룸 동양풍 블랙 호리존 세트" style="display:block;width:100%;height:100%;object-fit:cover;filter:brightness(.58) saturate(.9);transform:scale(1.05)"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,8,10,.34) 0%,rgba(8,8,10,.08) 32%,rgba(8,8,10,.86) 100%)"></div>
+      <div class="herotop" style="position:absolute;top:0;left:0;right:0;z-index:3;padding:26px 40px;display:flex;justify-content:space-between;align-items:center;gap:14px;font-family:var(--label-font);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(245,242,236,.8)">
+        <span style="white-space:nowrap">무인 · 까치산</span>
+        <span style="text-align:right;white-space:nowrap">1–4인 · A·B 2 Rooms</span>
       </div>
+      <div class="heroin" style="position:relative;z-index:2;padding:0 40px 54px;max-width:1380px;margin:0 auto;width:100%">
+        <div data-reveal style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.34em;text-transform:uppercase;color:var(--accentSoft)">Cosplay Concept Studio</div>
+        <h1 data-reveal style="font-weight:700;font-size:clamp(42px,7vw,92px);line-height:.98;letter-spacing:-.035em;margin:16px 0 0;color:#f6f3ed">담백한 동양풍<br><span style="color:var(--accentSoft)">스튜디오</span></h1>
+        <p data-reveal style="margin:22px 0 0;color:#ddd7ce;max-width:460px;font-size:16px;line-height:1.7">동양풍과 자연광, 두 개의 컨셉룸.<br>까치산역 10분, 무인 단독 대관.</p>
+        <div data-reveal style="display:flex;gap:8px;flex-wrap:wrap;margin-top:24px">
+          <span style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#e6e0d7;border:1px solid rgba(245,242,236,.28);padding:5px 12px;border-radius:999px;white-space:nowrap">A룸 · 동양풍</span>
+          <span style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#e6e0d7;border:1px solid rgba(245,242,236,.28);padding:5px 12px;border-radius:999px;white-space:nowrap">B룸 · 자연광</span>
+        </div>
+        <div data-reveal style="display:flex;gap:11px;flex-wrap:wrap;margin-top:30px">
+          <a href="#rooms" class="btn" style="padding:15px 32px;font-size:15px">예약하기</a>
+          <a href="#gallery" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);color:#f6f3ed;border:1px solid rgba(245,242,236,.28);font-weight:500;flex:none;white-space:nowrap;padding:15px 32px;border-radius:3px;font-size:15px;text-decoration:none;backdrop-filter:blur(4px)">공간 보기</a>
+        </div>
+      </div>
+      <div style="position:absolute;right:40px;bottom:54px;z-index:3;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:var(--label-font);font-size:10px;letter-spacing:.3em;color:rgba(245,242,236,.6);animation:nvFloat 2.4s ease-in-out infinite">SCROLL<span style="font-size:14px">↓</span></div>
+    </header>
+
+    <section class="info" style="display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+      <div class="it" data-reveal style="padding:34px 30px;border-right:1px solid var(--line)"><div style="font-family:var(--label-font);font-weight:700;font-size:clamp(32px,3.6vw,50px);line-height:1;letter-spacing:-.02em;color:var(--ink)">2<span style="font-size:.5em;color:var(--accent);margin-left:2px">H</span></div><div style="font-family:var(--label-font);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:10px">최소 대관</div></div>
+      <div class="it" data-reveal style="padding:34px 30px;border-right:1px solid var(--line)"><div style="font-family:var(--label-font);font-weight:700;font-size:clamp(32px,3.6vw,50px);line-height:1;letter-spacing:-.02em;color:var(--ink)">1–4<span style="font-size:.5em;color:var(--accent);margin-left:2px">인</span></div><div style="font-family:var(--label-font);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:10px">기본인원</div></div>
+      <div class="it" data-reveal style="padding:34px 30px;border-right:1px solid var(--line)"><div style="font-family:var(--label-font);font-weight:700;font-size:clamp(32px,3.6vw,50px);line-height:1;letter-spacing:-.02em;color:var(--ink)">2<span style="font-size:.5em;color:var(--accent);margin-left:4px">ROOMS</span></div><div style="font-family:var(--label-font);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:10px">A · B 컨셉룸</div></div>
+      <div class="it" data-reveal style="padding:34px 30px"><div style="font-family:var(--label-font);font-weight:700;font-size:clamp(32px,3.6vw,50px);line-height:1;letter-spacing:-.02em;color:var(--ink)">10<span style="font-size:.5em;color:var(--accent);margin-left:2px">분</span></div><div style="font-family:var(--label-font);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:10px">까치산역 도보</div></div>
+    </section>
+
+    <section id="rooms" class="sec"><div class="inner">
+      <div class="sechead" data-reveal>
+        <span class="snum">01</span>
+        <div><div class="skick">Rooms</div><h2>두 개의 컨셉룸</h2></div>
+      </div>
+      <p class="desc" data-reveal style="margin:0 0 46px">A룸과 B룸은 무드가 다릅니다.<br>요금과 예약 가능 시간은 아워플레이스에서 확인하세요.</p>
+
+      <div class="room" data-reveal style="position:relative;display:grid;grid-template-columns:1.25fr 1fr;border:1px solid var(--line);border-radius:6px;margin-bottom:18px;overflow:hidden">
+        <div class="rimg" style="position:relative;min-height:380px;background:linear-gradient(135deg,var(--elev),var(--panel))">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--faint);font-size:13px"><span style="font-family:var(--label-font);font-size:26px;color:var(--accent)">A</span><span>동양풍 · 블랙 호리존</span></div>
+          <img data-fallback="1" src="/img/room-a.jpg" alt="A룸 동양풍 블랙 호리존 — 월문과 격자문 세트" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover">
+        </div>
+        <div style="position:relative;padding:42px 40px;display:flex;flex-direction:column;justify-content:center;overflow:hidden">
+          <span style="position:absolute;top:-18px;right:8px;font-family:var(--label-font);font-weight:700;font-size:170px;line-height:1;color:var(--accent);opacity:.07;pointer-events:none">A</span>
+          <span style="font-family:var(--label-font);font-size:11px;letter-spacing:.18em;color:var(--accent);border:1px solid var(--line);padding:4px 11px;border-radius:999px;width:max-content;margin-bottom:18px">A ROOM</span>
+          <h3 style="font-size:25px;font-weight:700;letter-spacing:-.02em;margin:0 0 13px">동양풍 &amp; 블랙 호리존</h3>
+          <p style="color:var(--dim);font-size:14.5px;margin:0 0 18px;line-height:1.8;max-width:44ch"><strong style="color:var(--accentSoft);font-weight:600">동양풍</strong> — 월동문 너머로 펼쳐지는 공간. 다양한 소품과 천을 비치해, 같은 공간에서도 나만의 독창적인 연출을 하실 수 있도록 열어두었습니다.<br><br><strong style="color:var(--accentSoft);font-weight:600">블랙 호리존</strong> — 천장 커튼레일로 천을 드레이핑해 자유로운 연출이 가능합니다.</p>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:24px">
+            <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">월동문</span>
+            <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">블랙 호리존</span>
+            <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">한 룸, 두 컨셉</span>
+          </div>
+          <div><a class="btn" id="book-a" href="#" target="_blank" rel="noopener">A룸 예약 →</a></div>
+        </div>
+      </div>
+
+      <div class="roomwrap" style="direction:rtl"><div class="room" data-reveal style="position:relative;display:grid;grid-template-columns:1.25fr 1fr;border:1px solid var(--line);border-radius:6px;margin-bottom:18px;overflow:hidden">
+        <div class="rimg" style="position:relative;min-height:380px;background:linear-gradient(135deg,var(--elev),var(--panel))">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--faint);font-size:13px"><span style="font-size:26px;color:var(--roomB)">☀</span><span>자연광 · 통창</span></div>
+          <img data-fallback="1" src="/img/blue.jpg" alt="B룸 자연광 스튜디오 — 통창과 헤링본 바닥" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover">
+        </div>
+        <div style="position:relative;direction:ltr;padding:42px 40px;display:flex;flex-direction:column;justify-content:center;overflow:hidden">
+          <span style="position:absolute;top:-18px;right:8px;font-family:var(--label-font);font-weight:700;font-size:170px;line-height:1;color:var(--roomB);opacity:.08;pointer-events:none">B</span>
+          <span style="font-family:var(--label-font);font-size:11px;letter-spacing:.18em;color:var(--accent);border:1px solid var(--line);padding:4px 11px;border-radius:999px;width:max-content;margin-bottom:18px">B ROOM</span>
+          <h3 style="font-size:25px;font-weight:700;letter-spacing:-.02em;margin:0 0 13px">자연광 스튜디오</h3>
+          <p style="color:var(--dim);font-size:14.5px;margin:0 0 18px;line-height:1.75;max-width:42ch">통창 자연광, 헤링본 바닥, 빈티지 무드.<br>룩북·프로필·교복·밝은 톤 촬영에 잘 맞습니다.</p>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:24px">
+            <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">통창 자연광</span>
+            <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">헤링본</span>
+            <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">약 17평</span>
+          </div>
+          <div><a class="btn" id="book-b" href="#" target="_blank" rel="noopener">B룸 예약 →</a></div>
+        </div>
+      </div></div>
+
+      <p class="desc" data-reveal style="color:var(--dim);font-size:13.5px;margin:10px auto 0;text-align:center;max-width:none">1~4인 단독 대관 · 최소 2시간 · 전체대관(A+B) 가능</p>
+      <p data-reveal style="color:var(--faint);font-size:12.5px;margin-top:8px;text-align:center;line-height:1.7">*전체대관 시, 반드시 아워플레이스 메시지 또는 트위터 DM으로 사전 연락 부탁드립니다.</p>
+    </div></section>
+
+    <section id="gallery" class="sec" style="background:var(--panel)"><div class="inner">
+      <div class="sechead" data-reveal>
+        <span class="snum">02</span>
+        <div><div class="skick">Space</div><h2>공간</h2></div>
+      </div>
+      <p class="desc" data-reveal style="margin:0 0 46px">A룸·B룸 공간을 따로 모았습니다.<br>더 많은 사진은 트위터 @nuvie_studio 또는 아워플레이스에서.</p>
+
+      <div data-reveal style="display:flex;align-items:baseline;gap:13px;margin-bottom:18px">
+        <span style="font-family:var(--label-font);font-weight:700;font-size:20px;color:var(--roomA);line-height:1">A</span>
+        <h3 style="font-size:19px;font-weight:600;letter-spacing:-.015em;margin:0">동양풍 룸</h3>
+        <span style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.04em;color:var(--dim)">월동문 · 격자문 · 블랙 호리존</span>
+      </div>
+      <div class="gal" data-reveal style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:14px;margin-bottom:56px">
+        <div style="aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom src="/img/moon.jpg" alt="A룸 동양풍 월문 백라이트" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">월동문</span></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="flex:1;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom src="/img/room-a.jpg" alt="A룸 격자문 세트" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"></div>
+          <div style="flex:1;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom src="/img/arch.jpg" alt="A룸 동양풍 디테일" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"></div>
+        </div>
+        <div style="aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom src="/img/room-a.jpg" alt="A룸 블랙 호리존" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">블랙 호리존</span></div>
+      </div>
+
+      <div data-reveal style="display:flex;align-items:baseline;gap:13px;margin-bottom:18px">
+        <span style="font-family:var(--label-font);font-weight:700;font-size:20px;color:var(--roomB);line-height:1">B</span>
+        <h3 style="font-size:19px;font-weight:600;letter-spacing:-.015em;margin:0">자연광 룸</h3>
+        <span style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.04em;color:var(--dim)">통창 · 헤링본 · 빈티지 무드</span>
+      </div>
+      <div class="gal" data-reveal style="display:grid;grid-template-columns:1.4fr 1fr;gap:14px">
+        <div style="aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom src="/img/blue.jpg" alt="B룸 자연광 통창 라운지" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">통창 라운지</span></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="flex:1;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom src="/img/arch.jpg" alt="B룸 주방·창가" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"></div>
+          <div style="flex:1;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom src="/img/blue.jpg" alt="B룸 라운지" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"></div>
+        </div>
+      </div>
+    </div></section>
+
+    <section id="availability" class="sec"><div class="inner">
+      <div class="sechead" data-reveal>
+        <span class="snum">03</span>
+        <div><div class="skick">Availability</div><h2>예약 현황</h2></div>
+      </div>
+      <p class="desc" data-reveal style="margin:0 0 40px">월간 예약 현황.<br>A룸·B룸은 같은 시간대에도 각각 예약돼요.<br>확정 예약은 아워플레이스에서.</p>
+      <div data-reveal style="border:1px solid var(--line);border-radius:6px;padding:22px 22px 20px;background:var(--panel)">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:6px">
+            <button id="calPrev" aria-label="이전 달" style="width:30px;height:30px;border:1px solid var(--line);background:transparent;color:var(--dim);border-radius:3px;cursor:pointer;font-size:16px;display:inline-flex;align-items:center;justify-content:center">‹</button>
+            <h3 id="calTitle" style="font-family:var(--label-font);font-size:16px;font-weight:600;margin:0;min-width:120px;text-align:center;letter-spacing:.02em;font-variant-numeric:tabular-nums"></h3>
+            <button id="calNext" aria-label="다음 달" style="width:30px;height:30px;border:1px solid var(--line);background:transparent;color:var(--dim);border-radius:3px;cursor:pointer;font-size:16px;display:inline-flex;align-items:center;justify-content:center">›</button>
+            <button id="calToday" style="padding:0 13px;height:30px;border:1px solid var(--line);background:transparent;color:var(--dim);border-radius:3px;cursor:pointer;font-size:12.5px;margin-left:4px">이번 달</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;font-size:11.5px;color:var(--dim)">
+            <span style="display:inline-flex;align-items:center;gap:6px"><i style="width:9px;height:9px;border-radius:2px;background:var(--roomA);display:inline-block"></i>A룸</span>
+            <span style="display:inline-flex;align-items:center;gap:6px"><i style="width:9px;height:9px;border-radius:2px;background:var(--roomB);display:inline-block"></i>B룸</span>
+          </div>
+        </div>
+        <div id="calDow" style="display:grid;grid-template-columns:repeat(7,1fr)"></div>
+        <div id="calGrid" style="display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line);border-radius:0 0 5px 5px;overflow:hidden"></div>
+        <p style="margin-top:14px;font-size:12px;color:var(--faint)">예약 현황(참고용) · 30분마다 갱신되며 시차가 있을 수 있어 확정은 아워플레이스에서 확인해 주세요.</p>
+      </div>
+    </div></section>
+
+    <section id="location" class="sec" style="background:var(--panel)"><div class="inner">
+      <div class="sechead" data-reveal style="margin-bottom:40px">
+        <span class="snum">04</span>
+        <div><div class="skick">Location</div><h2>오시는 길</h2></div>
+      </div>
+      <div class="specs" data-reveal style="display:grid;grid-template-columns:repeat(2,1fr);border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--bg)">
+        <div class="it" style="padding:30px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">위치</div><h3 style="font-size:17px;font-weight:600;margin:0 0 6px">까치산역 도보 10분</h3><p style="color:var(--dim);font-size:13.5px;margin:0">서울 강서구 · 의상·장비 이동이 편한 위치.</p></div>
+        <div class="it" style="padding:30px;border-bottom:1px solid var(--line)"><div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">입실</div><h3 style="font-size:17px;font-weight:600;margin:0 0 6px">무인 운영</h3><p style="color:var(--dim);font-size:13.5px;margin:0">당일 오전 비밀번호·주차를 안내드립니다.</p></div>
+        <div class="it" style="padding:30px;border-right:1px solid var(--line)"><div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">주소</div><h3 style="font-size:17px;font-weight:600;margin:0 0 6px">예약 확정 후 안내</h3><p style="color:var(--dim);font-size:13.5px;margin:0">당일 오전 메시지로 보내드려요.</p></div>
+        <div class="it" style="padding:30px"><div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">문의</div><h3 style="font-size:17px;font-weight:600;margin:0 0 6px">아워플레이스 메시지</h3><p style="color:var(--dim);font-size:13.5px;margin:0">예약 페이지에서 문의해 주세요.</p></div>
+      </div>
+    </div></section>
+
+    <section id="faq" class="sec"><div class="inner">
+      <div class="sechead" data-reveal style="margin-bottom:34px">
+        <span class="snum">05</span>
+        <div><div class="skick">FAQ</div><h2>자주 묻는 질문</h2></div>
+      </div>
+      <div data-reveal style="max-width:760px">
+        <details style="border-top:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">예약은 어떻게 하나요?<span style="color:var(--accent);font-weight:400">+</span></summary><p style="color:var(--dim);margin:14px 0 0;font-size:14.5px;line-height:1.75">아워플레이스에서 A룸·B룸을 각각 예약할 수 있어요.<br>룸 버튼을 누르면 아워플레이스로 이동합니다.<br>문의는 아워플레이스 메시지로 보내주세요.</p></details>
+        <details style="border-top:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">무인으로 운영되나요?<span style="color:var(--accent);font-weight:400">+</span></summary><p style="color:var(--dim);margin:14px 0 0;font-size:14.5px;line-height:1.75">네, 무인 운영입니다.<br>예약 확정 후 이용 당일 오전에 현관문 비밀번호와 이용하시는 룸의 비밀번호, 주차 위치를 메시지로 보내드려요.</p></details>
+        <details style="border-top:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">몇 명까지 이용할 수 있나요?<span style="color:var(--accent);font-weight:400">+</span></summary><p style="color:var(--dim);margin:14px 0 0;font-size:14.5px;line-height:1.75">기본인원은 4인입니다. 최소 대여 가능 시간은 2시간이에요.<br>기준 인원을 넘으면 인당·시간당 추가 요금이 있어요.</p></details>
+        <details style="border-top:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">요금은 얼마인가요?<span style="color:var(--accent);font-weight:400">+</span></summary><p style="color:var(--dim);margin:14px 0 0;font-size:14.5px;line-height:1.75">룸과 이용 시간에 따라 달라집니다.<br>정확한 요금과 예약 가능 시간은 아워플레이스 예약 페이지에서 확인하세요.</p></details>
+        <details style="border-top:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">실내 흡연이 가능한가요?<span style="color:var(--accent);font-weight:400">+</span></summary><p style="color:var(--dim);margin:14px 0 0;font-size:14.5px;line-height:1.75">실내 흡연은 금지입니다(CCTV 녹화).<br>가구·소품 파손 시 보상이 있을 수 있어요.</p></details>
+        <details style="border-top:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">성인·선정적 콘텐츠 촬영이 가능한가요?<span style="color:var(--accent);font-weight:400">+</span></summary><div style="margin:14px 0 0"><p style="color:var(--accent);font-weight:600;margin:0 0 12px;font-size:14.5px;line-height:1.75">성인 웹화보·성인물·선정적인 의도의 촬영은 이용이 불가합니다.</p><ul style="color:var(--dim);margin:0;padding-left:18px;font-size:14.5px;line-height:1.8"><li>애매할 경우, 촬영 전 미리 스튜디오로 문의해 주세요.</li><li>적발 시 즉시 퇴실 조치되며, 환불은 절대 불가합니다.</li></ul></div></details>
+        <details style="border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">취소·환불은 어떻게 되나요?<span style="color:var(--accent);font-weight:400">+</span></summary><p style="color:var(--dim);margin:14px 0 0;font-size:14.5px;line-height:1.75">취소·환불 규정은 아워플레이스 예약 정책을 따릅니다.<br>예약 페이지에서 확인해 주세요.</p></details>
+      </div>
+    </div></section>
+
+    <section style="position:relative;padding:120px 0;border-top:1px solid var(--line);text-align:center;overflow:hidden">
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none"><span style="font-family:var(--label-font);font-weight:700;font-size:clamp(120px,22vw,300px);color:var(--accent);opacity:.05;letter-spacing:-.04em;line-height:1">NUVIE</span></div>
+      <div class="inner" style="position:relative">
+        <h2 data-reveal style="font-weight:700;font-size:clamp(30px,4.4vw,52px);letter-spacing:-.03em;margin:0 0 12px">촬영, NUVIE에서.</h2>
+        <p data-reveal style="color:var(--dim);margin:0 0 30px;font-size:15px">A룸·B룸 각각 아워플레이스에서 예약할 수 있어요.</p>
+        <div data-reveal style="display:flex;gap:11px;justify-content:center;flex-wrap:wrap">
+          <a class="btn" id="end-a" href="#" target="_blank" rel="noopener" style="padding:15px 30px;font-size:14.5px">A룸 예약</a>
+          <a class="btn line" id="end-b" href="#" target="_blank" rel="noopener" style="padding:15px 30px;font-size:14.5px">B룸 예약</a>
+        </div>
+      </div>
+    </section>
+
+    <div style="border-top:1px solid var(--line);padding:32px 40px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--faint);font-size:12px;line-height:1.9">
+      <span>누비 스튜디오 · NUVIE STUDIO · 까치산역 도보 10분</span>
+      <span>문의는 아워플레이스 메시지 · 예약·결제는 아워플레이스</span>
     </div>
-
-    <p class="common reveal"><b>공통</b> — 1~4인 단독 대관 · 세트체인지 무제한 · 최소 2시간 · 전체대관(A+B) 가능</p>
-  </div></section>
-
-  <section class="s" id="gallery"><div class="inner">
-    <div class="label eyebrow reveal">Space</div>
-    <h2 class="title reveal">공간</h2>
-    <div class="gold-rule reveal"></div>
-    <p class="desc reveal">실제 공간 사진입니다. 더 많은 컷은 인스타그램 @nuvie_studio에서 가장 빠르게 업데이트됩니다.</p>
-    <div class="gal reveal">
-      <div class="g"><img src="/img/moon.jpg" alt="동양풍 월문 세트"></div>
-      <div class="g"><img src="/img/arch.jpg" alt="곡선 아치 벽 공간"></div>
-      <div class="g"><img src="/img/blue.jpg" alt="블루 파우더 공간"></div>
-    </div>
-  </div></section>
-
-  <section class="s" id="availability"><div class="inner">
-    <div class="label eyebrow reveal">Availability</div>
-    <h2 class="title reveal">예약 현황</h2>
-    <div class="gold-rule reveal"></div>
-    <p class="desc reveal">비어 있는 날짜를 참고용으로 보여드립니다. 실시간 확정 예약은 아워플레이스에서 진행됩니다.</p>
-    <div id="cal" class="reveal">
-      <div class="cal-head"><h3 id="cal-title">예약 현황</h3><span class="cal-legend">예약 가능 · 예약됨</span></div>
-      <div class="cal-grid" id="cal-grid"></div>
-      <p class="cal-note">예약 현황(참고용) · 갱신에 시차가 있을 수 있어 확정은 아워플레이스에서 확인해 주세요.</p>
-    </div>
-  </div></section>
-
-  <section class="s" id="location"><div class="inner">
-    <div class="label eyebrow reveal">Location</div>
-    <h2 class="title reveal">오시는 길</h2>
-    <div class="gold-rule reveal"></div>
-    <div class="specs reveal">
-      <div class="it"><div class="n">위치</div><h3>서울 강서구 · 까치산역 도보 10분</h3><p>의상·장비 이동이 편한 위치입니다.</p></div>
-      <div class="it"><div class="n">입실</div><h3>무인 운영</h3><p>예약 확정 후 당일 오전 비밀번호·주차를 안내드립니다.</p></div>
-      <div class="it"><div class="n">상세 주소</div><h3>예약 확정 후 안내</h3><p>당일 오전 메시지로 안내드립니다.</p></div>
-      <div class="it"><div class="n">문의</div><h3>아워플레이스 메시지</h3><p>예약·문의 모두 여기서</p></div>
-    </div>
-  </div></section>
-
-  <section class="s" id="faq"><div class="inner">
-    <div class="label eyebrow reveal">FAQ</div>
-    <h2 class="title reveal">자주 묻는 질문</h2>
-    <div class="gold-rule reveal"></div>
-    <div class="faq reveal">
-      <details><summary>예약은 어떻게 하나요?</summary><p>아워플레이스에서 A룸·B룸을 각각 예약하실 수 있습니다. 룸 버튼을 누르면 아워플레이스로 이동합니다. 문의도 아워플레이스 메시지로 주시면 됩니다.</p></details>
-      <details><summary>무인으로 운영되나요?</summary><p>네, 무인으로 운영됩니다. 예약 확정 후 이용 당일 오전에 비밀번호와 주차 위치를 메시지로 안내드립니다.</p></details>
-      <details><summary>몇 명까지 이용할 수 있나요?</summary><p>1~4인 단독 대관입니다. 최소 2시간부터이며 세트체인지는 무제한입니다. 기준 인원을 초과하면 인당·시간당 추가 요금이 있습니다.</p></details>
-      <details><summary>요금은 얼마인가요?</summary><p>룸과 이용 시간에 따라 다릅니다. 정확한 요금과 예약 가능 시간은 아워플레이스 예약 페이지에서 확인하실 수 있습니다.</p></details>
-      <details><summary>실내 흡연이 가능한가요?</summary><p>실내 흡연은 금지입니다(CCTV 녹화). 가구·소품 파손 시 보상이 있을 수 있습니다.</p></details>
-      <details><summary>취소·환불은 어떻게 되나요?</summary><p>취소·환불 규정은 아워플레이스 예약 정책을 따릅니다. 예약 페이지에서 확인해 주세요.</p></details>
-    </div>
-  </div></section>
-
-  <section class="endcta"><div class="inner">
-    <h2 class="reveal serif">촬영, 누비 스튜디오에서</h2>
-    <p class="reveal">A룸·B룸 각각 아워플레이스에서 예약하실 수 있습니다.</p>
-    <div class="row reveal">
-      <a class="btn" id="end-a" href="#" target="_blank" rel="noopener">A룸 예약</a>
-      <a class="btn line" id="end-b" href="#" target="_blank" rel="noopener">B룸 예약</a>
-    </div>
-  </div></section>
-
-  <div class="botbar">
-    누비 스튜디오 · NUVIE STUDIO · 📍 서울 강서구 까치산역 도보 10분<br>
-    예약·결제는 아워플레이스에서 진행됩니다.
-  </div>
-</main>
+  </main>
+</div>
 
 <script>
-var HOURPLACE_A="https://www.hourplace.co.kr/place/61823";
-var HOURPLACE_B="https://www.hourplace.co.kr/place/62341";
-document.querySelectorAll('#side-book,#book-a,#end-a').forEach(function(a){a.href=HOURPLACE_A;});
-document.querySelectorAll('#book-b,#end-b').forEach(function(a){a.href=HOURPLACE_B;});
-
-var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:0.12});
-document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
-
 (function(){
-  var grid=document.getElementById('cal-grid'),title=document.getElementById('cal-title');
-  var now=new Date(),y=now.getFullYear(),m=now.getMonth();
-  title.textContent=y+"년 "+(m+1)+"월 예약 현황";
-  var dows=["일","월","화","수","목","금","토"];
-  function render(busy){
-    grid.innerHTML="";
-    dows.forEach(function(d){var c=document.createElement('div');c.className='dow';c.textContent=d;grid.appendChild(c);});
-    var first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
-    for(var i=0;i<first;i++){var e=document.createElement('div');e.className='day empty';grid.appendChild(e);}
-    for(var d=1;d<=days;d++){
-      var key=y+"-"+String(m+1).padStart(2,'0')+"-"+String(d).padStart(2,'0');
+  var A_URL='https://www.hourplace.co.kr/place/61823';
+  var B_URL='https://www.hourplace.co.kr/place/62341';
+  ['book-side','book-a','end-a'].forEach(function(id){var e=document.getElementById(id);if(e)e.href=A_URL;});
+  ['book-b','end-b'].forEach(function(id){var e=document.getElementById(id);if(e)e.href=B_URL;});
+
+  var root=document.getElementById('root');
+  var ROOM={A:'background:color-mix(in srgb, var(--roomA) 15%, transparent);color:var(--roomA)',
+            B:'background:color-mix(in srgb, var(--roomB) 16%, transparent);color:var(--roomB)'};
+
+  // theme
+  var themeBtn=document.getElementById('themeBtn');
+  function setTheme(t){document.body.setAttribute('data-theme',t);themeBtn.textContent=(t==='dark'?'☀':'☾');themeBtn.setAttribute('aria-label',t==='dark'?'라이트 모드로 전환':'다크 모드로 전환');}
+  themeBtn.addEventListener('click',function(){setTheme(document.body.getAttribute('data-theme')==='dark'?'light':'dark');});
+
+  // calendar
+  var monthOffset=0, EVENTS=null;
+  function pad(n){return String(n).padStart(2,'0');}
+  function keyOf(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  function fmt(h){var hh=Math.floor(h),mm=Math.round((h-hh)*60);return pad(hh)+':'+pad(mm);}
+  var dowEl=document.getElementById('calDow'), gridEl=document.getElementById('calGrid'), titleEl=document.getElementById('calTitle');
+  (function(){
+    var dows=['일','월','화','수','목','금','토'];
+    dows.forEach(function(n,i){var d=document.createElement('div');d.textContent=n;d.style.cssText='text-align:center;font-size:11px;padding:8px 0;color:'+((i===0||i===6)?'var(--dim)':'var(--faint)');dowEl.appendChild(d);});
+  })();
+  function renderCal(){
+    var src=(EVENTS&&EVENTS.length)?EVENTS:[];
+    var byDate={};
+    src.forEach(function(e){(byDate[e.date]=byDate[e.date]||[]).push(e);});
+    Object.keys(byDate).forEach(function(k){byDate[k].sort(function(a,b){return (a.start-b.start)||(a.room<b.room?-1:1);});});
+    var now=new Date(), todayKey=keyOf(now);
+    var view=new Date(now.getFullYear(),now.getMonth()+monthOffset,1);
+    var vy=view.getFullYear(), vm=view.getMonth();
+    titleEl.textContent=vy+'. '+pad(vm+1);
+    var firstDow=new Date(vy,vm,1).getDay();
+    var daysInMonth=new Date(vy,vm+1,0).getDate();
+    var totalCells=Math.ceil((firstDow+daysInMonth)/7)*7;
+    var start=new Date(vy,vm,1-firstDow);
+    gridEl.innerHTML='';
+    for(var i=0;i<totalCells;i++){
+      var d=new Date(start.getFullYear(),start.getMonth(),start.getDate()+i);
+      var key=keyOf(d), inMonth=d.getMonth()===vm, isToday=key===todayKey;
+      var list=byDate[key]||[];
       var cell=document.createElement('div');
-      var past=new Date(y,m,d)<new Date(now.getFullYear(),now.getMonth(),now.getDate());
-      if(busy&&busy.has(key))cell.className='day busy';else if(!past&&busy)cell.className='day free';else cell.className='day';
-      cell.textContent=d;grid.appendChild(cell);
+      cell.className='cell';
+      cell.style.cssText='min-height:96px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 7px 9px;display:flex;flex-direction:column;gap:3px;overflow:hidden'+(inMonth?'':';opacity:.3')+(isToday?';background:color-mix(in srgb, var(--accent) 9%, transparent)':'');
+      var num=document.createElement('div');
+      num.textContent=d.getDate();
+      num.style.cssText=isToday
+        ?'display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;background:var(--accent);color:var(--onAccent);font-weight:600;font-size:11.5px;font-family:var(--label-font);font-variant-numeric:tabular-nums;align-self:flex-start;flex:none'
+        :'font-size:11.5px;color:var(--dim);padding-left:2px;font-family:var(--label-font);font-variant-numeric:tabular-nums;align-self:flex-start';
+      cell.appendChild(num);
+      var box=document.createElement('div');box.style.cssText='display:flex;flex-direction:column;gap:2px;min-width:0';
+      list.forEach(function(e){
+        var dur=e.end-e.start, durStr=(dur%1===0?dur:dur.toFixed(1))+'H';
+        var ev=document.createElement('div');
+        ev.style.cssText='font-size:10px;line-height:1.45;border-radius:3px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums;'+(ROOM[e.room]||ROOM.A);
+        ev.textContent=fmt(e.start)+' - '+fmt(e.end)+' ('+durStr+') 예약됨';
+        box.appendChild(ev);
+      });
+      cell.appendChild(box);
+      gridEl.appendChild(cell);
     }
   }
-  fetch('/availability.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(data){
-    render(data&&Array.isArray(data.busyDates)?new Set(data.busyDates):null);
-  }).catch(function(){render(null);});
+  document.getElementById('calPrev').addEventListener('click',function(){monthOffset--;renderCal();});
+  document.getElementById('calNext').addEventListener('click',function(){monthOffset++;renderCal();});
+  document.getElementById('calToday').addEventListener('click',function(){monthOffset=0;renderCal();});
+
+  function loadAvailability(){
+    fetch('/availability.json',{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d&&Array.isArray(d.events)){EVENTS=d.events;renderCal();}})
+      .catch(function(){});
+  }
+  renderCal();              // 즉시 빈 달력
+  loadAvailability();       // 실데이터
+  setInterval(loadAvailability, 30*60*1000);  // 30분마다 갱신
+
+  // image fallback (없으면 그라데이션+라벨로 graceful)
+  root.querySelectorAll('img[data-fallback]').forEach(function(img){
+    function hide(){img.style.display='none';}
+    if(img.complete&&img.naturalWidth===0)hide();
+    img.addEventListener('error',hide);
+  });
+  // ken burns
+  var ken=root.querySelector('img[data-ken]');
+  if(ken)ken.style.animation='nvKen 18s ease-out forwards';
+  // gallery zoom
+  root.querySelectorAll('img[data-zoom]').forEach(function(img){
+    var p=img.parentElement;
+    p.addEventListener('mouseenter',function(){img.style.transform='scale(1.06)';});
+    p.addEventListener('mouseleave',function(){img.style.transform='none';});
+  });
+  // nav scroll-spy
+  var navlinks=root.querySelectorAll('nav a[data-nav]');
+  function setActive(id){navlinks.forEach(function(a){var on=a.getAttribute('data-nav')===id;a.style.color=on?'var(--ink)':'var(--dim)';var num=a.querySelector('span');if(num)num.style.opacity=on?'1':'.5';});}
+  try{
+    var spy=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)setActive(e.target.id);});},{rootMargin:'-45% 0px -50% 0px'});
+    ['rooms','gallery','availability','location','faq'].forEach(function(id){var s=root.querySelector('#'+id);if(s)spy.observe(s);});
+  }catch(e){}
+  // scroll reveal
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var els=Array.prototype.slice.call(root.querySelectorAll('[data-reveal]'));
+  function reveal(el){el.style.opacity='1';el.style.transform='none';}
+  if(reduce){els.forEach(reveal);}
+  else{
+    root.querySelectorAll('header,section').forEach(function(sec){sec.querySelectorAll('[data-reveal]').forEach(function(el,i){el.style.transitionDelay=Math.min(i*70,340)+'ms';});});
+    els.forEach(function(el){el.style.opacity='0';el.style.transform='translateY(24px)';el.style.transition='opacity .8s cubic-bezier(.22,.61,.36,1), transform .8s cubic-bezier(.22,.61,.36,1)';});
+    var vh=window.innerHeight||800;
+    els.forEach(function(el){if(el.getBoundingClientRect().top<vh*1.1)reveal(el);});
+    try{
+      var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){reveal(e.target);io.unobserve(e.target);}});},{threshold:0.08});
+      els.forEach(function(el){io.observe(el);});
+    }catch(e){els.forEach(reveal);}
+    setTimeout(function(){els.forEach(reveal);},1200);
+  }
 })();
 </script>
 </body>
