@@ -3,6 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Google Analytics 4 (UTM·이벤트 수집) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-53WEQ1DGXG"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-53WEQ1DGXG');
+</script>
 <title>누비 스튜디오 NUVIE STUDIO — 코스프레 컨셉 렌탈 스튜디오 · 까치산</title>
 <meta name="description" content="눈치 보지 않는 코스프레 무인 스튜디오. 서울 강서구 까치산역 도보 10분. 동양풍 블랙 호리존 A룸, 자연광 B룸. 예약은 아워플레이스에서.">
 <link rel="canonical" href="https://nuviestudio.com/">
@@ -315,8 +323,9 @@
 (function(){
   var A_URL='https://www.hourplace.co.kr/place/61823';
   var B_URL='https://www.hourplace.co.kr/place/62341';
-  ['book-side','book-a','end-a'].forEach(function(id){var e=document.getElementById(id);if(e)e.href=A_URL;});
-  ['book-b','end-b'].forEach(function(id){var e=document.getElementById(id);if(e)e.href=B_URL;});
+  function trackBook(room){return function(){try{if(window.gtag)gtag('event','book_click',{room:room,transport_type:'beacon'});}catch(e){}};}
+  ['book-side','book-a','end-a'].forEach(function(id){var e=document.getElementById(id);if(e){e.href=A_URL;e.addEventListener('click',trackBook('a'));}});
+  ['book-b','end-b'].forEach(function(id){var e=document.getElementById(id);if(e){e.href=B_URL;e.addEventListener('click',trackBook('b'));}});
 
   var root=document.getElementById('root');
   var ROOM={A:'background:color-mix(in srgb, var(--roomA) 15%, transparent);color:var(--roomA)',
