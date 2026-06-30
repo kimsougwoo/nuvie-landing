@@ -47,17 +47,17 @@
   body{margin:0}
   *{box-sizing:border-box}
   :root{
-    --bg:#131317; --panel:#191920; --elev:#20202a; --line:#2b2930;
-    --ink:#f2efe9; --dim:#aaa49b; --faint:#6f6a63;
-    --accent:#c87e57; --accentSoft:#dda37e; --onAccent:#1a120c;
-    --roomA:#d6976f; --roomB:#86b482;
+    --bg:#0E0E10; --panel:#161618; --elev:#202022; --line:#2A2A2C;
+    --ink:#F0EFED; --dim:#B9B1A6; --faint:#837C72;
+    --accent:#A98C91; --accentSoft:#C4ADB1; --onAccent:#0E0E10;
+    --roomA:#A98C91; --roomB:#C4ADB1;
     --label-font:'Pretendard',sans-serif;
   }
   [data-theme="light"]{
-    --bg:#f6f3ed; --panel:#ffffff; --elev:#ffffff; --line:#e6e0d6;
-    --ink:#1b1813; --dim:#645f57; --faint:#9a948b;
-    --accent:#ad5e3c; --accentSoft:#c4795b; --onAccent:#ffffff;
-    --roomA:#a85f3c; --roomB:#4f8b66;
+    --bg:#F0EFED; --panel:#FFFFFF; --elev:#FFFFFF; --line:#E2DCD2;
+    --ink:#1D1D1D; --dim:#6E685E; --faint:#9A948B;
+    --accent:#7A5C61; --accentSoft:#5E4449; --onAccent:#F0EFED;
+    --roomA:#7A5C61; --roomB:#5E4449;
   }
   body{font-family:'Pretendard',system-ui,sans-serif;font-weight:400;line-height:1.7;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
   [data-theme] *{transition:background-color .45s ease, border-color .45s ease, color .35s ease}
@@ -136,7 +136,7 @@
 
   <main class="main" id="top">
     <header class="hero" style="position:relative;height:90vh;min-height:560px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden">
-      <div style="position:absolute;inset:0;background:linear-gradient(135deg,#16161c,#23232d)"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0E0E10,#1D1D1D)"></div>
       <div style="position:absolute;inset:0"><img data-fallback="1" data-ken src="/img/hero.jpg" alt="누비 스튜디오 A룸 동양풍 블랙 호리존 세트" style="display:block;width:100%;height:100%;object-fit:cover;filter:brightness(.58) saturate(.9);transform:scale(1.05)"></div>
       <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,8,10,.34) 0%,rgba(8,8,10,.08) 32%,rgba(8,8,10,.86) 100%)"></div>
       <div class="herotop" style="position:absolute;top:0;left:0;right:0;z-index:3;padding:26px 40px;display:flex;justify-content:space-between;align-items:center;gap:14px;font-family:var(--label-font);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(245,242,236,.8)">
@@ -145,15 +145,15 @@
       </div>
       <div class="heroin" style="position:relative;z-index:2;padding:0 40px 54px;max-width:1380px;margin:0 auto;width:100%">
         <div data-reveal style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.34em;text-transform:uppercase;color:var(--accentSoft)">Cosplay Concept Studio</div>
-        <h1 data-reveal style="font-weight:700;font-size:clamp(42px,7vw,92px);line-height:.98;letter-spacing:-.035em;margin:16px 0 0;color:#f6f3ed">담백한 동양풍<br><span style="color:var(--accentSoft)">스튜디오</span></h1>
-        <p data-reveal style="margin:22px 0 0;color:#ddd7ce;max-width:480px;font-size:16px;line-height:1.7">정해진 스팟을 따라가는 곳이 아니라,<br>소품과 천을 자유롭게 배치해 나만의 독창적인 사진을.<br>까치산역 10분, 무인 단독 대관.</p>
+        <h1 data-reveal style="font-weight:700;font-size:clamp(42px,7vw,92px);line-height:.98;letter-spacing:-.035em;margin:16px 0 0;color:#F0EFED">담백한 동양풍<br><span style="color:var(--accentSoft)">스튜디오</span></h1>
+        <p data-reveal style="margin:22px 0 0;color:#B9B1A6;max-width:480px;font-size:16px;line-height:1.7">정해진 스팟을 따라가는 곳이 아니라,<br>소품과 천을 자유롭게 배치해 나만의 독창적인 사진을.<br>까치산역 10분, 무인 단독 대관.</p>
         <div data-reveal style="display:flex;gap:8px;flex-wrap:wrap;margin-top:24px">
           <span style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#e6e0d7;border:1px solid rgba(245,242,236,.28);padding:5px 12px;border-radius:999px;white-space:nowrap">A룸 · 동양풍</span>
           <span style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#e6e0d7;border:1px solid rgba(245,242,236,.28);padding:5px 12px;border-radius:999px;white-space:nowrap">B룸 · 리뉴얼 준비중</span>
         </div>
         <div data-reveal style="display:flex;gap:11px;flex-wrap:wrap;margin-top:30px">
           <a href="#rooms" class="btn" style="padding:15px 32px;font-size:15px">예약하기</a>
-          <a href="#gallery" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);color:#f6f3ed;border:1px solid rgba(245,242,236,.28);font-weight:500;flex:none;white-space:nowrap;padding:15px 32px;border-radius:3px;font-size:15px;text-decoration:none;backdrop-filter:blur(4px)">공간 보기</a>
+          <a href="#gallery" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);color:#F0EFED;border:1px solid rgba(240,239,237,.28);font-weight:500;flex:none;white-space:nowrap;padding:15px 32px;border-radius:3px;font-size:15px;text-decoration:none;backdrop-filter:blur(4px)">공간 보기</a>
         </div>
       </div>
       <div style="position:absolute;right:40px;bottom:54px;z-index:3;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:var(--label-font);font-size:10px;letter-spacing:.3em;color:rgba(245,242,236,.6);animation:nvFloat 2.4s ease-in-out infinite">SCROLL<span style="font-size:14px">↓</span></div>
