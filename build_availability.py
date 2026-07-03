@@ -120,8 +120,17 @@ def main():
                             "-c", "user.name=kimsougwoo",
                             "-c", "user.email=143887564+kimsougwoo@users.noreply.github.com",
                             "commit", "-q", "-m", f"예약현황 갱신(자동 30분): 예약 {len(events)}건"], check=True)
+            # ⚠️ 2026-07-03: push 전 rebase — 외부(수동 히어로 편집·GitHub 웹)로 origin이 앞서도
+            # 강제덮어쓰기 없이 availability 커밋을 그 위에 리베이스(split-brain·수동수정 유실 방지).
+            # availability.json은 봇 전용이라 index.html 등 수동파일과 충돌 사실상 없음.
+            pr = subprocess.run(["git", "-C", repo, "pull", "--rebase", "origin", "main"],
+                                capture_output=True, text=True)
+            if pr.returncode != 0:
+                subprocess.run(["git", "-C", repo, "rebase", "--abort"], capture_output=True)
+                print("  rebase 충돌 → push 보류(수동 확인 필요):", (pr.stderr or "")[:200])
+                return
             subprocess.run(["git", "-C", repo, "push", "origin", "main"], check=True)
-            print("  변경 감지 → commit+push 완료 (Vercel 자동 재배포)")
+            print("  변경 감지 → rebase+push 완료 (Vercel 자동 재배포)")
         except Exception as e:
             print("  push 실패:", e)
 
