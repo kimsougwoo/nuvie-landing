@@ -69,7 +69,9 @@ def parse_events(ics, room):
             # 종일(날짜만) 예약 — 시각 없는 차단. start~end-1 각 날을 0~24 블록으로.
             d = start.date()
             last = end.date()
-            if "T" not in de.group(1) and last > d:
+            # ⚠️ 2026-07-07(P2): DTEND 부재(de=None) 시 de.group()이 NoneType 크래시 → parse_events 전체 정지
+            #   (availability.json 무음 미갱신). end=start 방어와 정합하도록 de None 가드. 종일 exclusive-end만 -1일.
+            if de and "T" not in de.group(1) and last > d:
                 last -= datetime.timedelta(days=1)
             while d <= last:
                 out.append({"date": d.isoformat(), "start": 0, "end": 24, "room": room})
