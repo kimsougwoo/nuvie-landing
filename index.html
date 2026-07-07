@@ -12,6 +12,39 @@
   gtag('js', new Date());
   gtag('config', 'G-53WEQ1DGXG');
 </script>
+<!-- Clarity (가입 후 CLARITY_PROJECT_ID 교체·주석 해제 전까지 비활성) -->
+<!--
+<script type="text/javascript">
+  (function(c,l,a,r,i,t,y){
+    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+  })(window, document, "clarity", "script", "CLARITY_PROJECT_ID");
+</script>
+-->
+<!-- Meta Pixel (광고 착수 시 META_PIXEL_ID 교체·주석 해제 전까지 비활성)
+     활성화 절차: ① 아래 주석 해제 + META_PIXEL_ID 2곳 교체
+     ② 페이지 하단 스크립트의 trackBook 함수 내부, gtag('event','book_click',...) 바로 다음 줄에
+        if(window.fbq)fbq('track','Lead',{room:room});
+        한 줄 추가 (book_click을 Meta 전환 이벤트로 배선 — 실제 추가는 활성화 때만)
+     ③ Meta Events Manager에서 PageView·Lead 수신 확인 후 완료 판정 -->
+<!--
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', 'META_PIXEL_ID');
+  fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=META_PIXEL_ID&ev=PageView&noscript=1"
+/></noscript>
+-->
 <title>누비 스튜디오 NUVIE STUDIO — 코스프레 컨셉 렌탈 스튜디오 · 까치산</title>
 <meta name="description" content="눈치 보지 않는 코스프레 무인 스튜디오. 서울 강서구 까치산역 도보 10분. 동양풍 블랙 호리존 A룸, 자연광 B룸. 예약은 아워플레이스에서.">
 <link rel="canonical" href="https://nuviestudio.com/">
@@ -370,6 +403,7 @@
     <div style="border-top:1px solid var(--line);padding:32px 40px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--faint);font-size:12px;line-height:1.9">
       <span>누비 스튜디오 · NUVIE STUDIO · 까치산역 도보 10분</span>
       <span>문의는 아워플레이스 메시지 · 예약·결제는 아워플레이스</span>
+      <span style="flex-basis:100%;font-size:11px;opacity:.7">이 사이트는 서비스 개선을 위해 방문 통계 도구(Google Analytics 등)를 사용합니다.</span>
     </div>
   </main>
 </div>
