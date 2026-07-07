@@ -5,7 +5,7 @@
     { "source": "/availability.json", "headers": [{ "key": "Cache-Control", "value": "public, max-age=300" }] }
   ],
   "redirects": [
-    { "source": "/x",  "destination": "/?utm_source=x&utm_medium=social&utm_campaign=bio" },
-    { "source": "/ig", "destination": "/?utm_source=instagram&utm_medium=social&utm_campaign=bio" }
+    { "source": "/x",  "destination": "/?utm_source=x&utm_medium=social&utm_campaign=bio", "permanent": false },
+    { "source": "/ig", "destination": "/?utm_source=instagram&utm_medium=social&utm_campaign=bio", "permanent": false }
   ]
 }
