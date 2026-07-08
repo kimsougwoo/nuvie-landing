@@ -84,7 +84,7 @@
     --accent:#7A5C61; --accentSoft:#5E4449; --onAccent:#F0EFED;
     --roomA:#7A5C61; --roomB:#5E4449;
   }
-  body{font-family:'Pretendard',system-ui,sans-serif;font-weight:400;line-height:1.7;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+  body{font-family:'Pretendard',system-ui,sans-serif;font-weight:400;line-height:1.7;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;word-break:keep-all}
   [data-theme] *{transition:background-color .45s ease, border-color .45s ease, color .35s ease}
   a{color:inherit}
   @keyframes nvKen{from{transform:scale(1.05)}to{transform:scale(1.13)}}
@@ -111,12 +111,12 @@
   #calGrid .ev{font-size:10px;line-height:1.45;border-radius:3px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
   @media(max-width:920px){
     .side{position:sticky;width:auto;left:auto;top:0;bottom:auto;height:auto;flex-direction:row;align-items:center;gap:10px;padding:11px 18px;border-right:none;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--panel) 86%,transparent);backdrop-filter:blur(12px)}
-    .sidetag,.siderule,.sidenav,.sidefoot{display:none}
+    .sidetag,.siderule,.sidenav,.sidefoot{display:none!important}
     .sidetop{flex:0 0 auto}
     .book{margin:0 0 0 auto;flex-direction:row;gap:8px}
     .book a{padding:9px 16px;font-size:13px;width:auto;white-space:nowrap}
     .book .book2{display:none}
-    .brandsub,.herotop{display:none}
+    .brandsub,.herotop{display:none!important}
     .main{margin-left:0}
     .inner,.heroin,.herotop{padding-left:22px;padding-right:22px}
     .hero{height:78vh;min-height:440px}
@@ -124,7 +124,7 @@
     .info .it:nth-child(2){border-right:none}
   }
   @media(max-width:760px){.room{grid-template-columns:1fr!important}.room .rimg{min-height:300px!important}.roomwrap{direction:ltr!important}}
-  @media(max-width:560px){.gal{grid-template-columns:1fr!important}.specs{grid-template-columns:1fr!important}.specs .it{border-right:none!important}.info{grid-template-columns:1fr 1fr}.sechead{flex-wrap:wrap}}
+  @media(max-width:560px){.gal{grid-template-columns:1fr!important}.specs{grid-template-columns:1fr!important}.specs .it{border-right:none!important}.info{grid-template-columns:1fr 1fr!important}.sechead{flex-wrap:wrap}}
 </style>
 </head>
 <body data-theme="dark">
@@ -254,7 +254,7 @@
           <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:24px">
             <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">통창 자연광</span>
             <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">헤링본</span>
-            <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">약 17평</span>
+            <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">약 11평</span>
           </div>
           <div><a class="btn" id="book-b" href="#" target="_blank" rel="noopener">B룸 예약 →</a></div>
         </div>
