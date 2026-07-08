@@ -76,6 +76,7 @@
     --ink:#F0EFED; --dim:#B9B1A6; --faint:#837C72;
     --accent:#A98C91; --accentSoft:#C4ADB1; --onAccent:#0E0E10;
     --roomA:#A98C91; --roomB:#C4ADB1;
+    --calA:#B58A92; --calB:#9DC3A8;
     --label-font:'Pretendard',sans-serif;
   }
   [data-theme="light"]{
@@ -83,6 +84,7 @@
     --ink:#1D1D1D; --dim:#6E685E; --faint:#9A948B;
     --accent:#7A5C61; --accentSoft:#5E4449; --onAccent:#F0EFED;
     --roomA:#7A5C61; --roomB:#5E4449;
+    --calA:#7A5C61; --calB:#4E7A5C;
   }
   body{font-family:'Pretendard',system-ui,sans-serif;font-weight:400;line-height:1.7;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;word-break:keep-all}
   [data-theme] *{transition:background-color .45s ease, border-color .45s ease, color .35s ease}
@@ -313,8 +315,8 @@
             <button id="calToday" style="padding:0 13px;height:30px;border:1px solid var(--line);background:transparent;color:var(--dim);border-radius:3px;cursor:pointer;font-size:12.5px;margin-left:4px">이번 달</button>
           </div>
           <div style="display:flex;align-items:center;gap:16px;font-size:11.5px;color:var(--dim)">
-            <span style="display:inline-flex;align-items:center;gap:6px"><i style="width:9px;height:9px;border-radius:2px;background:var(--roomA);display:inline-block"></i>A룸</span>
-            <span style="display:inline-flex;align-items:center;gap:6px"><i style="width:9px;height:9px;border-radius:2px;background:var(--roomB);display:inline-block"></i>B룸</span>
+            <span style="display:inline-flex;align-items:center;gap:6px"><i style="width:9px;height:9px;border-radius:2px;background:var(--calA);display:inline-block"></i>A룸</span>
+            <span style="display:inline-flex;align-items:center;gap:6px"><i style="width:9px;height:9px;border-radius:2px;background:var(--calB);display:inline-block"></i>B룸</span>
           </div>
         </div>
         <div id="calDow" style="display:grid;grid-template-columns:repeat(7,1fr)"></div>
@@ -408,8 +410,8 @@
   ['book-b','end-b'].forEach(function(id){var e=document.getElementById(id);if(e){e.href=B_URL;e.addEventListener('click',trackBook('b'));}});
 
   var root=document.getElementById('root');
-  var ROOM={A:'background:color-mix(in srgb, var(--roomA) 15%, transparent);color:var(--roomA)',
-            B:'background:color-mix(in srgb, var(--roomB) 16%, transparent);color:var(--roomB)'};
+  var ROOM={A:'background:color-mix(in srgb, var(--calA) 15%, transparent);color:var(--calA)',
+            B:'background:color-mix(in srgb, var(--calB) 18%, transparent);color:var(--calB);border:1px solid color-mix(in srgb, var(--calB) 55%, transparent)'};
 
   // theme
   var themeBtn=document.getElementById('themeBtn');
