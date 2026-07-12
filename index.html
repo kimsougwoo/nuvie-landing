@@ -324,6 +324,13 @@
         </div>
         <div id="calDow" style="display:grid;grid-template-columns:repeat(7,1fr)"></div>
         <div id="calGrid" style="display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line);border-radius:0 0 5px 5px;overflow:hidden"></div>
+        <div id="dayDetail" style="display:none;margin-top:14px;border:1px solid var(--line);border-radius:6px;padding:16px 18px;background:var(--elev)">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap">
+            <h4 id="dayDetailTitle" style="font-family:var(--label-font);font-size:15px;font-weight:700;margin:0;letter-spacing:.02em"></h4>
+            <a id="dayDetailBook" class="btn" href="https://www.hourplace.co.kr/place/61823" target="_blank" rel="noopener" style="padding:9px 18px;font-size:13px">이 날짜로 예약 &rarr;</a>
+          </div>
+          <div id="dayDetailList" style="margin-top:12px;display:flex;flex-direction:column;gap:6px"></div>
+        </div>
         <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px">
           <a id="availBook" class="btn" href="https://www.hourplace.co.kr/place/61823" target="_blank" rel="noopener" style="padding:13px 28px;font-size:14.5px">빈 시간에 바로 예약 &rarr;</a>
           <p style="margin:0;font-size:12px;color:var(--faint)">예약 현황(참고용) · 30분마다 갱신 · 확정은 아워플레이스에서 확인해 주세요.</p>
@@ -419,8 +426,49 @@
   function trackAvail(){try{if(window.gtag)gtag('event','avail_click',{transport_type:'beacon'});}catch(e){}}
   var availBtn=document.getElementById('availBook');
   if(availBtn)availBtn.addEventListener('click',trackAvail);
+  var dayNames=['일','월','화','수','목','금','토'];
+  function showDay(key){
+    if(!key)return;
+    SELECTED_KEY=key;
+    var panel=document.getElementById('dayDetail'), title=document.getElementById('dayDetailTitle'), list=document.getElementById('dayDetailList');
+    var parts=key.split('-'), d=new Date(+parts[0],+parts[1]-1,+parts[2]);
+    title.textContent=(+parts[1])+'월 '+(+parts[2])+'일 ('+dayNames[d.getDay()]+') 예약 현황';
+    var evs=BYDATE[key]||[];
+    list.innerHTML='';
+    if(!evs.length){
+      var empty=document.createElement('div');
+      empty.style.cssText='font-size:13px;color:var(--dim)';
+      empty.textContent='예약된 일정이 없는 날이에요 — 전 시간대 예약 가능해요.';
+      list.appendChild(empty);
+    }else{
+      evs.forEach(function(e){
+        var dur=e.end-e.start, durStr=(dur%1===0?dur:dur.toFixed(1))+'H';
+        var row=document.createElement('div');
+        row.style.cssText='display:flex;align-items:center;gap:10px;font-size:13px;font-variant-numeric:tabular-nums';
+        var chip=document.createElement('span');
+        chip.style.cssText='flex:none;font-size:10.5px;font-weight:700;border-radius:3px;padding:2px 7px;'+(ROOM[e.room]||ROOM.A);
+        chip.textContent=(e.room||'A')+'룸';
+        var txt=document.createElement('span');
+        txt.style.color='var(--ink)';
+        txt.textContent=fmt(e.start)+' - '+fmt(e.end)+' ('+durStr+') 예약됨';
+        row.appendChild(chip);row.appendChild(txt);list.appendChild(row);
+      });
+      var hint=document.createElement('div');
+      hint.style.cssText='font-size:12px;color:var(--faint);margin-top:4px';
+      hint.textContent='표시된 시간 외에는 예약 가능해요 · 확정은 아워플레이스에서.';
+      list.appendChild(hint);
+    }
+    panel.style.display='block';
+    renderCal();
+  }
   var calGridEl=document.getElementById('calGrid');
-  if(calGridEl)calGridEl.addEventListener('click',function(){trackAvail();window.open(A_URL,'_blank','noopener');});
+  if(calGridEl)calGridEl.addEventListener('click',function(ev){
+    var cell=ev.target;
+    while(cell&&cell!==calGridEl&&!(cell.getAttribute&&cell.getAttribute('data-datekey')))cell=cell.parentNode;
+    if(cell&&cell!==calGridEl)showDay(cell.getAttribute('data-datekey'));
+  });
+  var dayDetailBook=document.getElementById('dayDetailBook');
+  if(dayDetailBook)dayDetailBook.addEventListener('click',trackAvail);
 
   var root=document.getElementById('root');
   var ROOM={A:'background:color-mix(in srgb, var(--calA) 15%, transparent);color:var(--calA)',
@@ -432,7 +480,7 @@
   themeBtn.addEventListener('click',function(){setTheme(document.body.getAttribute('data-theme')==='dark'?'light':'dark');});
 
   // calendar
-  var monthOffset=0, EVENTS=null;
+  var monthOffset=0, EVENTS=null, BYDATE={}, SELECTED_KEY=null;
   function pad(n){return String(n).padStart(2,'0');}
   function keyOf(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
   function fmt(h){var hh=Math.floor(h),mm=Math.round((h-hh)*60);return pad(hh)+':'+pad(mm);}
@@ -446,6 +494,7 @@
     var byDate={};
     src.forEach(function(e){(byDate[e.date]=byDate[e.date]||[]).push(e);});
     Object.keys(byDate).forEach(function(k){byDate[k].sort(function(a,b){return (a.start-b.start)||(a.room<b.room?-1:1);});});
+    BYDATE=byDate;
     var now=new Date(), todayKey=keyOf(now);
     var view=new Date(now.getFullYear(),now.getMonth()+monthOffset,1);
     var vy=view.getFullYear(), vm=view.getMonth();
@@ -461,6 +510,8 @@
       var list=byDate[key]||[];
       var cell=document.createElement('div');
       cell.className='cell';
+      cell.setAttribute('data-datekey',key);
+      if(key===SELECTED_KEY)cell.style.outline='1.5px solid var(--accent)';
       cell.style.cssText='min-height:96px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 7px 9px;display:flex;flex-direction:column;gap:3px;overflow:hidden'+(inMonth?'':';opacity:.3')+(isToday?';background:color-mix(in srgb, var(--accent) 9%, transparent)':'');
       var num=document.createElement('div');
       num.textContent=d.getDate();
