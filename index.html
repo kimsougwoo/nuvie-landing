@@ -75,6 +75,7 @@
     --bg:#0E0E10; --panel:#161618; --elev:#202022; --line:#2A2A2C;
     --ink:#F0EFED; --dim:#B9B1A6; --faint:#837C72;
     --accent:#A98C91; --accentSoft:#C4ADB1; --onAccent:#0E0E10;
+    --btnBg:#F0EFED; --btnFg:#0E0E10; --btnHover:#D8C8CB;
     --roomA:#A98C91; --roomB:#C4ADB1;
     --calA:#B58A92; --calB:#9DC3A8;
     --label-font:'Pretendard',sans-serif;
@@ -83,6 +84,7 @@
     --bg:#F0EFED; --panel:#FFFFFF; --elev:#FFFFFF; --line:#E2DCD2;
     --ink:#1D1D1D; --dim:#6E685E; --faint:#9A948B;
     --accent:#7A5C61; --accentSoft:#5E4449; --onAccent:#F0EFED;
+    --btnBg:#1D1D1D; --btnFg:#F0EFED; --btnHover:#5E4449;
     --roomA:#7A5C61; --roomB:#5E4449;
     --calA:#7A5C61; --calB:#4E7A5C;
   }
@@ -104,12 +106,13 @@
   .sechead .skick{font-family:var(--label-font);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
   .sechead h2{font-weight:700;font-size:clamp(28px,3.8vw,44px);letter-spacing:-.025em;margin:0;line-height:1.08}
   .desc{color:var(--dim);max-width:560px;font-size:15px}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--accent);color:var(--onAccent);font-weight:600;padding:12px 26px;border-radius:3px;font-size:14px;text-decoration:none;transition:background .25s,transform .25s}
-  .btn:hover{background:var(--accentSoft);transform:translateY(-2px)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--btnBg);color:var(--btnFg);font-weight:700;padding:12px 26px;border-radius:3px;font-size:14px;text-decoration:none;transition:background .25s,transform .25s}
+  .btn:hover{background:var(--btnHover);transform:translateY(-2px)}
   .btn.line{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:500}
   .btn.line:hover{border-color:var(--accent);color:var(--accent);background:transparent;transform:translateY(-1px)}
   /* calendar */
-  #calGrid .cell{min-height:96px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 7px 9px;display:flex;flex-direction:column;gap:3px;overflow:hidden}
+  #calGrid .cell{min-height:96px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 7px 9px;display:flex;flex-direction:column;gap:3px;overflow:hidden;cursor:pointer}
+  #calGrid .cell:hover{background:color-mix(in srgb, var(--accent) 12%, transparent)}
   #calGrid .ev{font-size:10px;line-height:1.45;border-radius:3px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
   @media(max-width:920px){
     .side{position:sticky;width:auto;left:auto;top:0;bottom:auto;height:auto;flex-direction:row;align-items:center;gap:10px;padding:11px 18px;border-right:none;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--panel) 86%,transparent);backdrop-filter:blur(12px)}
@@ -321,7 +324,10 @@
         </div>
         <div id="calDow" style="display:grid;grid-template-columns:repeat(7,1fr)"></div>
         <div id="calGrid" style="display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line);border-radius:0 0 5px 5px;overflow:hidden"></div>
-        <p style="margin-top:14px;font-size:12px;color:var(--faint)">예약 현황(참고용) · 30분마다 갱신되며 시차가 있을 수 있어 확정은 아워플레이스에서 확인해 주세요.</p>
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px">
+          <a id="availBook" class="btn" href="https://www.hourplace.co.kr/place/61823" target="_blank" rel="noopener" style="padding:13px 28px;font-size:14.5px">빈 시간에 바로 예약 &rarr;</a>
+          <p style="margin:0;font-size:12px;color:var(--faint)">예약 현황(참고용) · 30분마다 갱신 · 확정은 아워플레이스에서 확인해 주세요.</p>
+        </div>
       </div>
     </div></section>
 
@@ -408,6 +414,13 @@
   function trackBook(room){return function(){try{if(window.gtag)gtag('event','book_click',{room:room,transport_type:'beacon'});if(window.fbq)fbq('track','Lead',{room:room});}catch(e){}};}
   ['book-side','book-a','end-a'].forEach(function(id){var e=document.getElementById(id);if(e){e.href=A_URL;e.addEventListener('click',trackBook('a'));}});
   ['book-b','end-b'].forEach(function(id){var e=document.getElementById(id);if(e){e.href=B_URL;e.addEventListener('click',trackBook('b'));}});
+  // 예약 현황 클릭 → 아워플레이스 (Clarity 실측: '예약됨' 칩 데드클릭 1·2위 — 클릭 의도를 예약으로 전환)
+  // ⚠️ GA 이벤트는 avail_click 별도 사용 — book_click은 광고 파일럿 판독 지표라 정의 불변(계측 오염 금지)
+  function trackAvail(){try{if(window.gtag)gtag('event','avail_click',{transport_type:'beacon'});}catch(e){}}
+  var availBtn=document.getElementById('availBook');
+  if(availBtn)availBtn.addEventListener('click',trackAvail);
+  var calGridEl=document.getElementById('calGrid');
+  if(calGridEl)calGridEl.addEventListener('click',function(){trackAvail();window.open(A_URL,'_blank','noopener');});
 
   var root=document.getElementById('root');
   var ROOM={A:'background:color-mix(in srgb, var(--calA) 15%, transparent);color:var(--calA)',
