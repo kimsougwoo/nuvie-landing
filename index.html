@@ -263,7 +263,7 @@
             <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">헤링본</span>
             <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">약 11평</span>
           </div>
-          <div><a class="btn" id="book-b" href="#" target="_blank" rel="noopener">B룸 예약 →</a></div>
+          <div><span class="btn" id="book-b" aria-disabled="true" role="button" style="pointer-events:none;opacity:.45;cursor:not-allowed;filter:grayscale(.35)">오픈 시 안내드립니다</span></div>
         </div>
       </div></div>
 
@@ -422,10 +422,10 @@
       <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none"><span style="font-family:var(--label-font);font-weight:700;font-size:clamp(120px,22vw,300px);color:var(--accent);opacity:.05;letter-spacing:-.04em;line-height:1">NUVIE</span></div>
       <div class="inner" style="position:relative">
         <h2 data-reveal style="font-weight:700;font-size:clamp(30px,4.4vw,52px);letter-spacing:-.03em;margin:0 0 12px">촬영, NUVIE에서.</h2>
-        <p data-reveal style="color:var(--dim);margin:0 0 30px;font-size:15px">A룸·B룸 각각 아워플레이스에서 예약할 수 있어요.</p>
+        <p data-reveal style="color:var(--dim);margin:0 0 30px;font-size:15px">A룸은 아워플레이스에서 바로 예약할 수 있어요. B룸은 리뉴얼 중입니다.</p>
         <div data-reveal style="display:flex;gap:11px;justify-content:center;flex-wrap:wrap">
           <a class="btn" id="end-a" href="#" target="_blank" rel="noopener" style="padding:15px 30px;font-size:14.5px">A룸 예약</a>
-          <a class="btn line" id="end-b" href="#" target="_blank" rel="noopener" style="padding:15px 30px;font-size:14.5px">B룸 예약</a>
+          <span class="btn line" id="end-b" aria-disabled="true" role="button" style="padding:15px 30px;font-size:14.5px;pointer-events:none;opacity:.45;cursor:not-allowed">리뉴얼 중 · 예약 불가</span>
         </div>
       </div>
     </section>
@@ -441,10 +441,11 @@
 <script>
 (function(){
   var A_URL='https://www.hourplace.co.kr/place/61823';
-  var B_URL='https://www.hourplace.co.kr/place/62341';
+  // B_URL 배선 중지(2026-07-14): B룸 리뉴얼로 예약 비활성화.
+  // place/62341이 아워플레이스에서 숨김 처리돼, 연결 시 "숨겨졌거나 삭제된 플레이스" 오류로 이어졌음.
+  // book-b/end-b는 <span>으로 교체돼 클릭 불가 — 재개 시 여기 var B_URL 복구 후 아래 forEach도 되살릴 것.
   function trackBook(room){return function(){try{if(window.gtag)gtag('event','book_click',{room:room,transport_type:'beacon'});if(window.fbq)fbq('track','Lead',{room:room});}catch(e){}};}
   ['book-side','book-a','end-a'].forEach(function(id){var e=document.getElementById(id);if(e){e.href=A_URL;e.addEventListener('click',trackBook('a'));}});
-  ['book-b','end-b'].forEach(function(id){var e=document.getElementById(id);if(e){e.href=B_URL;e.addEventListener('click',trackBook('b'));}});
   // 예약 현황 클릭 → 아워플레이스 (Clarity 실측: '예약됨' 칩 데드클릭 1·2위 — 클릭 의도를 예약으로 전환)
   // ⚠️ GA 이벤트는 avail_click 별도 사용 — book_click은 광고 파일럿 판독 지표라 정의 불변(계측 오염 금지)
   function trackAvail(){try{if(window.gtag)gtag('event','avail_click',{transport_type:'beacon'});}catch(e){}}
