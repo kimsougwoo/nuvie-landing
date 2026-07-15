@@ -78,6 +78,44 @@ def parse_events(ics, room):
                 d += datetime.timedelta(days=1)
     return out
 
+MIN_BOOK_H = 2.0  # 최소 대여 2시간(운영정책). 2h 미만 블록 = 실예약 불가 → 무료연장/호의시간.
+
+def merge_events(events):
+    """무료 추가시간(2h 미만) 블록을 '바로 앞' 유료 블록에 흡수해 하나의 예약 블록으로 합친다.
+
+    규칙(대표 확정 2026-07-15):
+    - 최소 대여가 2시간이므로 **2h 미만 블록은 실예약일 수 없다 = 무료연장/호의시간**.
+    - 무료 1h는 항상 **≥2h 블록 '뒤'에만** 붙는다 → 그 1h는 바로 앞 예약의 게스트 것.
+    - 따라서 <2h 블록은 직전(맞닿은) 구간에 뒤로 흡수한다.
+    - **≥2h 블록끼리는 절대 병합하지 않는다**(다른 게스트가 등을 맞대도 각자 분리 유지 —
+      게스트가 홈페이지 예약현황을 '내 예약 리마인드'로 봐도 옆 예약과 안 섞이게).
+
+    이렇게 하면 무료연장이 별도 "(1H) 예약됨"으로 뜨지 않아 "1시간만 예약되나요?" 오해가 사라지고,
+    게스트는 자기 전체 이용시간(유료+무료)을 한 블록으로 확인한다. iCal에 이름이 없어도
+    '2h 미만 = 무료연장'이 게스트 신원 프록시가 되어 이름 없이 정확히 동작한다.
+    """
+    from collections import defaultdict
+    EPS = 1e-6
+    groups = defaultdict(list)
+    for e in events:
+        groups[(e["date"], e["room"])].append(e)
+    out = []
+    for (date, room), evs in groups.items():
+        evs.sort(key=lambda e: (e["start"], e["end"]))
+        cur = None
+        for e in evs:
+            dur = e["end"] - e["start"]
+            if cur is not None and e["start"] <= cur["end"] + EPS and dur < MIN_BOOK_H - EPS:
+                # <2h(무료연장) + 앞 구간과 맞닿음 → 뒤로 흡수(직전 예약 확장)
+                cur["end"] = max(cur["end"], e["end"])
+                continue
+            # 그 외(≥2h 블록, 또는 앞과 떨어진 블록)는 새 구간으로 — ≥2h끼리는 병합 안 함
+            cur = {"date": date, "start": e["start"], "end": round(e["end"], 2), "room": room}
+            out.append(cur)
+    out.sort(key=lambda e: (e["date"], e["start"], e["room"]))
+    return out
+
+
 def main():
     env = load_env(ENV)
     today = datetime.date.today()
@@ -90,6 +128,7 @@ def main():
             events += parse_events(fetch(url), room)
     # 오늘~120일(미래)만 + 정렬
     events = [e for e in events if today.isoformat() <= e["date"] <= horizon.isoformat()]
+    events = merge_events(events)  # 무료연장(2h 미만) 흡수 — "(1H) 예약됨" 오해 제거
     events.sort(key=lambda e: (e["date"], e["start"], e["room"]))
     busy = sorted({e["date"] for e in events})
     out = {

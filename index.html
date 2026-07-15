@@ -466,7 +466,6 @@
       list.appendChild(empty);
     }else{
       evs.forEach(function(e){
-        var dur=e.end-e.start, durStr=(dur%1===0?dur:dur.toFixed(1))+'H';
         var row=document.createElement('div');
         row.style.cssText='display:flex;align-items:center;gap:10px;font-size:13px;font-variant-numeric:tabular-nums';
         var chip=document.createElement('span');
@@ -474,7 +473,7 @@
         chip.textContent=(e.room||'A')+'룸';
         var txt=document.createElement('span');
         txt.style.color='var(--ink)';
-        txt.textContent=fmt(e.start)+' - '+fmt(e.end)+' ('+durStr+') 예약됨';
+        txt.textContent=fmt(e.start)+' - '+fmt(e.end)+' 예약됨';
         row.appendChild(chip);row.appendChild(txt);list.appendChild(row);
       });
       var hint=document.createElement('div');
