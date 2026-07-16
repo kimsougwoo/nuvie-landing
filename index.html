@@ -103,6 +103,7 @@
   .inner{max-width:1380px;margin:0 auto;padding:0 40px}
   .sec{padding:96px 0;border-top:1px solid var(--line)}
   .sechead{display:flex;align-items:flex-start;gap:18px;margin-bottom:18px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
   .sechead .snum{font-family:var(--label-font);font-weight:700;font-size:clamp(30px,3.4vw,50px);line-height:.9;letter-spacing:-.02em;color:var(--accent)}
   .sechead .skick{font-family:var(--label-font);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
   .sechead h2{font-weight:700;font-size:clamp(28px,3.8vw,44px);letter-spacing:-.025em;margin:0;line-height:1.08}
@@ -226,38 +227,53 @@
 
       <!-- A룸 아워플레이스 후기 (reviews.json 데이터 기반 렌더 · aggregateRating 뒷받침) -->
       <div data-reveal style="border:1px solid var(--line);border-radius:6px;padding:28px 32px;background:var(--panel);margin-bottom:18px">
+        <h3 class="sr-only">고객 후기</h3>
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
           <span style="font-family:var(--label-font);font-size:11px;letter-spacing:.18em;color:var(--accent);border:1px solid var(--line);padding:3px 10px;border-radius:999px">A ROOM · 후기</span>
           <span style="font-family:var(--label-font);font-weight:700;font-size:18px;color:var(--ink);letter-spacing:-.01em">★ 5.0</span>
           <span style="font-size:13px;color:var(--dim)"><span id="reviewCount">7</span>개 후기 · 아워플레이스</span>
         </div>
         <p style="margin:-6px 0 16px;color:var(--dim);font-size:13.5px;line-height:1.7">이미 누비에서 찍고 가신 분들의 후기예요.</p>
-        <div id="reviewCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px"></div>
+        <div id="reviewCards" role="list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;min-height:200px"></div>
         <p style="margin:14px 0 0;font-size:11.5px;color:var(--faint)">출처: 아워플레이스 A룸 후기 · 전체 <span id="reviewTotal">7</span>건 ★5.0</p>
       </div>
+      <!-- 후기 사진 확대 라이트박스(썸네일 클릭 시) -->
+      <div id="reviewLightbox" role="dialog" aria-modal="true" aria-label="후기 사진 확대" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.86);align-items:center;justify-content:center;padding:24px">
+        <img id="reviewLightboxImg" alt="누비 스튜디오 A룸 후기 사진 확대" style="max-width:min(900px,92vw);max-height:86vh;object-fit:contain;border-radius:6px;display:block">
+        <button id="reviewLightboxClose" aria-label="닫기" style="position:absolute;top:18px;right:22px;width:40px;height:40px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:22px;line-height:1;cursor:pointer">×</button>
+      </div>
       <script>
-      // 후기 = reviews.json 데이터 기반 렌더(하드코딩 아님). 사진 있는 후기는 썸네일 1~2장, 없으면 글만.
-      // 후기·사진 갱신 = reviews.json 만 수정하면 됨. 텍스트는 textContent로 안전 삽입.
+      // 후기 = reviews.json 데이터 기반 렌더(하드코딩 아님). 사진 있으면 썸네일 1~2장(클릭 확대), 없으면 글만.
+      // 갱신 = reviews.json 만 수정. 텍스트는 textContent(XSS안전). 렌더 시 날짜 내림차순 정렬(수기 순서 실수 방어).
       (function(){
         var host=document.getElementById('reviewCards'); if(!host) return;
+        var lb=document.getElementById('reviewLightbox'), lbImg=document.getElementById('reviewLightboxImg');
+        function openLb(src){ lbImg.src=src; lb.style.display='flex'; }
+        function closeLb(){ lb.style.display='none'; lbImg.src=''; }
+        lb.addEventListener('click',function(e){ if(e.target===lb) closeLb(); });
+        document.getElementById('reviewLightboxClose').addEventListener('click',closeLb);
+        document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&lb.style.display==='flex') closeLb(); });
         fetch('reviews.json',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
           var rv=(d&&d.reviews)||[], n=(d&&d.count)||rv.length;
+          rv.sort(function(a,b){ return (b.date||'0000-00-00').localeCompare(a.date||'0000-00-00'); }); // 항상 최신순
           var c=document.getElementById('reviewCount'), t=document.getElementById('reviewTotal');
           if(c)c.textContent=n; if(t)t.textContent=n;
           host.innerHTML='';
           rv.forEach(function(v){
-            var card=document.createElement('div');
+            var card=document.createElement('div'); card.setAttribute('role','listitem');
             card.style.cssText='background:var(--elev);border-radius:5px;padding:18px 20px;border:1px solid var(--line)';
             var h=document.createElement('div'); h.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:10px';
-            var st=document.createElement('span'); st.style.cssText='color:var(--accent);font-size:13px'; st.textContent='★★★★★'.slice(0,(v.rating||5));
+            var st=document.createElement('span'); st.setAttribute('aria-hidden','true'); st.style.cssText='color:var(--accent);font-size:13px'; st.textContent='★★★★★'.slice(0,(v.rating||5));
+            var sr=document.createElement('span'); sr.className='sr-only'; sr.textContent='5점 만점에 '+(v.rating||5)+'점';
             var nm=document.createElement('span'); nm.style.cssText='font-family:var(--label-font);font-size:12px;color:var(--dim)'; nm.textContent=v.name+(v.date?' · '+v.date:'');
-            h.appendChild(st); h.appendChild(nm); card.appendChild(h);
+            h.appendChild(st); h.appendChild(sr); h.appendChild(nm); card.appendChild(h);
             if(v.photos&&v.photos.length){
               var pg=document.createElement('div');
               pg.style.cssText='display:grid;grid-template-columns:repeat('+Math.min(v.photos.length,2)+',1fr);gap:6px;margin-bottom:11px';
               v.photos.slice(0,2).forEach(function(src){
                 var im=document.createElement('img'); im.src=src; im.alt='누비 스튜디오 A룸 후기 사진'; im.loading='lazy';
-                im.style.cssText='width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:4px;display:block';
+                im.style.cssText='width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:4px;display:block;cursor:pointer';
+                im.addEventListener('click',function(){ openLb(src); });
                 pg.appendChild(im);
               });
               card.appendChild(pg);
@@ -266,7 +282,9 @@
             p.textContent='"'+v.text+'"'; card.appendChild(p);
             host.appendChild(card);
           });
-        }).catch(function(){});
+        }).catch(function(){
+          host.innerHTML='<p style="grid-column:1/-1;margin:0;font-size:13.5px;color:var(--dim);line-height:1.7">후기를 불러오지 못했어요 · <a href="https://www.hourplace.co.kr/place/61823" target="_blank" rel="noopener" style="color:var(--accent)">아워플레이스에서 후기 보기 →</a></p>';
+        });
       })();
       </script>
 
