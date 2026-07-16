@@ -202,6 +202,20 @@
     /* 7) 섹션 상하 패딩 축소(~40%) */
     .sec{padding:58px 0}
     .sec-cta{padding:70px 0!important}
+
+    /* 8) 예약현황 달력(#calGrid): 360px에서 7열×51px 셀에 이벤트 텍스트("18:00 - 21:00 예약됨",
+       font-size:10px·white-space:nowrap·ellipsis)가 잘려 거의 안 보이던 버그(devtools 재현·확정,
+       before_360.png) 수정. ⚠️실측: 이벤트 div는 JS(renderCal)가 class 없이 순수 인라인 style.cssText만
+       주입해 생성(".ev"는 데스크탑 CSS에도 있지만 매치되는 요소가 없는 죽은 셀렉터였음, devtools outerHTML로
+       확인) → 구조 셀렉터(.cell > 두 번째 div(이벤트 박스) > 그 자식 div)로 타겟팅. renderCal()이 매 렌더
+       .cell에 인라인으로 min-height:96px 등을 강제 주입하므로 외부 CSS로 덮으려면 !important 필수. 월간
+       7열 그리드는 그대로 유지하고(설계안 우선순위: 마커 그리드), 셀을 조밀화 + 이벤트 텍스트는 시각적으로
+       숨기고 룸별 배경색(ROOM.A/B, --calA/--calB, 인라인 style이라 오버라이드 없이 그대로 유지)은 남긴 채
+       가는 색상 바("예약 있음" 마커)로 축소 — 어느 날 예약됐는지 한눈에 보이게. 탭→상세는 기존 showDay()/
+       #dayDetail JS(클릭 리스너·fetch 로직 포함)가 완전히 그대로 처리하므로 JS 변경 없음(CSS 전용). */
+    #calGrid .cell{min-height:46px!important;padding:4px 3px 3px!important}
+    #calGrid .cell>div:nth-child(2)>div{font-size:0!important;line-height:0!important;padding:0!important;margin:0!important;
+      height:4px!important;min-height:4px!important;border-radius:2px!important;white-space:nowrap;overflow:hidden}
   }
   /* 모바일 스티키 예약 CTA — ≤640px에서만 노출, 스크롤 무관 상시 접근 */
   .sticky-book{display:none;position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--btnBg);color:var(--btnFg);text-decoration:none;font-weight:700;font-size:15px;text-align:center;padding:14px 20px;padding-bottom:calc(14px + env(safe-area-inset-bottom));box-shadow:0 -6px 18px rgba(0,0,0,.22)}
@@ -290,9 +304,9 @@
             <img data-fallback="1" src="/img/galA0.jpg" alt="A룸 동양풍 블랙 호리존 — 월문과 격자문 세트" style="flex:0 0 100%;width:100%;min-width:0;height:100%;object-fit:cover;scroll-snap-align:center;scroll-snap-stop:always;display:block">
             <img data-fallback="1" src="/img/galA4.jpg" alt="A룸 블랙 호리존" style="flex:0 0 100%;width:100%;min-width:0;height:100%;object-fit:cover;scroll-snap-align:center;scroll-snap-stop:always;display:block">
           </div>
-          <div id="rimgADots" aria-hidden="true" style="position:absolute;left:0;right:0;bottom:10px;z-index:2;display:flex;justify-content:center;gap:6px;pointer-events:none">
-            <span class="rdot" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.9);opacity:1;transition:opacity .2s"></span>
-            <span class="rdot" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.9);opacity:.4;transition:opacity .2s"></span>
+          <div id="rimgADots" style="position:absolute;left:0;right:0;bottom:8px;z-index:2;display:flex;justify-content:center;gap:10px;pointer-events:none">
+            <button type="button" class="rdot" aria-label="동양풍 이미지 보기" style="width:8px;height:8px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.9);opacity:1;transition:opacity .2s;pointer-events:auto;cursor:pointer;box-shadow:0 0 3px rgba(0,0,0,.5)"></button>
+            <button type="button" class="rdot" aria-label="블랙 호리존 이미지 보기" style="width:8px;height:8px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.9);opacity:.4;transition:opacity .2s;pointer-events:auto;cursor:pointer;box-shadow:0 0 3px rgba(0,0,0,.5)"></button>
           </div>
         </div>
         <div style="position:relative;padding:42px 40px;display:flex;flex-direction:column;justify-content:center;overflow:hidden">
@@ -314,6 +328,8 @@
       (function(){
         var host=document.getElementById('rimgASwipe'); if(!host) return;
         var dots=document.querySelectorAll('#rimgADots .rdot');
+        // 점 클릭 → 해당 이미지로 스크롤(데스크탑=마우스로 스와이프 불가 대응, galA4 블랙 호리존 도달).
+        dots.forEach(function(dot,i){ dot.addEventListener('click',function(){ host.scrollTo({left:i*host.clientWidth,behavior:'smooth'}); }); });
         var raf=null;
         function sync(){
           var imgs=host.children; if(!imgs.length) return;
