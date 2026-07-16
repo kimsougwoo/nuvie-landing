@@ -167,16 +167,29 @@
     .gal::-webkit-scrollbar{display:none}
     .gal>div{flex:0 0 82%;scroll-snap-align:center;min-width:0}
 
-    /* 5) 후기: 컬럼 매이슨리 → 세로 스택 (reviews.json 렌더 로직은 불변, CSS만 재정의)
-       ⚠️2026-07-16 대표 제보: 가로 스와이프 캐러셀(flex-nowrap 행)로 바꿨더니 후기 카드마다 높이가
-       제각각(사진 없는 1줄 글만 vs 사진 포함 여러 줄)인데 flex 행 기본 align-items:stretch 때문에
-       모든 카드가 그 행에서 가장 큰 카드 높이로 강제로 늘어나 → 짧은 후기 카드 아래 큰 빈 공간이
-       생기는 것을 devtools로 확정(390px 에뮬레이션: 사진無 카드도 524px로 스트레치, 실제 텍스트는
-       상단 일부만 차지). 높이 가변 콘텐츠엔 가로 캐러셀이 근본적으로 안 맞음 → 세로 스택으로 되돌림.
-       ⚠️핀치줌 버그 재유입 금지: 되돌리되 column-width(멀티컬럼)는 쓰지 않고 단순 display:block
-       세로 블록 스택만 사용. contain:layout·width/min-width/max-width:100%는 그대로 유지해
-       내부 레이아웃이 문서 크기 계산으로 새어나가지 않게 방어(원 핀치줌 버그 근본원인 대응, 아래 유지). */
-    #reviewCards{column-width:unset!important;column-gap:unset!important;columns:unset!important;display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;contain:layout}
+    /* 5) 후기: 컬럼 매이슨리 → 가로 스와이프 캐러셀 재도입(설계안 A: 활성 카드 실측 높이로 컨테이너 동적 조정)
+       ⚠️2026-07-16 1차 시도 실패 이력: flex-nowrap 캐러셀로 바꿨더니 후기 카드마다 높이가 제각각(사진無
+       1줄 글만 vs 사진 포함 여러 줄)인데 flex 행 기본 align-items:stretch 때문에 전 카드가 그 행 최대
+       카드높이(524px)로 강제 스트레치 → 짧은 카드 아래 큰 빈 공간 발생(devtools 확정) → 세로스택 롤백.
+       2차: align-items:flex-start(스트레치 금지, 카드 자연높이)로 스트레치 자체를 제거하고, #reviewCards의
+       CSS height는 고정하지 않되 JS(아래 스크립트, 스크롤 위치로 가운데 스냅 카드 감지 후 그 카드의
+       getBoundingClientRect().height를 host.style.height에 반영)가 캐러셀 행 전체 높이를 활성 카드에
+       맞춰 동적으로 줄이거나 늘림 → 짧은 카드로 스와이프하면 행 자체가 줄어 빈공간 0, 후기 전문 유지.
+       ⚠️핀치줌 버그 재유입 금지: column-width(멀티컬럼) 사용 안 함, contain:layout·
+       width/min-width/max-width:100%는 그대로 유지(.gal과 동일 방어). 카드는 flex:0 0 85%+min-width:0+
+       scroll-snap-align:center, 카드 inline margin-bottom은 !important로 0 오버라이드.
+       ⚠️실측 버그: 컨테이너 자체에 인라인 style="min-height:200px"(로딩 중 레이아웃 점프 방지용)가 있어
+       짧은 카드(예: 93.7px)로 스와이프해도 min-height가 바닥을 200px로 고정 → 정확히 재발하려던 빈공간
+       버그(devtools 재현·확정, 도착지 385~390 에뮬레이션). min-height:0!important로 무력화(로딩 중
+       점프는 JS syncReviewHeight 초기 실행이 대신 방지). */
+    #reviewCards{column-width:unset!important;column-gap:unset!important;columns:unset!important;
+      display:flex!important;flex-wrap:nowrap!important;align-items:flex-start!important;
+      overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x mandatory!important;
+      gap:12px!important;width:100%!important;min-width:0!important;max-width:100%!important;min-height:0!important;
+      contain:layout;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:6px;
+      transition:height .25s ease}
+    #reviewCards::-webkit-scrollbar{display:none}
+    #reviewCards>div{flex:0 0 85%!important;scroll-snap-align:center;min-width:0;margin:0!important}
 
     /* 6) 아코디언: 처음이세요 4단계 — 탭하면 펼침(순수 CSS, 클래스는 JS로 aria-expanded만 토글). 텍스트는 DOM에 그대로 유지 */
     .fv-h{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -315,6 +328,34 @@
         lb.addEventListener('click',function(e){ if(e.target===lb) closeLb(); });
         document.getElementById('reviewLightboxClose').addEventListener('click',closeLb);
         document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&lb.style.display==='flex') closeLb(); });
+
+        // 모바일 가로 캐러셀(설계안 A) — 가운데(스냅) 활성 카드의 실측 높이를 #reviewCards height에 반영.
+        // ≤640px에서만 실질 적용(mq.matches 가드), 641px+에서는 항상 height 리셋 → 데스크탑 매이슨리 불변.
+        var reviewMq = window.matchMedia('(max-width:640px)');
+        var reviewRaf = null;
+        function activeReviewCard(){
+          var cards = host.children; if(!cards.length) return null;
+          var hostRect = host.getBoundingClientRect(), centerX = hostRect.left + hostRect.width/2;
+          var best=null, bestDist=Infinity;
+          for(var i=0;i<cards.length;i++){
+            var r = cards[i].getBoundingClientRect(), cCenter = r.left + r.width/2, d = Math.abs(cCenter-centerX);
+            if(d<bestDist){ bestDist=d; best=cards[i]; }
+          }
+          return best;
+        }
+        function syncReviewHeight(){
+          if(!reviewMq.matches){ host.style.height=''; return; }
+          var c = activeReviewCard();
+          if(c) host.style.height = c.getBoundingClientRect().height + 'px';
+        }
+        function onReviewScroll(){
+          if(reviewRaf) return;
+          reviewRaf = requestAnimationFrame(function(){ reviewRaf=null; syncReviewHeight(); });
+        }
+        host.addEventListener('scroll', onReviewScroll, {passive:true});
+        window.addEventListener('resize', onReviewScroll);
+        if(reviewMq.addEventListener) reviewMq.addEventListener('change', syncReviewHeight); else reviewMq.addListener(syncReviewHeight);
+
         fetch('reviews.json',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
           var rv=(d&&d.reviews)||[], n=(d&&d.count)||rv.length;
           rv.sort(function(a,b){ return (b.date||'0000-00-00').localeCompare(a.date||'0000-00-00'); }); // 항상 최신순
@@ -351,6 +392,7 @@
             p.textContent='"'+v.text+'"'; card.appendChild(p);
             host.appendChild(card);
           });
+          requestAnimationFrame(function(){ requestAnimationFrame(syncReviewHeight); }); // 레이아웃 확정 후 활성 카드 높이 반영(모바일만 실질 적용)
         }).catch(function(){
           host.innerHTML='<p style="grid-column:1/-1;margin:0;font-size:13.5px;color:var(--dim);line-height:1.7">후기를 불러오지 못했어요 · <a href="https://www.hourplace.co.kr/place/61823" target="_blank" rel="noopener" style="color:var(--accent)">아워플레이스에서 후기 보기 →</a></p>';
         });
