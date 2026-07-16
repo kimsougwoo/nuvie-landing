@@ -133,6 +133,15 @@
   @media(max-width:760px){.room{grid-template-columns:1fr!important}.room .rimg{min-height:300px!important}.roomwrap{direction:ltr!important}}
   @media(max-width:560px){.gal{grid-template-columns:1fr!important}.specs{grid-template-columns:1fr!important}.specs .it{border-right:none!important}.info{grid-template-columns:1fr 1fr!important}.sechead{flex-wrap:wrap}}
 
+  /* 후기 카드 데스크탑 매이슨리(컬럼형): 원래 인라인 style="column-width:250px"였던 것을 여기로 이전.
+     이유(핀치줌 버그 근본원인) — #reviewCards가 인라인 style로 항상(모바일 포함) column-width를 갖고 있으면,
+     모바일 미디어쿼리가 즉시 display:flex로 덮어써도 그 찰나에 이미 생성된 멀티컬럼 레이아웃 객체가
+     내부적으로 남아 폭 계산이 깨짐(자체 폭에 대해 %/뷰포트 계산이 어긋나 고정 스티키바가 문서 밖으로 확장 →
+     documentElement.scrollWidth 급증 → 핀치 확대/축소 시 가로 넘침·스티키바 이탈로 체감). 데스크탑 전용 규칙으로
+     옮겨 모바일에서는 애초에 컬럼 레이아웃 객체가 생성되지 않게 함(재현·수정 검증 완료). */
+  @media(min-width:641px){
+    #reviewCards{column-width:250px;column-gap:14px}
+  }
   /* ===== 모바일 전용 개선(설계안 C) — 전부 ≤640px 스코프, 데스크탑 규칙 변경 없음 ===== */
   @media(max-width:640px){
     /* 1) 히어로: SCROLL 인디케이터가 줄바꿈된 CTA와 겹치는 버그 → 모바일에서 숨김. 높이 축소. CTA 세로 스택으로 겹침 방지 */
@@ -151,15 +160,25 @@
     .roomB-full{display:none}
     .roomB-compact{display:flex!important}
 
-    /* 4) 갤러리: 세로 적층(560px 쿼리) → 가로 스와이프 카드 */
-    .gal{display:flex!important;grid-template-columns:none!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x mandatory!important;gap:12px!important;padding-bottom:6px;scrollbar-width:none;-ms-overflow-style:none}
+    /* 4) 갤러리: 세로 적층(560px 쿼리) → 가로 스와이프 카드
+       contain:layout — 가로 스크롤 컨테이너 내부 콘텐츠 폭이 문서/뷰포트 계산으로 새어나가는 것을 차단
+       (핀치줌 버그 재현·근본원인, 아래 #reviewCards 주석 참조). .gal은 현재 미재현이나 방어적으로 동일 적용 */
+    .gal{display:flex!important;grid-template-columns:none!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x mandatory!important;gap:12px!important;padding-bottom:6px;contain:layout;scrollbar-width:none;-ms-overflow-style:none}
     .gal::-webkit-scrollbar{display:none}
     .gal>div{flex:0 0 82%;scroll-snap-align:center;min-width:0}
 
-    /* 5) 후기 캐러셀: 컬럼 매이슨리 → 가로 스와이프 (reviews.json 렌더 로직은 불변, CSS만 재정의) */
-    #reviewCards{column-width:unset!important;column-gap:unset!important;columns:unset!important;display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;scroll-snap-type:x mandatory!important;gap:12px;scrollbar-width:none;-ms-overflow-style:none}
+    /* 5) 후기 캐러셀: 컬럼 매이슨리 → 가로 스와이프 (reviews.json 렌더 로직은 불변, CSS만 재정의)
+       ⚠️핀치줌 버그 근본원인·수정: #reviewCards(7장 후기 카드, flex-nowrap+overflow-x:auto+scroll-snap)의
+       내부 스크롤 콘텐츠 총 폭(~1600px)이 실기기(및 모바일 에뮬레이션) 레이아웃 엔진에서 문서 전체의
+       "포지션:fixed 기준 뷰포트" 폭 계산으로 새어나가 documentElement.scrollWidth가 뷰포트 폭을 훨씬
+       초과(예: 390px 뷰포트에서 1454px)하는 것을 재현·확정(evaluate_script로 자녀 요소 개수를 늘려가며
+       검증, .gal은 스크롤 폭이 작아 미재현). 그 결과 하단 고정(position:fixed) 예약 스티키바가 화면 밖까지
+       확장되고, 핀치 확대/축소 시 이 "유령 초과 폭"만큼 가로 팬·오배치가 가능해짐(대표 실기기 제보 원인).
+       수정: contain:layout으로 이 컨테이너의 내부 레이아웃이 조상/문서 크기 계산에 영향 주지 않도록 격리
+       (내부 가로 스크롤 자체는 정상 동작 유지, 재검증 완료: 스티키바 폭 390px 정상화). */
+    #reviewCards{column-width:unset!important;column-gap:unset!important;columns:unset!important;display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;scroll-snap-type:x mandatory!important;gap:12px;width:100%!important;min-width:0!important;max-width:100%!important;contain:layout;scrollbar-width:none;-ms-overflow-style:none}
     #reviewCards::-webkit-scrollbar{display:none}
-    #reviewCards>div{flex:0 0 82%;scroll-snap-align:center}
+    #reviewCards>div{flex:0 0 82%;scroll-snap-align:center;min-width:0}
 
     /* 6) 아코디언: 처음이세요 4단계 — 탭하면 펼침(순수 CSS, 클래스는 JS로 aria-expanded만 토글). 텍스트는 DOM에 그대로 유지 */
     .fv-h{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -279,7 +298,7 @@
           <span style="font-size:13px;color:var(--dim)"><span id="reviewCount">7</span>개 후기 · 아워플레이스</span>
         </div>
         <p style="margin:-6px 0 16px;color:var(--dim);font-size:13.5px;line-height:1.7">이미 누비에서 찍고 가신 분들의 후기예요.</p>
-        <div id="reviewCards" role="list" style="column-width:250px;column-gap:14px;min-height:200px"></div>
+        <div id="reviewCards" role="list" style="min-height:200px"></div>
         <p style="margin:14px 0 0;font-size:11.5px;color:var(--faint)">출처: 아워플레이스 A룸 후기 · 전체 <span id="reviewTotal">7</span>건 ★5.0</p>
       </div>
       <!-- 후기 사진 확대 라이트박스(썸네일 클릭 시) -->
