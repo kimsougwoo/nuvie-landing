@@ -222,6 +222,87 @@
   @media(max-width:640px){.sticky-book{display:block}body{padding-bottom:60px}}
   /* A룸 대표이미지 스와이프(작업2) — 데스크탑/모바일 공통, 룸 카드 그리드·rimg 크기는 불변 */
   #rimgASwipe::-webkit-scrollbar{display:none}
+
+  /* ============================================================
+     모션 시스템 & UX 개선 (2026-07-16) — transform/opacity만, reduced-motion 존중.
+     데스크탑(≥641px) 레이아웃 불변: 신규 요소는 모바일 전용이거나(칩바·신설화살표) 시각효과만(리빌·패럴랙스·nav바·호버).
+     ============================================================ */
+
+  /* 3) 버튼/CTA 피드백 — :active 미세 축소, :focus-visible 접근성 아웃라인(키보드만 노출→마우스 외관 불변) */
+  .btn:active,.book a:active,.btn.line:active,.nv-chip:active{transform:scale(.98)}
+  .sticky-book:active{transform:scale(.99)}
+  a:focus-visible,button:focus-visible,[role="button"][tabindex]:focus-visible,summary:focus-visible,.fv-h:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+
+  /* 4) 캐러셀 화살표 호버(A룸 기존 + 신설 공통) — hover 시 배경 진해짐 */
+  #rimgAPrev,#rimgANext,.nv-arrow{transition:background .2s ease,transform .2s ease}
+  #rimgAPrev:hover,#rimgANext:hover,.nv-arrow:hover{background:rgba(0,0,0,.68)}
+  #rimgAPrev:active,#rimgANext:active,.nv-arrow:active{transform:translateY(-50%) scale(.92)}
+
+  /* 4b) 신설 갤러리/후기 캐러셀 화살표 — 모바일 전용(데스크탑은 그리드/매이슨리라 미노출→레이아웃 불변) */
+  .nv-carwrap{position:relative}
+  .nv-arrow{display:none}
+  @media(max-width:640px){
+    .nv-arrow{display:flex;position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:34px;height:34px;
+      align-items:center;justify-content:center;border:0;border-radius:50%;background:rgba(0,0,0,.42);color:#fff;
+      font-size:19px;line-height:1;cursor:pointer;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+    .nv-arrow.prev{left:6px}
+    .nv-arrow.next{right:6px}
+  }
+
+  /* 5) 갤러리 호버 줌 — JS(data-zoom)가 scale(1.03) 적용, 트랜지션은 이미 이미지에 있음(hover 기기만) */
+
+  /* 6) 캘린더 셀 진입 fade + 오늘 셀 부드러운 강조(전역 [data-theme] * 트랜지션이 background 담당) */
+  @media(prefers-reduced-motion:no-preference){
+    #calGrid .cell{animation:nvCellIn .34s ease-out both}
+  }
+  @keyframes nvCellIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* 8) nav 활성 인디케이터(데스크탑 좌측 nav) — 활성 항목 좌측 슬라이드 바 */
+  .side a.nav{position:relative}
+  .side a.nav::before{content:"";position:absolute;left:-26px;top:50%;width:2px;height:15px;background:var(--accent);
+    border-radius:2px;transform:translateY(-50%) scaleY(0);transform-origin:center;opacity:0;
+    transition:transform .28s ease,opacity .28s ease}
+  .side a.nav.active::before{transform:translateY(-50%) scaleY(1);opacity:1}
+
+  /* 9) 모바일 섹션 앵커칩 바 — ≤640px 전용, 스티키 top은 JS가 헤더 높이로 설정(겹침 방지) */
+  .nv-chipbar{display:none}
+  @media(max-width:640px){
+    .nv-chipbar{display:flex;position:sticky;top:0;z-index:40;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+      scrollbar-width:none;-ms-overflow-style:none;background:color-mix(in srgb,var(--panel) 92%,transparent);
+      -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+      padding:9px 14px;contain:layout;width:100%;max-width:100%}
+    .nv-chipbar::-webkit-scrollbar{display:none}
+    .nv-chip{flex:0 0 auto;white-space:nowrap;font-family:var(--label-font);font-size:12.5px;color:var(--dim);
+      text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:var(--bg);
+      transition:color .2s,border-color .2s,transform .15s}
+    section[id],#firstvisit{scroll-margin-top:104px}
+  }
+
+  /* 11) 로딩 스켈레톤 — 은은한 opacity 펄스(글로우/시머 아님), reduced-motion이면 정지 */
+  .nv-skel{background:color-mix(in srgb,var(--ink) 9%,var(--panel));border-radius:5px;animation:nvSkel 1.4s ease-in-out infinite}
+  @keyframes nvSkel{0%,100%{opacity:.55}50%{opacity:.92}}
+
+  /* 1) 스크롤 리빌 — CSS 네이티브(지원 브라우저만 html.nv-vt), 미지원/Firefox는 기존 JS 폴백 */
+  @supports (animation-timeline: view()){
+    html.nv-vt [data-reveal]{opacity:0;animation:nvRevealVT linear both;animation-timeline:view();animation-range:entry 0% cover 24%}
+  }
+  @keyframes nvRevealVT{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+
+  /* 7) 히어로 패럴랙스 — 데스크탑 전용(≥641px)·reduced-motion OFF·모바일 OFF. 래퍼에만 적용(img 켄번즈 scale과 비충돌). ≤8px */
+  @supports (animation-timeline: scroll()){
+    @media(min-width:641px) and (prefers-reduced-motion:no-preference){
+      .heroImgWrap{animation:nvParallax linear both;animation-timeline:scroll(root);animation-range:0 560px}
+    }
+  }
+  @keyframes nvParallax{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+
+  /* reduced-motion: 신규 모션 전부 즉시전환/비활성 */
+  @media(prefers-reduced-motion:reduce){
+    html.nv-vt [data-reveal]{animation:none!important;opacity:1!important;transform:none!important}
+    .heroImgWrap{animation:none!important}
+    .nv-skel{animation:none!important}
+    #calGrid .cell{animation:none!important}
+  }
 </style>
 </head>
 <body data-theme="dark">
@@ -260,7 +341,7 @@
   <main class="main" id="top">
     <header class="hero" style="position:relative;height:90vh;min-height:560px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden">
       <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0E0E10,#1D1D1D)"></div>
-      <div style="position:absolute;inset:0"><img data-fallback="1" data-ken src="/img/hero.jpg" alt="누비 스튜디오 A룸 동양풍 블랙 호리존 세트" style="display:block;width:100%;height:100%;object-fit:cover;filter:brightness(.58) saturate(.9);transform:scale(1.05)"></div>
+      <div class="heroImgWrap" style="position:absolute;inset:0"><img data-fallback="1" data-ken decoding="async" src="/img/hero.jpg" alt="누비 스튜디오 A룸 동양풍 블랙 호리존 세트" style="display:block;width:100%;height:100%;object-fit:cover;filter:brightness(.58) saturate(.9);transform:scale(1.05)"></div>
       <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,8,10,.34) 0%,rgba(8,8,10,.08) 32%,rgba(8,8,10,.86) 100%)"></div>
       <div class="herotop" style="position:absolute;top:0;left:0;right:0;z-index:3;padding:26px 40px;display:flex;justify-content:space-between;align-items:center;gap:14px;font-family:var(--label-font);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(245,242,236,.8)">
         <span style="white-space:nowrap">무인 · 까치산</span>
@@ -272,7 +353,7 @@
         <p data-reveal style="margin:22px 0 0;color:#B9B1A6;max-width:480px;font-size:16px;line-height:1.7">정해진 스팟을 따라가는 곳이 아니라,<br>소품과 천을 자유롭게 배치해 나만의 독창적인 사진을.<br>까치산역 10분, 무인 단독 대관.</p>
         <div data-reveal style="display:flex;gap:8px;flex-wrap:wrap;margin-top:24px">
           <span style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#e6e0d7;border:1px solid rgba(245,242,236,.28);padding:5px 12px;border-radius:999px;white-space:nowrap">A룸 · 동양풍</span>
-          <span style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#e6e0d7;border:1px solid rgba(245,242,236,.28);padding:5px 12px;border-radius:999px;white-space:nowrap">B룸 · 리뉴얼 준비중</span>
+          <span style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#e6e0d7;border:1px solid rgba(245,242,236,.28);padding:5px 12px;border-radius:999px;white-space:nowrap">B룸 · 리뉴얼 중</span>
           <span id="heroReviewBadge" style="display:none;align-items:center;gap:5px;font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#e6e0d7;border:1px solid rgba(245,242,236,.28);padding:5px 12px;border-radius:999px;white-space:nowrap"><span style="color:var(--accentSoft)" aria-hidden="true">★</span><span id="heroReviewText"></span></span>
         </div>
         <div class="herocta" data-reveal style="display:flex;gap:11px;flex-wrap:wrap;margin-top:30px">
@@ -283,11 +364,18 @@
       <div class="scrollind" style="position:absolute;right:40px;bottom:54px;z-index:3;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:var(--label-font);font-size:10px;letter-spacing:.3em;color:rgba(245,242,236,.6);animation:nvFloat 2.4s ease-in-out infinite">SCROLL<span style="font-size:14px">↓</span></div>
     </header>
 
+    <nav class="nv-chipbar" aria-label="섹션 바로가기">
+      <a class="nv-chip" href="#gallery">공간</a>
+      <a class="nv-chip" href="#availability">예약</a>
+      <a class="nv-chip" href="#location">오시는 길</a>
+      <a class="nv-chip" href="#faq">FAQ</a>
+    </nav>
+
     <section class="info" style="display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
-      <div class="it" data-reveal style="padding:34px 30px;border-right:1px solid var(--line)"><div style="font-family:var(--label-font);font-weight:700;font-size:clamp(32px,3.6vw,50px);line-height:1;letter-spacing:-.02em;color:var(--ink)">2<span style="font-size:.5em;color:var(--accent);margin-left:2px">H</span></div><div style="font-family:var(--label-font);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:10px">최소 대관</div></div>
-      <div class="it" data-reveal style="padding:34px 30px;border-right:1px solid var(--line)"><div style="font-family:var(--label-font);font-weight:700;font-size:clamp(32px,3.6vw,50px);line-height:1;letter-spacing:-.02em;color:var(--ink)">1–4<span style="font-size:.5em;color:var(--accent);margin-left:2px">인</span></div><div style="font-family:var(--label-font);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:10px">기본인원</div></div>
-      <div class="it" data-reveal style="padding:34px 30px;border-right:1px solid var(--line)"><div style="font-family:var(--label-font);font-weight:700;font-size:clamp(32px,3.6vw,50px);line-height:1;letter-spacing:-.02em;color:var(--ink)">2<span style="font-size:.5em;color:var(--accent);margin-left:4px">ROOMS</span></div><div style="font-family:var(--label-font);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:10px">A · B 컨셉룸</div></div>
-      <div class="it" data-reveal style="padding:34px 30px"><div style="font-family:var(--label-font);font-weight:700;font-size:clamp(32px,3.6vw,50px);line-height:1;letter-spacing:-.02em;color:var(--ink)">10<span style="font-size:.5em;color:var(--accent);margin-left:2px">분</span></div><div style="font-family:var(--label-font);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:10px">까치산역 도보</div></div>
+      <div class="it" data-reveal style="padding:34px 30px;border-right:1px solid var(--line)"><div style="font-family:var(--label-font);font-weight:700;font-size:clamp(32px,3.6vw,50px);line-height:1;letter-spacing:-.02em;color:var(--ink)"><span data-count="2">2</span><span style="font-size:.5em;color:var(--accent);margin-left:2px">H</span></div><div style="font-family:var(--label-font);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:10px">최소 대관</div></div>
+      <div class="it" data-reveal style="padding:34px 30px;border-right:1px solid var(--line)"><div style="font-family:var(--label-font);font-weight:700;font-size:clamp(32px,3.6vw,50px);line-height:1;letter-spacing:-.02em;color:var(--ink)">1–<span data-count="4">4</span><span style="font-size:.5em;color:var(--accent);margin-left:2px">인</span></div><div style="font-family:var(--label-font);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:10px">기본인원</div></div>
+      <div class="it" data-reveal style="padding:34px 30px;border-right:1px solid var(--line)"><div style="font-family:var(--label-font);font-weight:700;font-size:clamp(32px,3.6vw,50px);line-height:1;letter-spacing:-.02em;color:var(--ink)"><span data-count="2">2</span><span style="font-size:.5em;color:var(--accent);margin-left:4px">ROOMS</span></div><div style="font-family:var(--label-font);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:10px">A · B 컨셉룸</div></div>
+      <div class="it" data-reveal style="padding:34px 30px"><div style="font-family:var(--label-font);font-weight:700;font-size:clamp(32px,3.6vw,50px);line-height:1;letter-spacing:-.02em;color:var(--ink)"><span data-count="10">10</span><span style="font-size:.5em;color:var(--accent);margin-left:2px">분</span></div><div style="font-family:var(--label-font);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:10px">까치산역 도보</div></div>
     </section>
 
     <section id="rooms" class="sec"><div class="inner">
@@ -301,8 +389,8 @@
         <div class="rimg" style="position:relative;min-height:380px;width:100%;min-width:0;background:linear-gradient(135deg,var(--elev),var(--panel))">
           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--faint);font-size:13px"><span style="font-family:var(--label-font);font-size:26px;color:var(--accent)">A</span><span>동양풍 · 블랙 호리존</span></div>
           <div id="rimgASwipe" style="position:absolute;inset:0;display:flex;width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;contain:layout;scrollbar-width:none;-ms-overflow-style:none">
-            <img data-fallback="1" src="/img/galA0.jpg" alt="A룸 동양풍 블랙 호리존 — 월문과 격자문 세트" style="flex:0 0 100%;width:100%;min-width:0;height:100%;object-fit:cover;scroll-snap-align:center;scroll-snap-stop:always;display:block">
-            <img data-fallback="1" src="/img/galA4.jpg" alt="A룸 블랙 호리존" style="flex:0 0 100%;width:100%;min-width:0;height:100%;object-fit:cover;scroll-snap-align:center;scroll-snap-stop:always;display:block">
+            <img data-fallback="1" loading="lazy" decoding="async" src="/img/galA0.jpg" alt="A룸 동양풍 블랙 호리존 — 월문과 격자문 세트" style="flex:0 0 100%;width:100%;min-width:0;height:100%;object-fit:cover;scroll-snap-align:center;scroll-snap-stop:always;display:block">
+            <img data-fallback="1" loading="lazy" decoding="async" src="/img/galA4.jpg" alt="A룸 블랙 호리존" style="flex:0 0 100%;width:100%;min-width:0;height:100%;object-fit:cover;scroll-snap-align:center;scroll-snap-stop:always;display:block">
           </div>
           <div id="rimgADots" style="position:absolute;left:0;right:0;bottom:8px;z-index:2;display:flex;justify-content:center;gap:10px;pointer-events:none">
             <button type="button" class="rdot" aria-label="동양풍 이미지 보기" style="width:8px;height:8px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.9);opacity:1;transition:opacity .2s;pointer-events:auto;cursor:pointer;box-shadow:0 0 3px rgba(0,0,0,.5)"></button>
@@ -370,7 +458,15 @@
           <span style="font-size:13px;color:var(--dim)"><span id="reviewCount">7</span>개 후기 · 아워플레이스</span>
         </div>
         <p style="margin:-6px 0 16px;color:var(--dim);font-size:13.5px;line-height:1.7">이미 누비에서 찍고 가신 분들의 후기예요.</p>
-        <div id="reviewCards" role="list" style="min-height:200px"></div>
+        <div class="nv-carwrap">
+          <button type="button" class="nv-arrow prev" aria-label="이전 후기">&#8249;</button>
+          <button type="button" class="nv-arrow next" aria-label="다음 후기">&#8250;</button>
+          <div id="reviewCards" role="list" style="min-height:200px">
+            <div class="nv-skel" style="height:96px;margin-bottom:14px" aria-hidden="true"></div>
+            <div class="nv-skel" style="height:150px;margin-bottom:14px" aria-hidden="true"></div>
+            <div class="nv-skel" style="height:78px;margin-bottom:14px" aria-hidden="true"></div>
+          </div>
+        </div>
         <p style="margin:14px 0 0;font-size:11.5px;color:var(--faint)">출처: 아워플레이스 A룸 후기 · 전체 <span id="reviewTotal">7</span>건 ★5.0</p>
       </div>
       <!-- 후기 사진 확대 라이트박스(썸네일 클릭 시) -->
@@ -462,11 +558,11 @@
 
       <div class="roomwrap roomB-full" style="direction:rtl"><div class="room" data-reveal style="position:relative;display:grid;grid-template-columns:1.25fr 1fr;border:1px solid var(--line);border-radius:6px;margin-bottom:18px;overflow:hidden">
         <div class="rimg" style="position:relative;min-height:380px;background:linear-gradient(135deg,var(--elev),var(--panel))">
-          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--faint);font-size:13px"><span style="font-size:30px;color:var(--roomB)">🚧</span><span style="font-family:var(--label-font);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)">Renovation</span><span>리뉴얼 준비중</span></div>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--faint);font-size:13px"><span style="font-size:30px;color:var(--roomB)">🚧</span><span style="font-family:var(--label-font);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)">Renovation</span><span>리뉴얼 중</span></div>
         </div>
         <div style="position:relative;direction:ltr;padding:42px 40px;display:flex;flex-direction:column;justify-content:center;overflow:hidden">
           <span style="position:absolute;top:-18px;right:8px;font-family:var(--label-font);font-weight:700;font-size:170px;line-height:1;color:var(--roomB);opacity:.08;pointer-events:none">B</span>
-          <span style="font-family:var(--label-font);font-size:11px;letter-spacing:.18em;color:var(--roomB);border:1px solid var(--line);padding:4px 11px;border-radius:999px;width:max-content;margin-bottom:18px">B ROOM · 리뉴얼 준비중</span>
+          <span style="font-family:var(--label-font);font-size:11px;letter-spacing:.18em;color:var(--roomB);border:1px solid var(--line);padding:4px 11px;border-radius:999px;width:max-content;margin-bottom:18px">B ROOM · 리뉴얼 중</span>
           <h3 style="font-size:25px;font-weight:700;letter-spacing:-.02em;margin:0 0 13px">자연광 스튜디오</h3>
           <p style="color:var(--dim);font-size:14.5px;margin:0 0 18px;line-height:1.75;max-width:42ch">현재 새 단장을 준비하고 있어요.<br>준비가 끝나는 대로 새로운 공간으로 다시 찾아뵙겠습니다.</p>
           <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:24px">
@@ -474,12 +570,12 @@
             <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">헤링본</span>
             <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">약 11평</span>
           </div>
-          <div><span class="btn" id="book-b" aria-disabled="true" role="button" style="pointer-events:none;opacity:.45;cursor:not-allowed;filter:grayscale(.35)">오픈 시 안내드립니다</span></div>
+          <div><span class="btn" id="book-b" aria-disabled="true" role="button" style="pointer-events:none;opacity:.45;cursor:not-allowed;filter:grayscale(.35)">리뉴얼 중 · 재개 시 안내</span></div>
         </div>
       </div></div>
 
       <div class="roomB-compact" data-reveal style="display:none;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:6px;padding:14px 18px;margin-bottom:18px;background:var(--panel)">
-        <span style="font-size:13.5px;color:var(--dim)"><b style="color:var(--roomB);font-weight:700">B룸</b> · 리뉴얼 준비중</span>
+        <span style="font-size:13.5px;color:var(--dim)"><b style="color:var(--roomB);font-weight:700">B룸</b> · 리뉴얼 중</span>
         <span style="font-family:var(--label-font);font-size:11px;color:var(--faint);white-space:nowrap">재개 시 안내</span>
       </div>
 
@@ -498,20 +594,24 @@
         <h3 style="font-size:19px;font-weight:600;letter-spacing:-.015em;margin:0">동양풍 룸</h3>
         <span style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.04em;color:var(--dim)">월동문 · 격자문 · 블랙 호리존</span>
       </div>
-      <div class="gal" data-reveal style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:14px;margin-bottom:56px">
-        <div style="aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom src="/img/galA1.jpg" alt="A룸 동양풍 월문 백라이트" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">월동문</span></div>
+      <div class="nv-carwrap" style="margin-bottom:56px">
+        <button type="button" class="nv-arrow prev" aria-label="이전 사진">&#8249;</button>
+        <button type="button" class="nv-arrow next" aria-label="다음 사진">&#8250;</button>
+      <div class="gal" data-reveal style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:14px">
+        <div style="aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom loading="lazy" decoding="async" src="/img/galA1.jpg" alt="A룸 동양풍 월문 백라이트" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">월동문</span></div>
         <div style="display:flex;flex-direction:column;gap:14px">
-          <div style="flex:1;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom src="/img/galA2.jpg" alt="A룸 격자문 세트" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"></div>
-          <div style="flex:1;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom src="/img/galA3.jpg" alt="A룸 동양풍 디테일" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"></div>
-          <div style="flex:1;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom src="/img/galA5.jpg" alt="A룸 조명·뒷공간(조명 셋업 공간)" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">조명 공간</span></div>
+          <div style="flex:1;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom loading="lazy" decoding="async" src="/img/galA2.jpg" alt="A룸 격자문 세트" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"></div>
+          <div style="flex:1;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom loading="lazy" decoding="async" src="/img/galA3.jpg" alt="A룸 동양풍 디테일" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"></div>
+          <div style="flex:1;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom loading="lazy" decoding="async" src="/img/galA5.jpg" alt="A룸 조명·뒷공간(조명 셋업 공간)" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">조명 공간</span></div>
         </div>
-        <div style="aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom src="/img/galA4.jpg" alt="A룸 블랙 호리존" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">블랙 호리존</span></div>
+        <div style="aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom loading="lazy" decoding="async" src="/img/galA4.jpg" alt="A룸 블랙 호리존" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">블랙 호리존</span></div>
+      </div>
       </div>
 
       <div data-reveal style="display:flex;align-items:baseline;gap:13px;margin-bottom:18px">
         <span style="font-family:var(--label-font);font-weight:700;font-size:20px;color:var(--roomB);line-height:1">B</span>
         <h3 style="font-size:19px;font-weight:600;letter-spacing:-.015em;margin:0">자연광 룸</h3>
-        <span style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.04em;color:var(--dim)">리뉴얼 준비중</span>
+        <span style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.04em;color:var(--dim)">리뉴얼 중</span>
       </div>
       <div data-reveal style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;border:1px dashed var(--line);border-radius:6px;padding:64px 24px;background:linear-gradient(135deg,var(--elev),var(--panel));color:var(--dim)">
         <span style="font-size:32px;color:var(--roomB)">🚧</span>
@@ -540,7 +640,7 @@
           </div>
         </div>
         <div id="calDow" style="display:grid;grid-template-columns:repeat(7,1fr)"></div>
-        <div id="calGrid" style="display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line);border-radius:0 0 5px 5px;overflow:hidden"></div>
+        <div id="calGrid" style="display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line);border-radius:0 0 5px 5px;overflow:hidden"><div class="nv-skel" aria-hidden="true" style="grid-column:1/-1;height:280px;border-radius:0 0 5px 5px"></div></div>
         <div id="dayDetail" style="display:none;margin-top:14px;border:1px solid var(--line);border-radius:6px;padding:16px 18px;background:var(--elev)">
           <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap">
             <h4 id="dayDetailTitle" style="font-family:var(--label-font);font-size:15px;font-weight:700;margin:0;letter-spacing:.02em"></h4>
@@ -640,7 +740,7 @@
         <p data-reveal style="color:var(--dim);margin:0 0 30px;font-size:15px">A룸은 아워플레이스에서 바로 예약할 수 있어요. B룸은 리뉴얼 중입니다.</p>
         <div data-reveal style="display:flex;gap:11px;justify-content:center;flex-wrap:wrap">
           <a class="btn" id="end-a" href="#" target="_blank" rel="noopener" style="padding:15px 30px;font-size:14.5px">A룸 예약</a>
-          <span class="btn line" id="end-b" aria-disabled="true" role="button" style="padding:15px 30px;font-size:14.5px;pointer-events:none;opacity:.45;cursor:not-allowed">리뉴얼 중 · 예약 불가</span>
+          <span class="btn line" id="end-b" aria-disabled="true" role="button" style="padding:15px 30px;font-size:14.5px;pointer-events:none;opacity:.45;cursor:not-allowed">리뉴얼 중 · 재개 시 안내</span>
         </div>
       </div>
     </section>
@@ -795,15 +895,18 @@
   // ken burns
   var ken=root.querySelector('img[data-ken]');
   if(ken)ken.style.animation='nvKen 18s ease-out forwards';
-  // gallery zoom
-  root.querySelectorAll('img[data-zoom]').forEach(function(img){
-    var p=img.parentElement;
-    p.addEventListener('mouseenter',function(){img.style.transform='scale(1.06)';});
-    p.addEventListener('mouseleave',function(){img.style.transform='none';});
-  });
+  // gallery zoom (데스크탑/hover 기기 전용, 미세 scale 1.03). 모바일/터치는 무효(hover 미지원).
+  var canHover=!(window.matchMedia)||window.matchMedia('(hover:hover)').matches;
+  if(canHover){
+    root.querySelectorAll('img[data-zoom]').forEach(function(img){
+      var p=img.parentElement;
+      p.addEventListener('mouseenter',function(){img.style.transform='scale(1.03)';});
+      p.addEventListener('mouseleave',function(){img.style.transform='none';});
+    });
+  }
   // nav scroll-spy
   var navlinks=root.querySelectorAll('nav a[data-nav]');
-  function setActive(id){navlinks.forEach(function(a){var on=a.getAttribute('data-nav')===id;a.style.color=on?'var(--ink)':'var(--dim)';var num=a.querySelector('span');if(num)num.style.opacity=on?'1':'.5';});}
+  function setActive(id){navlinks.forEach(function(a){var on=a.getAttribute('data-nav')===id;a.classList.toggle('active',on);a.style.color=on?'var(--ink)':'var(--dim)';var num=a.querySelector('span');if(num)num.style.opacity=on?'1':'.5';});}
   try{
     var spy=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)setActive(e.target.id);});},{rootMargin:'-45% 0px -50% 0px'});
     ['rooms','gallery','availability','location','faq'].forEach(function(id){var s=root.querySelector('#'+id);if(s)spy.observe(s);});
@@ -812,7 +915,10 @@
   var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
   var els=Array.prototype.slice.call(root.querySelectorAll('[data-reveal]'));
   function reveal(el){el.style.opacity='1';el.style.transform='none';}
+  // 1) CSS 네이티브 스크롤 리빌 지원 브라우저는 html.nv-vt로 위임(전부 CSS transform/opacity), 미지원/Firefox는 아래 JS 폴백.
+  var supportsVT=!!(window.CSS&&CSS.supports&&CSS.supports('animation-timeline','view()'));
   if(reduce){els.forEach(reveal);}
+  else if(supportsVT){document.documentElement.classList.add('nv-vt');}
   else{
     root.querySelectorAll('header,section').forEach(function(sec){sec.querySelectorAll('[data-reveal]').forEach(function(el,i){el.style.transitionDelay=Math.min(i*70,340)+'ms';});});
     els.forEach(function(el){el.style.opacity='0';el.style.transform='translateY(24px)';el.style.transition='opacity .8s cubic-bezier(.22,.61,.36,1), transform .8s cubic-bezier(.22,.61,.36,1)';});
@@ -866,6 +972,64 @@
     h.addEventListener('click',toggle);
     h.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
   });
+})();
+
+/* 2) 통계 카운트업 — 인라인 바닐라 rAF, IntersectionObserver 뷰 진입 1회. reduced-motion이면 최종값 즉시(애니메이션 없음).
+   단위(H·인·ROOMS·분)는 형제 span으로 고정 — 숫자 노드만 카운트. */
+(function(){
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var nums=Array.prototype.slice.call(document.querySelectorAll('.info [data-count]'));
+  if(!nums.length)return;
+  if(reduce){nums.forEach(function(el){el.textContent=el.getAttribute('data-count');});return;}
+  function run(el){
+    var target=parseInt(el.getAttribute('data-count'),10)||0, dur=900, t0=null;
+    function step(ts){
+      if(!t0)t0=ts;
+      var p=Math.min((ts-t0)/dur,1), e=1-Math.pow(1-p,3);  // ease-out cubic
+      el.textContent=Math.round(e*target);
+      if(p<1)requestAnimationFrame(step); else el.textContent=String(target);
+    }
+    requestAnimationFrame(step);
+  }
+  nums.forEach(function(el){el.textContent='0';});  // 카운트 대기 상태(뷰 밖이라 플래시 없음)
+  var section=document.querySelector('.info');
+  try{
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){nums.forEach(run);io.disconnect();}});},{threshold:.4});
+    io.observe(section);
+  }catch(e){nums.forEach(run);}
+})();
+
+/* 4b) 신설 갤러리·후기 캐러셀 화살표(모바일) — 한 카드 폭만큼 scrollBy. 데스크탑은 화살표 display:none이라 무동작.
+   자동슬라이드 없음(정보성 캐러셀은 수동, A룸만 자동). */
+(function(){
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function wire(scroller){
+    if(!scroller)return;
+    var wrap=scroller.parentNode;
+    if(!wrap||!wrap.classList||!wrap.classList.contains('nv-carwrap'))return;
+    Array.prototype.slice.call(wrap.querySelectorAll('.nv-arrow')).forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var first=scroller.children[0]; if(!first)return;
+        var step=first.getBoundingClientRect().width+12;  // 카드폭 + gap(12px)
+        var dir=btn.classList.contains('next')?1:-1;
+        scroller.scrollBy({left:dir*step,behavior:reduce?'auto':'smooth'});
+      });
+    });
+  }
+  wire(document.querySelector('.gal'));
+  wire(document.getElementById('reviewCards'));
+})();
+
+/* 9) 모바일 섹션 앵커칩 바 — 스티키 top을 상단 헤더(.side) 높이로 설정해 겹침 방지(≤640px에서만). */
+(function(){
+  var bar=document.querySelector('.nv-chipbar'), side=document.querySelector('.side');
+  if(!bar||!side)return;
+  var mq=window.matchMedia('(max-width:640px)');
+  function set(){ bar.style.top = mq.matches ? (Math.round(side.getBoundingClientRect().height)+'px') : ''; }
+  set();
+  window.addEventListener('resize',set);
+  window.addEventListener('load',set);
+  if(mq.addEventListener)mq.addEventListener('change',set); else if(mq.addListener)mq.addListener(set);
 })();
 </script>
 </body>
