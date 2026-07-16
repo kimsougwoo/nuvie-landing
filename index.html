@@ -167,18 +167,16 @@
     .gal::-webkit-scrollbar{display:none}
     .gal>div{flex:0 0 82%;scroll-snap-align:center;min-width:0}
 
-    /* 5) 후기 캐러셀: 컬럼 매이슨리 → 가로 스와이프 (reviews.json 렌더 로직은 불변, CSS만 재정의)
-       ⚠️핀치줌 버그 근본원인·수정: #reviewCards(7장 후기 카드, flex-nowrap+overflow-x:auto+scroll-snap)의
-       내부 스크롤 콘텐츠 총 폭(~1600px)이 실기기(및 모바일 에뮬레이션) 레이아웃 엔진에서 문서 전체의
-       "포지션:fixed 기준 뷰포트" 폭 계산으로 새어나가 documentElement.scrollWidth가 뷰포트 폭을 훨씬
-       초과(예: 390px 뷰포트에서 1454px)하는 것을 재현·확정(evaluate_script로 자녀 요소 개수를 늘려가며
-       검증, .gal은 스크롤 폭이 작아 미재현). 그 결과 하단 고정(position:fixed) 예약 스티키바가 화면 밖까지
-       확장되고, 핀치 확대/축소 시 이 "유령 초과 폭"만큼 가로 팬·오배치가 가능해짐(대표 실기기 제보 원인).
-       수정: contain:layout으로 이 컨테이너의 내부 레이아웃이 조상/문서 크기 계산에 영향 주지 않도록 격리
-       (내부 가로 스크롤 자체는 정상 동작 유지, 재검증 완료: 스티키바 폭 390px 정상화). */
-    #reviewCards{column-width:unset!important;column-gap:unset!important;columns:unset!important;display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;scroll-snap-type:x mandatory!important;gap:12px;width:100%!important;min-width:0!important;max-width:100%!important;contain:layout;scrollbar-width:none;-ms-overflow-style:none}
-    #reviewCards::-webkit-scrollbar{display:none}
-    #reviewCards>div{flex:0 0 82%;scroll-snap-align:center;min-width:0}
+    /* 5) 후기: 컬럼 매이슨리 → 세로 스택 (reviews.json 렌더 로직은 불변, CSS만 재정의)
+       ⚠️2026-07-16 대표 제보: 가로 스와이프 캐러셀(flex-nowrap 행)로 바꿨더니 후기 카드마다 높이가
+       제각각(사진 없는 1줄 글만 vs 사진 포함 여러 줄)인데 flex 행 기본 align-items:stretch 때문에
+       모든 카드가 그 행에서 가장 큰 카드 높이로 강제로 늘어나 → 짧은 후기 카드 아래 큰 빈 공간이
+       생기는 것을 devtools로 확정(390px 에뮬레이션: 사진無 카드도 524px로 스트레치, 실제 텍스트는
+       상단 일부만 차지). 높이 가변 콘텐츠엔 가로 캐러셀이 근본적으로 안 맞음 → 세로 스택으로 되돌림.
+       ⚠️핀치줌 버그 재유입 금지: 되돌리되 column-width(멀티컬럼)는 쓰지 않고 단순 display:block
+       세로 블록 스택만 사용. contain:layout·width/min-width/max-width:100%는 그대로 유지해
+       내부 레이아웃이 문서 크기 계산으로 새어나가지 않게 방어(원 핀치줌 버그 근본원인 대응, 아래 유지). */
+    #reviewCards{column-width:unset!important;column-gap:unset!important;columns:unset!important;display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;contain:layout}
 
     /* 6) 아코디언: 처음이세요 4단계 — 탭하면 펼침(순수 CSS, 클래스는 JS로 aria-expanded만 토글). 텍스트는 DOM에 그대로 유지 */
     .fv-h{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px}
