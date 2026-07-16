@@ -308,6 +308,8 @@
             <button type="button" class="rdot" aria-label="동양풍 이미지 보기" style="width:8px;height:8px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.9);opacity:1;transition:opacity .2s;pointer-events:auto;cursor:pointer;box-shadow:0 0 3px rgba(0,0,0,.5)"></button>
             <button type="button" class="rdot" aria-label="블랙 호리존 이미지 보기" style="width:8px;height:8px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.9);opacity:.4;transition:opacity .2s;pointer-events:auto;cursor:pointer;box-shadow:0 0 3px rgba(0,0,0,.5)"></button>
           </div>
+          <button type="button" id="rimgAPrev" aria-label="이전 이미지" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);z-index:2;width:34px;height:34px;border:0;border-radius:50%;background:rgba(0,0,0,.42);color:#fff;font-size:19px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)">&#8249;</button>
+          <button type="button" id="rimgANext" aria-label="다음 이미지" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);z-index:2;width:34px;height:34px;border:0;border-radius:50%;background:rgba(0,0,0,.42);color:#fff;font-size:19px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)">&#8250;</button>
         </div>
         <div style="position:relative;padding:42px 40px;display:flex;flex-direction:column;justify-content:center;overflow:hidden">
           <span style="position:absolute;top:-18px;right:8px;font-family:var(--label-font);font-weight:700;font-size:170px;line-height:1;color:var(--accent);opacity:.07;pointer-events:none">A</span>
@@ -328,9 +330,10 @@
       (function(){
         var host=document.getElementById('rimgASwipe'); if(!host) return;
         var dots=document.querySelectorAll('#rimgADots .rdot');
-        // 점 클릭 → 해당 이미지로 스크롤(데스크탑=마우스로 스와이프 불가 대응, galA4 블랙 호리존 도달).
-        dots.forEach(function(dot,i){ dot.addEventListener('click',function(){ host.scrollTo({left:i*host.clientWidth,behavior:'smooth'}); }); });
-        var raf=null;
+        var count=host.children.length;
+        var reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        var raf=null, timer=null, cur=0;
+        function go(i){ i=((i%count)+count)%count; host.scrollTo({left:i*host.clientWidth,behavior:reduce?'auto':'smooth'}); }
         function sync(){
           var imgs=host.children; if(!imgs.length) return;
           var hostRect=host.getBoundingClientRect(), centerX=hostRect.left+hostRect.width/2;
@@ -339,11 +342,22 @@
             var r=imgs[i].getBoundingClientRect(), c=r.left+r.width/2, d=Math.abs(c-centerX);
             if(d<bestDist){ bestDist=d; best=i; }
           }
-          dots.forEach(function(dot,i){ dot.style.opacity=(i===best)?'1':'.4'; });
+          cur=best; dots.forEach(function(dot,i){ dot.style.opacity=(i===best)?'1':'.4'; });
         }
+        // 자동 슬라이드(루프) — reduced-motion이면 비활성. 사용자 상호작용/탭 숨김 시 일시정지.
+        function start(){ if(reduce||count<2||timer) return; timer=setInterval(function(){ go(cur+1); },4500); }
+        function stop(){ if(timer){ clearInterval(timer); timer=null; } }
+        // 점·화살표 클릭 → 자동재생 멈추고 이동(마우스로 스와이프 불가한 데스크탑 대응 포함).
+        dots.forEach(function(dot,i){ dot.addEventListener('click',function(){ stop(); go(i); }); });
+        var prev=document.getElementById('rimgAPrev'), next=document.getElementById('rimgANext');
+        if(prev) prev.addEventListener('click',function(){ stop(); go(cur-1); });
+        if(next) next.addEventListener('click',function(){ stop(); go(cur+1); });
         host.addEventListener('scroll',function(){ if(raf)return; raf=requestAnimationFrame(function(){ raf=null; sync(); }); },{passive:true});
+        ['pointerenter','touchstart','focusin'].forEach(function(e){ host.addEventListener(e,stop,{passive:true}); });
+        ['pointerleave','touchend','focusout'].forEach(function(e){ host.addEventListener(e,function(){ setTimeout(start,900); },{passive:true}); });
+        document.addEventListener('visibilitychange',function(){ document.hidden?stop():start(); });
         window.addEventListener('resize',sync);
-        sync();
+        sync(); start();
       })();
       </script>
 
