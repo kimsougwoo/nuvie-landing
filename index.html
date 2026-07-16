@@ -132,6 +132,9 @@
   }
   @media(max-width:760px){.room{grid-template-columns:1fr!important}.room .rimg{min-height:300px!important}.roomwrap{direction:ltr!important}}
   @media(max-width:560px){.gal{grid-template-columns:1fr!important}.specs{grid-template-columns:1fr!important}.specs .it{border-right:none!important}.info{grid-template-columns:1fr 1fr!important}.sechead{flex-wrap:wrap}}
+  /* 모바일 스티키 예약 CTA — ≤640px에서만 노출, 스크롤 무관 상시 접근 */
+  .sticky-book{display:none;position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--btnBg);color:var(--btnFg);text-decoration:none;font-weight:700;font-size:15px;text-align:center;padding:14px 20px;padding-bottom:calc(14px + env(safe-area-inset-bottom));box-shadow:0 -6px 18px rgba(0,0,0,.22)}
+  @media(max-width:640px){.sticky-book{display:block}body{padding-bottom:60px}}
 </style>
 </head>
 <body data-theme="dark">
@@ -183,6 +186,7 @@
         <div data-reveal style="display:flex;gap:8px;flex-wrap:wrap;margin-top:24px">
           <span style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#e6e0d7;border:1px solid rgba(245,242,236,.28);padding:5px 12px;border-radius:999px;white-space:nowrap">A룸 · 동양풍</span>
           <span style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#e6e0d7;border:1px solid rgba(245,242,236,.28);padding:5px 12px;border-radius:999px;white-space:nowrap">B룸 · 리뉴얼 준비중</span>
+          <span id="heroReviewBadge" style="display:none;align-items:center;gap:5px;font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#e6e0d7;border:1px solid rgba(245,242,236,.28);padding:5px 12px;border-radius:999px;white-space:nowrap"><span style="color:var(--accentSoft)" aria-hidden="true">★</span><span id="heroReviewText"></span></span>
         </div>
         <div data-reveal style="display:flex;gap:11px;flex-wrap:wrap;margin-top:30px">
           <a href="#rooms" class="btn" style="padding:15px 32px;font-size:15px">예약하기</a>
@@ -258,6 +262,13 @@
           rv.sort(function(a,b){ return (b.date||'0000-00-00').localeCompare(a.date||'0000-00-00'); }); // 항상 최신순
           var c=document.getElementById('reviewCount'), t=document.getElementById('reviewTotal');
           if(c)c.textContent=n; if(t)t.textContent=n;
+          // 히어로 ★평점·후기건수 배지 — 같은 reviews.json 데이터 재사용(하드코딩 금지), 데이터 없으면 숨김 유지
+          if(n>0){
+            var sum=0; rv.forEach(function(v){sum+=(v.rating||5);});
+            var avg=(sum/rv.length).toFixed(1);
+            var hb=document.getElementById('heroReviewBadge'), ht=document.getElementById('heroReviewText');
+            if(hb&&ht){ ht.textContent=avg+' · 아워플레이스 후기 '+n+'건'; hb.style.display='inline-flex'; }
+          }
           host.innerHTML='';
           rv.forEach(function(v){
             var card=document.createElement('div'); card.setAttribute('role','listitem');
@@ -474,6 +485,8 @@
       <span style="flex-basis:100%;font-size:11px;opacity:.7">이 사이트는 서비스 개선을 위해 방문 통계 도구(Google Analytics 등)를 사용합니다.</span>
     </div>
   </main>
+
+  <a href="#" id="book-mobile" class="sticky-book" target="_blank" rel="noopener" aria-label="지금 예약하기 — 아워플레이스로 이동">지금 예약하기 →</a>
 </div>
 
 <script>
@@ -483,7 +496,7 @@
   // place/62341이 아워플레이스에서 숨김 처리돼, 연결 시 "숨겨졌거나 삭제된 플레이스" 오류로 이어졌음.
   // book-b/end-b는 <span>으로 교체돼 클릭 불가 — 재개 시 여기 var B_URL 복구 후 아래 forEach도 되살릴 것.
   function trackBook(room){return function(){try{if(window.gtag)gtag('event','book_click',{room:room,transport_type:'beacon'});if(window.fbq)fbq('track','Lead',{room:room});}catch(e){}};}
-  ['book-side','book-a','end-a'].forEach(function(id){var e=document.getElementById(id);if(e){e.href=A_URL;e.addEventListener('click',trackBook('a'));}});
+  ['book-side','book-a','end-a','book-mobile'].forEach(function(id){var e=document.getElementById(id);if(e){e.href=A_URL;e.addEventListener('click',trackBook('a'));}});
   // 예약 현황 클릭 → 아워플레이스 (Clarity 실측: '예약됨' 칩 데드클릭 1·2위 — 클릭 의도를 예약으로 전환)
   // ⚠️ GA 이벤트는 avail_click 별도 사용 — book_click은 광고 파일럿 판독 지표라 정의 불변(계측 오염 금지)
   function trackAvail(){try{if(window.gtag)gtag('event','avail_click',{transport_type:'beacon'});}catch(e){}}
