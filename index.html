@@ -165,7 +165,7 @@
        (핀치줌 버그 재현·근본원인, 아래 #reviewCards 주석 참조). .gal은 현재 미재현이나 방어적으로 동일 적용 */
     .gal{display:flex!important;grid-template-columns:none!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x mandatory!important;gap:12px!important;padding-bottom:6px;contain:layout;scrollbar-width:none;-ms-overflow-style:none}
     .gal::-webkit-scrollbar{display:none}
-    .gal>div{flex:0 0 82%;scroll-snap-align:center;min-width:0}
+    .gal>div{flex:0 0 82%;scroll-snap-align:center;scroll-snap-stop:always;min-width:0}
 
     /* 5) 후기: 컬럼 매이슨리 → 가로 스와이프 캐러셀 재도입(설계안 A: 활성 카드 실측 높이로 컨테이너 동적 조정)
        ⚠️2026-07-16 1차 시도 실패 이력: flex-nowrap 캐러셀로 바꿨더니 후기 카드마다 높이가 제각각(사진無
@@ -189,7 +189,7 @@
       contain:layout;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:6px;
       transition:height .25s ease}
     #reviewCards::-webkit-scrollbar{display:none}
-    #reviewCards>div{flex:0 0 85%!important;scroll-snap-align:center;min-width:0;margin:0!important}
+    #reviewCards>div{flex:0 0 85%!important;scroll-snap-align:center;scroll-snap-stop:always;min-width:0;margin:0!important}
 
     /* 6) 아코디언: 처음이세요 4단계 — 탭하면 펼침(순수 CSS, 클래스는 JS로 aria-expanded만 토글). 텍스트는 DOM에 그대로 유지 */
     .fv-h{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -206,6 +206,8 @@
   /* 모바일 스티키 예약 CTA — ≤640px에서만 노출, 스크롤 무관 상시 접근 */
   .sticky-book{display:none;position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--btnBg);color:var(--btnFg);text-decoration:none;font-weight:700;font-size:15px;text-align:center;padding:14px 20px;padding-bottom:calc(14px + env(safe-area-inset-bottom));box-shadow:0 -6px 18px rgba(0,0,0,.22)}
   @media(max-width:640px){.sticky-book{display:block}body{padding-bottom:60px}}
+  /* A룸 대표이미지 스와이프(작업2) — 데스크탑/모바일 공통, 룸 카드 그리드·rimg 크기는 불변 */
+  #rimgASwipe::-webkit-scrollbar{display:none}
 </style>
 </head>
 <body data-theme="dark">
@@ -282,9 +284,16 @@
       <p class="desc" data-reveal style="margin:0 0 46px">A룸과 B룸은 무드가 다릅니다.<br>요금과 예약 가능 시간은 아워플레이스에서 확인하세요.</p>
 
       <div class="room" data-reveal style="position:relative;display:grid;grid-template-columns:1.25fr 1fr;border:1px solid var(--line);border-radius:6px;margin-bottom:18px;overflow:hidden">
-        <div class="rimg" style="position:relative;min-height:380px;background:linear-gradient(135deg,var(--elev),var(--panel))">
+        <div class="rimg" style="position:relative;min-height:380px;width:100%;min-width:0;background:linear-gradient(135deg,var(--elev),var(--panel))">
           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--faint);font-size:13px"><span style="font-family:var(--label-font);font-size:26px;color:var(--accent)">A</span><span>동양풍 · 블랙 호리존</span></div>
-          <img data-fallback="1" src="/img/galA0.jpg" alt="A룸 동양풍 블랙 호리존 — 월문과 격자문 세트" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover">
+          <div id="rimgASwipe" style="position:absolute;inset:0;display:flex;width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;contain:layout;scrollbar-width:none;-ms-overflow-style:none">
+            <img data-fallback="1" src="/img/galA0.jpg" alt="A룸 동양풍 블랙 호리존 — 월문과 격자문 세트" style="flex:0 0 100%;width:100%;min-width:0;height:100%;object-fit:cover;scroll-snap-align:center;scroll-snap-stop:always;display:block">
+            <img data-fallback="1" src="/img/galA4.jpg" alt="A룸 블랙 호리존" style="flex:0 0 100%;width:100%;min-width:0;height:100%;object-fit:cover;scroll-snap-align:center;scroll-snap-stop:always;display:block">
+          </div>
+          <div id="rimgADots" aria-hidden="true" style="position:absolute;left:0;right:0;bottom:10px;z-index:2;display:flex;justify-content:center;gap:6px;pointer-events:none">
+            <span class="rdot" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.9);opacity:1;transition:opacity .2s"></span>
+            <span class="rdot" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.9);opacity:.4;transition:opacity .2s"></span>
+          </div>
         </div>
         <div style="position:relative;padding:42px 40px;display:flex;flex-direction:column;justify-content:center;overflow:hidden">
           <span style="position:absolute;top:-18px;right:8px;font-family:var(--label-font);font-weight:700;font-size:170px;line-height:1;color:var(--accent);opacity:.07;pointer-events:none">A</span>
@@ -299,6 +308,28 @@
           <div><a class="btn" id="book-a" href="#" target="_blank" rel="noopener">A룸 예약 →</a></div>
         </div>
       </div>
+      <script>
+      // A룸 대표이미지 스와이프(2장: galA0 동양풍/월문·격자문 → galA4 블랙 호리존) — 점 인디케이터를 스크롤 위치로 동기화.
+      // 데스크탑·모바일 공통 구조(룸 카드 그리드 1.25fr 1fr·rimg 크기는 불변, 이미지 영역 내부만 스와이프 컨테이너).
+      (function(){
+        var host=document.getElementById('rimgASwipe'); if(!host) return;
+        var dots=document.querySelectorAll('#rimgADots .rdot');
+        var raf=null;
+        function sync(){
+          var imgs=host.children; if(!imgs.length) return;
+          var hostRect=host.getBoundingClientRect(), centerX=hostRect.left+hostRect.width/2;
+          var best=0, bestDist=Infinity;
+          for(var i=0;i<imgs.length;i++){
+            var r=imgs[i].getBoundingClientRect(), c=r.left+r.width/2, d=Math.abs(c-centerX);
+            if(d<bestDist){ bestDist=d; best=i; }
+          }
+          dots.forEach(function(dot,i){ dot.style.opacity=(i===best)?'1':'.4'; });
+        }
+        host.addEventListener('scroll',function(){ if(raf)return; raf=requestAnimationFrame(function(){ raf=null; sync(); }); },{passive:true});
+        window.addEventListener('resize',sync);
+        sync();
+      })();
+      </script>
 
       <!-- A룸 아워플레이스 후기 (reviews.json 데이터 기반 렌더 · aggregateRating 뒷받침) -->
       <div data-reveal style="border:1px solid var(--line);border-radius:6px;padding:28px 32px;background:var(--panel);margin-bottom:18px">
