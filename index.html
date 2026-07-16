@@ -132,6 +132,47 @@
   }
   @media(max-width:760px){.room{grid-template-columns:1fr!important}.room .rimg{min-height:300px!important}.roomwrap{direction:ltr!important}}
   @media(max-width:560px){.gal{grid-template-columns:1fr!important}.specs{grid-template-columns:1fr!important}.specs .it{border-right:none!important}.info{grid-template-columns:1fr 1fr!important}.sechead{flex-wrap:wrap}}
+
+  /* ===== 모바일 전용 개선(설계안 C) — 전부 ≤640px 스코프, 데스크탑 규칙 변경 없음 ===== */
+  @media(max-width:640px){
+    /* 1) 히어로: SCROLL 인디케이터가 줄바꿈된 CTA와 겹치는 버그 → 모바일에서 숨김. 높이 축소. CTA 세로 스택으로 겹침 방지 */
+    .scrollind{display:none!important}
+    .hero{height:72vh!important;min-height:420px!important}
+    .herocta{width:100%;flex-direction:column;align-items:stretch}
+    .herocta a{width:100%;justify-content:center}
+
+    /* 2) 통계바 4열→2×2 + 격자선 정합 + 패딩 축소 (베이스가 inline grid-template-columns/border라 !important 필요) */
+    .info{grid-template-columns:repeat(2,1fr)!important}
+    .info .it{padding:20px 16px!important;border-right:1px solid var(--line)!important}
+    .info .it:nth-child(2n){border-right:none!important}
+    .info .it:nth-child(1),.info .it:nth-child(2){border-bottom:1px solid var(--line)}
+
+    /* 3) B룸 카드 압축: 데스크탑 카드 숨기고 한 줄 요약만 노출 */
+    .roomB-full{display:none}
+    .roomB-compact{display:flex!important}
+
+    /* 4) 갤러리: 세로 적층(560px 쿼리) → 가로 스와이프 카드 */
+    .gal{display:flex!important;grid-template-columns:none!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x mandatory!important;gap:12px!important;padding-bottom:6px;scrollbar-width:none;-ms-overflow-style:none}
+    .gal::-webkit-scrollbar{display:none}
+    .gal>div{flex:0 0 82%;scroll-snap-align:center;min-width:0}
+
+    /* 5) 후기 캐러셀: 컬럼 매이슨리 → 가로 스와이프 (reviews.json 렌더 로직은 불변, CSS만 재정의) */
+    #reviewCards{column-width:unset!important;column-gap:unset!important;columns:unset!important;display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;scroll-snap-type:x mandatory!important;gap:12px;scrollbar-width:none;-ms-overflow-style:none}
+    #reviewCards::-webkit-scrollbar{display:none}
+    #reviewCards>div{flex:0 0 82%;scroll-snap-align:center}
+
+    /* 6) 아코디언: 처음이세요 4단계 — 탭하면 펼침(순수 CSS, 클래스는 JS로 aria-expanded만 토글). 텍스트는 DOM에 그대로 유지 */
+    .fv-h{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .fv-ico{display:inline-block!important;transition:transform .2s ease}
+    .fv-h[aria-expanded="true"] .fv-ico{transform:rotate(45deg)}
+    .fv-body{display:none}
+    .fv-h[aria-expanded="true"] + .fv-body{display:block;margin-top:10px!important}
+    /* FAQ(details/summary)는 네이티브 접힘이 이미 기본 동작이라 추가 규칙 없음 */
+
+    /* 7) 섹션 상하 패딩 축소(~40%) */
+    .sec{padding:58px 0}
+    .sec-cta{padding:70px 0!important}
+  }
   /* 모바일 스티키 예약 CTA — ≤640px에서만 노출, 스크롤 무관 상시 접근 */
   .sticky-book{display:none;position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--btnBg);color:var(--btnFg);text-decoration:none;font-weight:700;font-size:15px;text-align:center;padding:14px 20px;padding-bottom:calc(14px + env(safe-area-inset-bottom));box-shadow:0 -6px 18px rgba(0,0,0,.22)}
   @media(max-width:640px){.sticky-book{display:block}body{padding-bottom:60px}}
@@ -188,12 +229,12 @@
           <span style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#e6e0d7;border:1px solid rgba(245,242,236,.28);padding:5px 12px;border-radius:999px;white-space:nowrap">B룸 · 리뉴얼 준비중</span>
           <span id="heroReviewBadge" style="display:none;align-items:center;gap:5px;font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#e6e0d7;border:1px solid rgba(245,242,236,.28);padding:5px 12px;border-radius:999px;white-space:nowrap"><span style="color:var(--accentSoft)" aria-hidden="true">★</span><span id="heroReviewText"></span></span>
         </div>
-        <div data-reveal style="display:flex;gap:11px;flex-wrap:wrap;margin-top:30px">
+        <div class="herocta" data-reveal style="display:flex;gap:11px;flex-wrap:wrap;margin-top:30px">
           <a href="#rooms" class="btn" style="padding:15px 32px;font-size:15px">예약하기</a>
           <a href="#gallery" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);color:#F0EFED;border:1px solid rgba(240,239,237,.28);font-weight:500;flex:none;white-space:nowrap;padding:15px 32px;border-radius:3px;font-size:15px;text-decoration:none;backdrop-filter:blur(4px)">공간 보기</a>
         </div>
       </div>
-      <div style="position:absolute;right:40px;bottom:54px;z-index:3;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:var(--label-font);font-size:10px;letter-spacing:.3em;color:rgba(245,242,236,.6);animation:nvFloat 2.4s ease-in-out infinite">SCROLL<span style="font-size:14px">↓</span></div>
+      <div class="scrollind" style="position:absolute;right:40px;bottom:54px;z-index:3;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:var(--label-font);font-size:10px;letter-spacing:.3em;color:rgba(245,242,236,.6);animation:nvFloat 2.4s ease-in-out infinite">SCROLL<span style="font-size:14px">↓</span></div>
     </header>
 
     <section class="info" style="display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
@@ -299,7 +340,7 @@
       })();
       </script>
 
-      <div class="roomwrap" style="direction:rtl"><div class="room" data-reveal style="position:relative;display:grid;grid-template-columns:1.25fr 1fr;border:1px solid var(--line);border-radius:6px;margin-bottom:18px;overflow:hidden">
+      <div class="roomwrap roomB-full" style="direction:rtl"><div class="room" data-reveal style="position:relative;display:grid;grid-template-columns:1.25fr 1fr;border:1px solid var(--line);border-radius:6px;margin-bottom:18px;overflow:hidden">
         <div class="rimg" style="position:relative;min-height:380px;background:linear-gradient(135deg,var(--elev),var(--panel))">
           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--faint);font-size:13px"><span style="font-size:30px;color:var(--roomB)">🚧</span><span style="font-family:var(--label-font);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)">Renovation</span><span>리뉴얼 준비중</span></div>
         </div>
@@ -316,6 +357,11 @@
           <div><span class="btn" id="book-b" aria-disabled="true" role="button" style="pointer-events:none;opacity:.45;cursor:not-allowed;filter:grayscale(.35)">오픈 시 안내드립니다</span></div>
         </div>
       </div></div>
+
+      <div class="roomB-compact" data-reveal style="display:none;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:6px;padding:14px 18px;margin-bottom:18px;background:var(--panel)">
+        <span style="font-size:13.5px;color:var(--dim)"><b style="color:var(--roomB);font-weight:700">B룸</b> · 리뉴얼 준비중</span>
+        <span style="font-family:var(--label-font);font-size:11px;color:var(--faint);white-space:nowrap">재개 시 안내</span>
+      </div>
 
       <p class="desc" data-reveal style="color:var(--dim);font-size:13.5px;margin:10px auto 0;text-align:center;max-width:none">1~4인 단독 대관 · 최소 2시간</p>
     </div></section>
@@ -430,20 +476,20 @@
       <p class="desc" data-reveal style="margin:0 0 30px">무인이라도 헤매지 않도록, 예약부터 퇴실까지 흐름을 정리했어요.</p>
       <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
         <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:24px 22px">
-          <div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">01 예약 확정</div>
-          <p style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">이용 당일 오전, 현관문·룸 비밀번호와 주차 위치를 메시지로 보내드려요.</p>
+          <div class="fv-h" role="button" tabindex="0" aria-expanded="false" aria-controls="fv-body-1" style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">01 예약 확정<span class="fv-ico" aria-hidden="true" style="display:none">＋</span></div>
+          <p id="fv-body-1" class="fv-body" style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">이용 당일 오전, 현관문·룸 비밀번호와 주차 위치를 메시지로 보내드려요.</p>
         </div>
         <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:24px 22px">
-          <div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">02 입실</div>
-          <p style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">조명·에어컨 스위치는 룸 안에 안내돼 있어요. 소품과 천은 자유롭게 꺼내 쓰세요.</p>
+          <div class="fv-h" role="button" tabindex="0" aria-expanded="false" aria-controls="fv-body-2" style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">02 입실<span class="fv-ico" aria-hidden="true" style="display:none">＋</span></div>
+          <p id="fv-body-2" class="fv-body" style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">조명·에어컨 스위치는 룸 안에 안내돼 있어요. 소품과 천은 자유롭게 꺼내 쓰세요.</p>
         </div>
         <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:24px 22px">
-          <div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">03 촬영</div>
-          <p style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">정해진 한 스팟이 아니라, 배치를 바꿔가며 나만의 컷을 만드시면 됩니다.</p>
+          <div class="fv-h" role="button" tabindex="0" aria-expanded="false" aria-controls="fv-body-3" style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">03 촬영<span class="fv-ico" aria-hidden="true" style="display:none">＋</span></div>
+          <p id="fv-body-3" class="fv-body" style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">정해진 한 스팟이 아니라, 배치를 바꿔가며 나만의 컷을 만드시면 됩니다.</p>
         </div>
         <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:24px 22px">
-          <div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">04 퇴실</div>
-          <p style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">소품 원위치, 쓰레기 정리, 조명·에어컨 OFF. 그게 전부예요.</p>
+          <div class="fv-h" role="button" tabindex="0" aria-expanded="false" aria-controls="fv-body-4" style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">04 퇴실<span class="fv-ico" aria-hidden="true" style="display:none">＋</span></div>
+          <p id="fv-body-4" class="fv-body" style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">소품 원위치, 쓰레기 정리, 조명·에어컨 OFF. 그게 전부예요.</p>
         </div>
       </div>
       <p data-reveal style="color:var(--faint);font-size:12.5px;margin-top:16px;line-height:1.7">처음이라 헷갈리면 아워플레이스 메시지로 언제든 물어보세요. 답을 드립니다.</p>
@@ -467,7 +513,7 @@
       </div>
     </div></section>
 
-    <section style="position:relative;padding:120px 0;border-top:1px solid var(--line);text-align:center;overflow:hidden">
+    <section class="sec-cta" style="position:relative;padding:120px 0;border-top:1px solid var(--line);text-align:center;overflow:hidden">
       <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none"><span style="font-family:var(--label-font);font-weight:700;font-size:clamp(120px,22vw,300px);color:var(--accent);opacity:.05;letter-spacing:-.04em;line-height:1">NUVIE</span></div>
       <div class="inner" style="position:relative">
         <h2 data-reveal style="font-weight:700;font-size:clamp(30px,4.4vw,52px);letter-spacing:-.03em;margin:0 0 12px">촬영, NUVIE에서.</h2>
@@ -688,6 +734,17 @@
         done();
       }catch(err){}
     }
+  });
+})();
+
+/* 모바일 아코디언(처음이세요) — aria-expanded 토글만 담당, 표시/숨김은 ≤640px CSS(.fv-body)가 처리.
+   데스크탑은 해당 CSS 규칙이 없어 시각적으로 아무 영향 없음(항상 펼친 모양 유지). */
+(function(){
+  var heads=document.querySelectorAll('.fv-h');
+  heads.forEach(function(h){
+    function toggle(){var exp=h.getAttribute('aria-expanded')==='true';h.setAttribute('aria-expanded',exp?'false':'true');}
+    h.addEventListener('click',toggle);
+    h.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
   });
 })();
 </script>
