@@ -27,6 +27,21 @@
       "source": "/pm",
       "destination": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-meta-pilot-2026q3",
       "permanent": false
+    },
+    {
+      "source": "/pm1",
+      "destination": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-meta-pilot-2026q3&utm_content=cosplay_niche",
+      "permanent": false
+    },
+    {
+      "source": "/pm2",
+      "destination": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-meta-pilot-2026q3&utm_content=ab_cosplaycard",
+      "permanent": false
+    },
+    {
+      "source": "/pm3",
+      "destination": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-meta-pilot-2026q3&utm_content=reels",
+      "permanent": false
     }
   ]
 }
