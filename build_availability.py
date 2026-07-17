@@ -23,14 +23,22 @@ def load_env(path):
     return d
 
 def fetch(url):
+    """iCal 본문 문자열, 실패 시 None(=구분가능 실패신호).
+
+    ⚠️ 2026-07-17(3R 🔴HIGH): 예전엔 타임아웃/5xx/순단에도 ""를 반환 → parse_events("")=[]
+       로 흘러 '진짜 페치 실패'와 '예약 0건'을 구분 못 했다. A룸만 순단해도 꽉 찬 날짜가
+       사라져 changed=True→push→Vercel 재배포로 예약된 날이 '가능'으로 공개됐다(둘 다 실패면
+       120일 전체 '가능'). 형제 booking_watch.fetch_ical의 None-신호(P0-1)와 정합하도록,
+       실패는 None으로 올려 호출부(compute_events)가 그 룸을 이번 런에서 제외하게 한다.
+       (성공한 빈 캘린더는 여전히 "" 등 문자열 → 정상 '예약 0건'으로 진행.)"""
     if not url:
-        return ""
+        return None
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "nuvie-availability/1.0"})
         return urllib.request.urlopen(req, timeout=20).read().decode("utf-8", "ignore")
     except Exception as e:
         print("  fetch 실패:", e)
-        return ""
+        return None
 
 def _to_dt(s):
     s = s.strip()
@@ -116,20 +124,114 @@ def merge_events(events):
     return out
 
 
-def main():
-    env = load_env(ENV)
-    today = datetime.date.today()
+def _load_old_events(dst):
+    """직전 availability.json의 events 리스트(없거나 손상이면 None)."""
+    if os.path.exists(dst):
+        try:
+            return json.load(open(dst, encoding="utf-8")).get("events")
+        except Exception:
+            pass
+    return None
+
+
+def compute_events(env, today, old_events):
+    """iCal 페치 → 최종 events + (fetched_ok, fetch_failed) 카운트.
+
+    ⚠️ 2026-07-17(3R 🔴HIGH): fetch()가 실패하면 None을 준다. **페치 실패 룸은 빈 []로
+       덮지 않고 직전 availability.json의 그 룸 값을 그대로 유지**한다 — 안 그러면 A룸 순단만으로
+       예약된 날이 사라져 공개 사이트가 '가능'으로 뒤집힌다(둘 다 실패면 120일 전체 '가능').
+       두 룸 모두 실패(fetched_ok==0)면 호출부가 push를 스킵한다. 성공한 룸은 신선 반영.
+       (성공한 '빈 캘린더'=진짜 예약0은 정상 반영 → 예약 해제가 공개에 반영됨.)"""
     horizon = today + datetime.timedelta(days=120)
+    old_events = old_events or []
     events = []
+    fetched_ok = fetch_failed = 0
     for key, room in (("ICAL_URL_HOURPLACE", "A"), ("ICAL_URL_HOURPLACE_B", "B")):
         url = env.get(key)
-        print(f"{key} ({room}룸): {'있음' if url else '없음'}")
-        if url:
-            events += parse_events(fetch(url), room)
-    # 오늘~120일(미래)만 + 정렬
+        prev = [e for e in old_events if e.get("room") == room]  # 그 룸 직전값(실패 시 유지)
+        if not url:
+            print(f"{key} ({room}룸): 없음 — 미설정(직전 {len(prev)}건 유지)")
+            events += prev
+            continue
+        ics = fetch(url)
+        if ics is None:
+            fetch_failed += 1
+            print(f"{key} ({room}룸): 있음 — ❌ FETCH FAIL, 직전 {len(prev)}건 유지(빈값 덮어쓰기 금지)")
+            events += prev
+        else:
+            fetched_ok += 1
+            print(f"{key} ({room}룸): 있음 — OK")
+            events += parse_events(ics, room)
+    # 오늘~120일(미래)만 + 무료연장(2h 미만) 흡수 + 정렬
     events = [e for e in events if today.isoformat() <= e["date"] <= horizon.isoformat()]
-    events = merge_events(events)  # 무료연장(2h 미만) 흡수 — "(1H) 예약됨" 오해 제거
+    events = merge_events(events)
     events.sort(key=lambda e: (e["date"], e["start"], e["room"]))
+    return events, fetched_ok, fetch_failed
+
+
+def _alert_fetch_fail(msg):
+    """두 iCal 모두 실패(예약현황 갱신 불능) 경보 — silent-failure 방지.
+    nuvie_morning.report.alert_throttled로 #이상감지 1회(6h 쿨다운). import 불가(단독 실행)·
+    웹훅 미설정이면 stdout(=refresh_log.txt)에 남은 FETCH FAIL 로그만으로 폴백(graceful)."""
+    try:
+        try:
+            import nuvie_morning.report as R
+        except Exception:
+            # 단독 실행(cwd=Projects\nuvie-landing) 시엔 홈(C:\Users\kgr96)이 path에 없음 → 보강 후 재시도
+            home = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            if home not in sys.path:
+                sys.path.insert(0, home)
+            import nuvie_morning.report as R
+        R.alert_throttled("availability_fetch_down", msg, hours=6)
+    except Exception as e:
+        print(f"  (경보 전송 스킵 — refresh_log 폴백: {str(e)[:80]})")
+
+
+def push_changes(repo, n_events):
+    """availability.json git add+commit+rebase+push (Vercel 자동 재배포). 반환 pushed:bool."""
+    try:
+        subprocess.run(["git", "-C", repo, "add", "availability.json"], check=True)
+        subprocess.run(["git", "-C", repo,
+                        "-c", "user.name=kimsougwoo",
+                        "-c", "user.email=143887564+kimsougwoo@users.noreply.github.com",
+                        "commit", "-q", "-m", f"예약현황 갱신(자동 30분): 예약 {n_events}건"], check=True)
+        # ⚠️ 2026-07-03: push 전 rebase — 외부(수동 히어로 편집·GitHub 웹)로 origin이 앞서도
+        # 강제덮어쓰기 없이 availability 커밋을 그 위에 리베이스(split-brain·수동수정 유실 방지).
+        # availability.json은 봇 전용이라 index.html 등 수동파일과 충돌 사실상 없음.
+        pr = subprocess.run(["git", "-C", repo, "pull", "--rebase", "origin", "main"],
+                            capture_output=True, text=True)
+        if pr.returncode != 0:
+            subprocess.run(["git", "-C", repo, "rebase", "--abort"], capture_output=True)
+            print("  rebase 충돌 → push 보류(수동 확인 필요):", (pr.stderr or "")[:200])
+            return False
+        subprocess.run(["git", "-C", repo, "push", "origin", "main"], check=True)
+        print("  변경 감지 → rebase+push 완료 (Vercel 자동 재배포)")
+        return True
+    except Exception as e:
+        print("  push 실패:", e)
+        return False
+
+
+def main(argv=None, repo=None):
+    argv = sys.argv if argv is None else argv
+    env = load_env(ENV)
+    today = datetime.date.today()
+    repo = repo or os.path.dirname(os.path.abspath(__file__))
+    dst = os.path.join(repo, "availability.json")
+    old_events = _load_old_events(dst)
+
+    events, fetched_ok, fetch_failed = compute_events(env, today, old_events)
+
+    if fetched_ok == 0:
+        # 신선 페치 0건 → 직전 availability.json을 **그대로 둔다**(빈값 덮어쓰기 = 예약된 날이
+        # '가능'으로 공개 배포되는 사고). 파일 미접촉·push 스킵. 페치 실패가 원인이면 #이상감지 경보.
+        print(f"  ❌ FETCH FAIL — availability.json 미갱신·push 스킵(직전값 유지, 실패 {fetch_failed})")
+        if fetch_failed:
+            _alert_fetch_fail(
+                f"🔴 예약현황 iCal {fetch_failed}개 전부 페치 실패 — availability.json 갱신 중단"
+                "(직전값 유지·공개 사이트 안전). 피드 URL·아워플레이스 점검 필요.")
+        return
+
     busy = sorted({e["date"] for e in events})
     out = {
         "updated": datetime.datetime.now().isoformat(timespec="minutes"),
@@ -137,43 +239,18 @@ def main():
         "events": events,
         "busyDates": busy,
     }
-    repo = os.path.dirname(os.path.abspath(__file__))
-    dst = os.path.join(repo, "availability.json")
-    # 변경 비교: events가 다를 때만 의미있는 갱신
-    old_events = None
-    if os.path.exists(dst):
-        try:
-            old_events = json.load(open(dst, encoding="utf-8")).get("events")
-        except Exception:
-            pass
     json.dump(out, open(dst, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    changed = (old_events != events)
-    print(f"availability.json 작성: 예약 {len(events)}건 / {len(busy)}일 (이름 0개 노출) · 변경={changed}")
+    changed = ((old_events or []) != events)
+    print(f"availability.json 작성: 예약 {len(events)}건 / {len(busy)}일 (이름 0개 노출) · "
+          f"변경={changed} · 페치성공 {fetched_ok}/실패 {fetch_failed}")
     print("  샘플:", events[:4])
 
-    if "--push" in sys.argv:
+    if "--push" in argv:
         if not changed:
             print("  변경 없음 → push 생략")
             return
-        try:
-            subprocess.run(["git", "-C", repo, "add", "availability.json"], check=True)
-            subprocess.run(["git", "-C", repo,
-                            "-c", "user.name=kimsougwoo",
-                            "-c", "user.email=143887564+kimsougwoo@users.noreply.github.com",
-                            "commit", "-q", "-m", f"예약현황 갱신(자동 30분): 예약 {len(events)}건"], check=True)
-            # ⚠️ 2026-07-03: push 전 rebase — 외부(수동 히어로 편집·GitHub 웹)로 origin이 앞서도
-            # 강제덮어쓰기 없이 availability 커밋을 그 위에 리베이스(split-brain·수동수정 유실 방지).
-            # availability.json은 봇 전용이라 index.html 등 수동파일과 충돌 사실상 없음.
-            pr = subprocess.run(["git", "-C", repo, "pull", "--rebase", "origin", "main"],
-                                capture_output=True, text=True)
-            if pr.returncode != 0:
-                subprocess.run(["git", "-C", repo, "rebase", "--abort"], capture_output=True)
-                print("  rebase 충돌 → push 보류(수동 확인 필요):", (pr.stderr or "")[:200])
-                return
-            subprocess.run(["git", "-C", repo, "push", "origin", "main"], check=True)
-            print("  변경 감지 → rebase+push 완료 (Vercel 자동 재배포)")
-        except Exception as e:
-            print("  push 실패:", e)
+        push_changes(repo, len(events))
+
 
 if __name__ == "__main__":
     main()
