@@ -762,7 +762,21 @@
   // B_URL 배선 중지(2026-07-14): B룸 리뉴얼로 예약 비활성화.
   // place/62341이 아워플레이스에서 숨김 처리돼, 연결 시 "숨겨졌거나 삭제된 플레이스" 오류로 이어졌음.
   // book-b/end-b는 <span>으로 교체돼 클릭 불가 — 재개 시 여기 var B_URL 복구 후 아래 forEach도 되살릴 것.
-  function trackBook(room){return function(){try{if(window.gtag)gtag('event','book_click',{room:room,transport_type:'beacon'});if(window.fbq)fbq('track','Lead',{room:room});}catch(e){}};}
+  // 광고 클릭 원장(2026-07-18): 예약버튼 클릭 시 Meta 픽셀 쿠키(_fbc·_fbp)를 읽어 GA4 ad_capture로 캡처.
+  // book_click/Lead는 광고 파일럿 판독 지표라 절대 불변 — 아래 헬퍼·이벤트는 별도 try/catch로 완전히 분리.
+  function readCookie(name){
+    try{
+      var m=document.cookie.match(new RegExp('(?:^|; )'+name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'=([^;]*)'));
+      return m?decodeURIComponent(m[1]):'';
+    }catch(e){return '';}
+  }
+  function trackBook(room){return function(){
+    try{if(window.gtag)gtag('event','book_click',{room:room,transport_type:'beacon'});if(window.fbq)fbq('track','Lead',{room:room});}catch(e){}
+    try{
+      var fbc=readCookie('_fbc'), fbp=readCookie('_fbp');
+      if((fbc||fbp)&&window.gtag)gtag('event','ad_capture',{fbc:fbc,fbp:fbp,room:room,transport_type:'beacon'});
+    }catch(e){}
+  };}
   ['book-side','book-a','end-a','book-mobile'].forEach(function(id){var e=document.getElementById(id);if(e){e.href=A_URL;e.addEventListener('click',trackBook('a'));}});
   // 예약 현황 클릭 → 아워플레이스 (Clarity 실측: '예약됨' 칩 데드클릭 1·2위 — 클릭 의도를 예약으로 전환)
   // ⚠️ GA 이벤트는 avail_click 별도 사용 — book_click은 광고 파일럿 판독 지표라 정의 불변(계측 오염 금지)
