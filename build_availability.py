@@ -202,7 +202,19 @@ def push_changes(repo, n_events):
                             capture_output=True, text=True)
         if pr.returncode != 0:
             subprocess.run(["git", "-C", repo, "rebase", "--abort"], capture_output=True)
-            print("  rebase 충돌 → push 보류(수동 확인 필요):", (pr.stderr or "")[:200])
+            # 🔧 2026-07-23: 충돌 자가치유. availability.json은 봇 전용이라, 스톨된 로컬 커밋이
+            #   이 파일만 건드렸다면 origin에 맞추고(스냅샷 폐기) 신선본은 다음 30분 런이 재생성한다.
+            #   과거엔 abort 후 그냥 return False → 커밋이 영구 적체(ahead 누적)돼 스톨했다.
+            #   ⚠️ 다른 파일이 섞였으면 자동 폐기 위험 → 종전대로 보류(수동 확인).
+            diff = subprocess.run(["git", "-C", repo, "diff", "--name-only", "origin/main..HEAD"],
+                                  capture_output=True, text=True)
+            touched = {f.strip() for f in (diff.stdout or "").splitlines() if f.strip()}
+            if touched and touched <= {"availability.json"}:
+                subprocess.run(["git", "-C", repo, "reset", "--hard", "origin/main"], check=True)
+                print("  rebase 충돌 → availability 전용 로컬커밋이라 origin에 맞춤(다음 런 재생성). 스톨 자가치유.")
+            else:
+                print(f"  rebase 충돌 → push 보류(availability 외 변경 {sorted(touched)} 有, 수동 확인):",
+                      (pr.stderr or "")[:150])
             return False
         subprocess.run(["git", "-C", repo, "push", "origin", "main"], check=True)
         print("  변경 감지 → rebase+push 완료 (Vercel 자동 재배포)")
@@ -233,21 +245,29 @@ def main(argv=None, repo=None):
         return
 
     busy = sorted({e["date"] for e in events})
-    out = {
-        "updated": datetime.datetime.now().isoformat(timespec="minutes"),
-        "note": "free/busy (아워플레이스 iCal · 이름 비노출, 시간·룸만). 참고용 — 확정은 아워플레이스.",
-        "events": events,
-        "busyDates": busy,
-    }
-    json.dump(out, open(dst, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     changed = ((old_events or []) != events)
-    print(f"availability.json 작성: 예약 {len(events)}건 / {len(busy)}일 (이름 0개 노출) · "
-          f"변경={changed} · 페치성공 {fetched_ok}/실패 {fetch_failed}")
+    # 🔧 2026-07-23: 변경이 있을 때만 파일을 쓴다. 종전엔 매 런 `updated` 타임스탬프를 무조건
+    #   재기록 → 이벤트 변화가 없어도 워킹트리가 dirty → 다음 런의 `git pull --rebase`가 dirty로
+    #   막혀 크론이 스톨했다(라이브 예약현황 8일 고착 사고, 2026-07-23). 변경 시에만 기록.
+    if changed:
+        out = {
+            "updated": datetime.datetime.now().isoformat(timespec="minutes"),
+            "note": "free/busy (아워플레이스 iCal · 이름 비노출, 시간·룸만). 참고용 — 확정은 아워플레이스.",
+            "events": events,
+            "busyDates": busy,
+        }
+        json.dump(out, open(dst, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    print(f"availability.json {'작성' if changed else '변화없음(미기록)'}: 예약 {len(events)}건 / "
+          f"{len(busy)}일 (이름 0개 노출) · 변경={changed} · 페치성공 {fetched_ok}/실패 {fetch_failed}")
     print("  샘플:", events[:4])
 
     if "--push" in argv:
         if not changed:
             print("  변경 없음 → push 생략")
+            # dirty-잔류 방지(멱등): 과거 버그로 남았을 수 있는 타임스탬프-only 오염을 되돌려
+            #   다음 런의 pull --rebase가 막히지 않게 한다. 변경 없으니 되돌려도 무손실.
+            subprocess.run(["git", "-C", repo, "checkout", "--", "availability.json"],
+                           capture_output=True)
             return
         push_changes(repo, len(events))
 
