@@ -1,38 +1,54 @@
 {
-  "updated": "2026-07-16",
+  "updated": "2026-07-24",
   "source": "아워플레이스 A룸 후기",
   "place_id": 61823,
   "rating": 5.0,
-  "count": 7,
+  "count": 8,
   "note": "후기 데이터 정본. 사진은 게스트 후기 첨부(전원 공간 컷·인물 0명·G4 통과). index.html이 이 파일을 읽어 카드 렌더. 갱신 시 이 파일만 수정.",
   "reviews": [
+    {
+      "name": "라강",
+      "date": "2026-07-23",
+      "rating": "5",
+      "text": "소품이 난잡하지않고 깔끔한 스튜디오를 좋아하는편이어서 바로 예약했습니다\n정리상태도 정말 깔끔하고 블랙호리존도 같이 딸려있어서 아주좋았습니다\n보통 2시간이면 찍을거 다 찍는편인데 공간 활용도가 좋아서 3시간 할걸했습니다ㅠㅠ\n아주아주 넓지는 않지만 또 좁지도않습니다\n연출용 천도 자유롭게 쓸수있어서 다른거 동양풍 촬영할때 또 갈거같네요!\n주차장이 따로 있진않고 엘레베이터 없는 4층이어서 짐이 많으신분들은 요부분만 각오하시면 되겠습니다ㅋㅋㅋ\n다음에 또 갈게요!",
+      "photos": []
+    },
     {
       "name": "ctebdgvrf",
       "date": "2026-07-16",
       "rating": 5,
       "text": "N회차 방문입니다~ 공간이 익숙해지니까 촬영 폭이 넓어져서 너무 좋네요.",
-      "photos": ["reviews/rv_ctebdgvrf_a1.jpg", "reviews/rv_ctebdgvrf_a2.jpg"]
+      "photos": [
+        "reviews/rv_ctebdgvrf_a1.jpg",
+        "reviews/rv_ctebdgvrf_a2.jpg"
+      ]
     },
     {
       "name": "물어링",
       "date": "2026-07-12",
       "rating": 5,
       "text": "다른 동양풍 스튜디오랑 다른 사진을 찍기 좋았어요.",
-      "photos": ["reviews/rv_muleoring.jpg"]
+      "photos": [
+        "reviews/rv_muleoring.jpg"
+      ]
     },
     {
       "name": "ctebdgvrf",
       "date": "2026-06-21",
       "rating": 5,
       "text": "사장님 안내받아서 촬영했습니다~ 슈팅레인지 계륵 기준으로 충분하고 기물이나 조명, 삼각대 모두 넉넉해서 편하게 촬영했어요! 에어컨 빵빵하고 탈의실도 시원해서 좋았습니다~",
-      "photos": ["reviews/rv_ctebdgvrf_b1.jpg"]
+      "photos": [
+        "reviews/rv_ctebdgvrf_b1.jpg"
+      ]
     },
     {
       "name": "sjm2449",
       "date": "2026-06-19",
       "rating": 5,
       "text": "여러 동양풍 스튜디오를 촬영해봤지만 누비 스튜디오는 기존 동양풍 스튜디오와는 또 다른 분위기를 연출할 수 있다는 점이 좋았습니다. 스튜디오 내에 다양한 조명 장비가 구비되어 있어 별도 장비 없이도 여러 라이팅 세팅을 손쉽게 시도할 수 있었고, 인물 중심부터 분위기 연출까지 폭넓게 대응할 수 있었어요.",
-      "photos": ["reviews/rv_sjm2449.jpg"]
+      "photos": [
+        "reviews/rv_sjm2449.jpg"
+      ]
     },
     {
       "name": "휘",
