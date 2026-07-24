@@ -60,7 +60,7 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"예약하려면 문의해야 하나요?","acceptedAnswer":{"@type":"Answer","text":"아니요, 문의 없이 바로 예약됩니다. 캘린더에서 빈 시간 확인 후 아워플레이스에서 바로 결제하면, 이용 당일 아침 주소·도어락·주차 안내 메시지가 도착합니다."}},
 {"@type":"Question","name":"스튜디오 주소가 어디인가요?","acceptedAnswer":{"@type":"Answer","text":"서울 강서구 화곡동 874-12 남양빌딩 4층입니다. 5호선 까치산역 1번 출구에서 도보 약 10분(674m) 거리입니다. 건물 자체 주차장은 없어서, 근처 공영주차장(곰달래문화복지센터 공영주차장, 화곡복합문화센터 주차장, 도보 3~5분)을 이용하시면 됩니다."}},
-{"@type":"Question","name":"예약은 어떻게 하나요?","acceptedAnswer":{"@type":"Answer","text":"A룸은 아워플레이스에서 예약하실 수 있습니다. A룸 버튼을 누르면 아워플레이스로 이동합니다. B룸(화이트 티타임 카페)은 8월 오픈 예정이며, 오픈에 맞춰 예약을 여는 대로 안내드리겠습니다. 문의는 아워플레이스 메시지로 보내주세요."}},
+{"@type":"Question","name":"예약은 어떻게 하나요?","acceptedAnswer":{"@type":"Answer","text":"A룸과 B룸 모두 아워플레이스에서 예약하실 수 있습니다. 각 룸 버튼을 누르면 아워플레이스로 이동합니다. B룸(화이트 티타임 카페)은 8월에 오픈하지만 예약은 지금 열려 있어, 미리 예약하실 수 있습니다. 문의는 아워플레이스 메시지로 보내주세요."}},
 {"@type":"Question","name":"무인으로 운영되나요?","acceptedAnswer":{"@type":"Answer","text":"네, 무인 운영입니다. 예약 확정 후 이용 당일 오전에 현관문 비밀번호와 이용하시는 룸의 비밀번호, 주차 위치를 메시지로 안내드립니다."}},
 {"@type":"Question","name":"몇 명까지 이용할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"기본인원은 4인입니다. 최소 대여 가능 시간은 2시간이며, 기준 인원을 넘으면 인당·시간당 추가 요금이 있습니다."}},
 {"@type":"Question","name":"요금은 얼마인가요?","acceptedAnswer":{"@type":"Answer","text":"룸과 이용 시간에 따라 달라집니다. 정확한 요금과 예약 가능 시간은 아워플레이스 예약 페이지에서 확인하실 수 있습니다."}},
@@ -582,7 +582,7 @@
             <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">티세트</span>
             <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">약 11평</span>
           </div>
-          <div><span class="btn" id="book-b" aria-disabled="true" role="button" style="pointer-events:none;opacity:.45;cursor:not-allowed;filter:grayscale(.35)">8월 오픈 예정</span></div>
+          <div><a class="btn" id="book-b" href="#" target="_blank" rel="noopener">B룸 예약 →</a></div>
         </div>
       </div></div>
 
@@ -638,7 +638,7 @@
         <span class="snum">03</span>
         <div><div class="skick">Availability</div><h2>예약 현황</h2></div>
       </div>
-      <p class="desc" data-reveal style="margin:0 0 40px">월간 예약 현황.<br>B룸은 8월 오픈 예정이라, 현재는 A룸만 예약받고 있어요.<br>확정 예약은 아워플레이스에서.</p>
+      <p class="desc" data-reveal style="margin:0 0 40px">월간 예약 현황.<br>B룸은 8월 오픈, 예약은 지금 받고 있어요.<br>확정 예약은 아워플레이스에서.</p>
       <div data-reveal style="border:1px solid var(--line);border-radius:6px;padding:22px 22px 20px;background:var(--panel)">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap">
           <div style="display:flex;align-items:center;gap:6px">
@@ -751,10 +751,10 @@
       <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none"><span style="font-family:var(--label-font);font-weight:700;font-size:clamp(120px,22vw,300px);color:var(--accent);opacity:.05;letter-spacing:-.04em;line-height:1">NUVIE</span></div>
       <div class="inner" style="position:relative">
         <h2 data-reveal style="font-weight:700;font-size:clamp(30px,4.4vw,52px);letter-spacing:-.03em;margin:0 0 12px">촬영, NUVIE에서.</h2>
-        <p data-reveal style="color:var(--dim);margin:0 0 30px;font-size:15px">A룸은 아워플레이스에서 바로 예약할 수 있어요. B룸(화이트 티타임 카페)은 8월 오픈 예정이에요.</p>
+        <p data-reveal style="color:var(--dim);margin:0 0 30px;font-size:15px">A룸은 아워플레이스에서 바로 예약할 수 있어요.<br>B룸(화이트 티타임 카페)은 8월 오픈, 예약은 지금 열렸어요.</p>
         <div data-reveal style="display:flex;gap:11px;justify-content:center;flex-wrap:wrap">
           <a class="btn" id="end-a" href="#" target="_blank" rel="noopener" style="padding:15px 30px;font-size:14.5px">A룸 예약</a>
-          <span class="btn line" id="end-b" aria-disabled="true" role="button" style="padding:15px 30px;font-size:14.5px;pointer-events:none;opacity:.45;cursor:not-allowed">B룸 8월 오픈 예정</span>
+          <a class="btn line" id="end-b" href="#" target="_blank" rel="noopener" style="padding:15px 30px;font-size:14.5px">B룸 예약</a>
         </div>
       </div>
     </section>
@@ -772,9 +772,9 @@
 <script>
 (function(){
   var A_URL='https://www.hourplace.co.kr/place/61823';
-  // B_URL 배선 중지(2026-07-14): B룸 리뉴얼로 예약 비활성화.
-  // place/62341이 아워플레이스에서 숨김 처리돼, 연결 시 "숨겨졌거나 삭제된 플레이스" 오류로 이어졌음.
-  // book-b/end-b는 <span>으로 교체돼 클릭 불가 — 재개 시 여기 var B_URL 복구 후 아래 forEach도 되살릴 것.
+  var B_URL='https://www.hourplace.co.kr/place/62341';
+  // B룸 예약 배선 재개(2026-07-24): 리스팅 공개 전환 완료(place/62341 노출 ON) → book-b/end-b <a>로 복구·재연결.
+  // 오픈은 8월이지만 예약은 지금 열림(대표 지시 2026-07-24 "버튼만 연결, 8월 오픈 유지").
   // 광고 클릭 원장(2026-07-18): 예약버튼 클릭 시 Meta 픽셀 쿠키(_fbc·_fbp)를 읽어 GA4 ad_capture로 캡처.
   // book_click/Lead는 광고 파일럿 판독 지표라 절대 불변 — 아래 헬퍼·이벤트는 별도 try/catch로 완전히 분리.
   function readCookie(name){
@@ -791,6 +791,7 @@
     }catch(e){}
   };}
   ['book-side','book-a','end-a','book-mobile'].forEach(function(id){var e=document.getElementById(id);if(e){e.href=A_URL;e.addEventListener('click',trackBook('a'));}});
+  ['book-b','end-b'].forEach(function(id){var e=document.getElementById(id);if(e){e.href=B_URL;e.addEventListener('click',trackBook('b'));}});
   // 예약 현황 클릭 → 아워플레이스 (Clarity 실측: '예약됨' 칩 데드클릭 1·2위 — 클릭 의도를 예약으로 전환)
   // ⚠️ GA 이벤트는 avail_click 별도 사용 — book_click은 광고 파일럿 판독 지표라 정의 불변(계측 오염 금지)
   function trackAvail(){try{if(window.gtag)gtag('event','avail_click',{transport_type:'beacon'});}catch(e){}}
