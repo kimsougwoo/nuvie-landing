@@ -10,6 +10,15 @@
 """
 import os, re, json, datetime, urllib.request, subprocess, sys
 
+# 콘솔 인코딩 가드(2026-07-24): 작업 스케줄러로 돌면 stdout이 cp949라, 예약이 있는 날
+# print하는 em-dash("예약 — OK")에서 UnicodeEncodeError로 죽었다 → CS_Watch RC=1 데드맨.
+# 예약 없는 날은 그 줄을 안 타서 조용히 지나갔던 게 늦게 발견된 이유. UTF-8로 고정한다.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
 ENV = r"F:\무인 렌탈스튜디오 인수\.env"
 
 def load_env(path):
