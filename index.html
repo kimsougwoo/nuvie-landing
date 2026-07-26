@@ -571,7 +571,7 @@
 
       <div class="roomwrap roomB-full" style="direction:rtl"><div class="room" data-reveal style="position:relative;display:grid;grid-template-columns:1.25fr 1fr;border:1px solid var(--line);border-radius:6px;margin-bottom:18px;overflow:hidden">
         <div class="rimg" style="position:relative;min-height:380px;overflow:hidden;background:linear-gradient(135deg,var(--elev),var(--panel))">
-          <img loading="lazy" decoding="async" src="https://res.cloudinary.com/dve73qgfr/image/upload/f_auto,q_auto/nuvie/broom/broom_wide_260723.jpg" alt="B룸 화이트 티타임 카페 전경" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover">
+          <img data-fallback="1" loading="lazy" decoding="async" src="/img/room-b.jpg" alt="B룸 화이트 티타임 카페 전경 — 자연광이 드는 화이트 톤 공간에 흰 테이블 세팅" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover">
           <span style="position:absolute;left:14px;top:14px;font-family:var(--label-font);font-size:10.5px;letter-spacing:.14em;color:#fff;background:rgba(20,17,15,.55);padding:4px 10px;border-radius:999px;backdrop-filter:blur(3px)">8월 오픈</span>
         </div>
         <div style="position:relative;direction:ltr;padding:42px 40px;display:flex;flex-direction:column;justify-content:center;overflow:hidden">
@@ -628,12 +628,21 @@
         <h3 style="font-size:19px;font-weight:600;letter-spacing:-.015em;margin:0">자연광 룸</h3>
         <span style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.04em;color:var(--dim)">화이트 티타임 카페 · 8월 오픈</span>
       </div>
+      <!-- 2026-07-26 교체: 구 3장은 리뉴얼 마무리 단계의 임시컷(Cloudinary 단독본)이었다.
+           낮 촬영본(자연광·인물 0)으로 6장 전면 교체 + 로컬 img/ 로 이관 —
+           클라우드에만 있는 유일본을 남기지 않는다(원본 = F:\…\source\누비-20260726…). -->
+      <div class="nv-carwrap">
+        <button type="button" class="nv-arrow prev" aria-label="이전 사진">&#8249;</button>
+        <button type="button" class="nv-arrow next" aria-label="다음 사진">&#8250;</button>
       <div class="gal" data-reveal style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:14px">
-        <div style="aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-zoom loading="lazy" decoding="async" src="https://res.cloudinary.com/dve73qgfr/image/upload/f_auto,q_auto/nuvie/broom/broom_wide_260723.jpg" alt="B룸 화이트 티타임 카페 전경" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">전경</span></div>
-        <div style="aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-zoom loading="lazy" decoding="async" src="https://res.cloudinary.com/dve73qgfr/image/upload/f_auto,q_auto/nuvie/broom/broom_teaser_260724_tea.jpg" alt="B룸 티테이블 세팅" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">티테이블</span></div>
-        <div style="aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-zoom loading="lazy" decoding="async" src="https://res.cloudinary.com/dve73qgfr/image/upload/f_auto,q_auto/nuvie/broom/broom_tableware_260723.jpg" alt="B룸 티세트·식기" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">티세트</span></div>
+        <div style="aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom loading="lazy" decoding="async" src="/img/galB0.jpg" alt="B룸 티 카트 — 3단 트롤리에 올린 찻잔과 케이크" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">티 카트</span></div>
+        <div style="aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom loading="lazy" decoding="async" src="/img/galB1.jpg" alt="B룸 오후 자연광이 드는 창가와 핑크 소파" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">오후 자연광</span></div>
+        <div style="aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom loading="lazy" decoding="async" src="/img/galB2.jpg" alt="B룸 티세트 — 금장 찻잔과 케이크" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">티세트</span></div>
+        <div style="aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom loading="lazy" decoding="async" src="/img/galB3.jpg" alt="B룸 앤티크 코너 — 원목 서랍장과 거울, 레이스 티테이블" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">앤티크 코너</span></div>
+        <div style="aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom loading="lazy" decoding="async" src="/img/galB4.jpg" alt="B룸 전경 — 통창과 흰 테이블 세팅" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">전경</span></div>
+        <div style="aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"><img data-fallback="1" data-zoom loading="lazy" decoding="async" src="/img/galB5.jpg" alt="B룸에 딸린 파우더룸 — 원목 데스크와 거울" style="position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s ease"><span style="position:absolute;left:14px;bottom:12px;font-family:var(--label-font);font-size:11px;letter-spacing:.12em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)">파우더룸</span></div>
       </div>
-      <p data-reveal style="text-align:center;font-size:12.5px;color:var(--faint);margin:16px 0 0;line-height:1.7">리뉴얼 마무리 단계의 컷이에요. 오픈에 맞춰 더 담아 올릴게요.</p>
+      </div>
     </div></section>
 
     <section id="availability" class="sec"><div class="inner">
@@ -1065,7 +1074,8 @@
       });
     });
   }
-  wire(document.querySelector('.gal'));
+  // ⚠️ querySelector(단수)면 A룸 갤러리만 배선되고 B룸 화살표는 죽는다(2026-07-26 B룸 6장 확장 시 발견).
+  Array.prototype.slice.call(document.querySelectorAll('.gal')).forEach(wire);
   wire(document.getElementById('reviewCards'));
 })();
 
