@@ -54,6 +54,38 @@ def test_real_reviews_json_all_surfaces_consistent():
     assert B.sync_llms_text(llms, count, rating) == llms, "llms.txt 미정합 — build_reviews.py 실행 필요"
 
 
+def test_every_review_rating_is_a_number_not_a_string():
+    """🔥 2026-07-26 라이브 사고의 재현 — 히어로 배지에 **6944444.4** 가 찍혔다.
+
+    원인은 JS 타입 강제 변환이다. `reviews.json` 의 후기 8건 중 **한 건만** rating 이
+    숫자 5 가 아니라 문자열 "5" 였는데, `sum += v.rating` 이 문자열을 만나는 순간
+    덧셈이 **이어붙이기**로 바뀐다:  0 + "5" → "05" → "055" → … → "05555555"
+    그리고 "05555555" / 8 = 6944444.375 → toFixed(1) = 6944444.4.
+
+    파이썬 쪽(`load_facts`)은 `float()` 로 감싸서 멀쩡했기 때문에 **빌드 스크립트도,
+    표면 정합 테스트도 전부 통과했다** — 깨진 건 브라우저에서만 보이는 JS 경로뿐이었다.
+    그래서 데이터 타입 자체를 여기서 못박는다.
+    """
+    data = json.load(open(os.path.join(HERE, "reviews.json"), encoding="utf-8"))
+    bad = [(i, r.get("rating")) for i, r in enumerate(data.get("reviews", []))
+           if not isinstance(r.get("rating"), (int, float)) or isinstance(r.get("rating"), bool)]
+    assert not bad, (
+        f"rating 이 숫자가 아닌 후기: {bad} — JS 에서 문자열 덧셈이 되어 평점이 폭주한다"
+        " (2026-07-26 히어로 배지 6944444.4 사고)")
+
+
+def test_hero_badge_js_coerces_rating_to_number():
+    """데이터를 고치는 것만으로는 **또 들어온다** — 소비하는 코드도 방어해야 한다.
+
+    후기는 사람이 손으로 큐레이션하므로(`build_reviews.py` 주석 참조) 언제든 따옴표가
+    다시 붙을 수 있다. 클래스를 고친다 = 합산 시점에 숫자로 강제한다.
+    """
+    html = open(os.path.join(HERE, "index.html"), encoding="utf-8").read()
+    assert "sum+=(Number(v.rating)||5)" in html.replace(" ", ""), (
+        "히어로 평점 합산이 v.rating 을 숫자로 강제하지 않는다 — "
+        "문자열 rating 하나가 다시 들어오면 평점이 또 폭주한다")
+
+
 if __name__ == "__main__":
     import sys
     try:

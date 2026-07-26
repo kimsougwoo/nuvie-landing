@@ -527,7 +527,10 @@
           if(c)c.textContent=n; if(t)t.textContent=n;
           // 히어로 ★평점·후기건수 배지 — 같은 reviews.json 데이터 재사용(하드코딩 금지), 데이터 없으면 숨김 유지
           if(n>0){
-            var sum=0; rv.forEach(function(v){sum+=(v.rating||5);});
+            // ⚠️ Number() 필수 — rating 이 문자열("5")로 하나만 들어와도 `+` 가 이어붙이기로
+            //    바뀌어 평균이 폭주한다(2026-07-26 라이브에 6944444.4 노출). 후기는 수기
+            //    큐레이션이라 따옴표가 다시 붙을 수 있으므로 데이터가 아니라 여기서 막는다.
+            var sum=0; rv.forEach(function(v){sum+=(Number(v.rating)||5);});
             var avg=(sum/rv.length).toFixed(1);
             var hb=document.getElementById('heroReviewBadge'), ht=document.getElementById('heroReviewText');
             if(hb&&ht){ ht.textContent=avg+' · 아워플레이스 후기 '+n+'건'; hb.style.display='inline-flex'; }
