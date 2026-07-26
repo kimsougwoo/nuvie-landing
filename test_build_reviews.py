@@ -101,3 +101,41 @@ if __name__ == "__main__":
             failed += 1; print(f"FAIL {fn.__name__}: {e}")
     print(f"== {len(fns)-failed}/{len(fns)} passed ==")
     sys.exit(1 if failed else 0)
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# 정적 후기 폴백 — 크롤러가 읽는 유일한 후기 본문
+#
+# 후기 카드는 fetch(reviews.json) 로 브라우저에서만 그려진다. 상당수 AI 크롤러는
+# JS 를 실행하지 않으므로, 정적 폴백이 없으면 **실제 게스트 후기가 크롤러에게
+# 존재하지 않는다**(AEO 목표와 정면 충돌 — 2026-07-26).
+#
+# 그런데 이 블록은 손으로 박으면 정본이 하나 더 늘어난다. build_reviews.py 가
+# reviews.json 에서 재생성하고, 아래 테스트가 어긋남을 잡는다.
+# ══════════════════════════════════════════════════════════════════════════
+def test_static_review_block_is_in_sync():
+    """reviews.json 을 고치고 build_reviews.py 를 안 돌리면 여기서 걸린다."""
+    data = json.load(open(os.path.join(HERE, "reviews.json"), encoding="utf-8"))
+    html = open(os.path.join(HERE, "index.html"), encoding="utf-8").read()
+    assert B.STATIC_START in html and B.STATIC_END in html, "정적 후기 마커가 사라졌다"
+    assert B.sync_static_reviews(html, data) == html, (
+        "정적 후기 블록이 reviews.json 과 어긋났다 — build_reviews.py 를 실행할 것")
+
+
+def test_static_block_carries_verbatim_text():
+    """수치(9건·5.0)만 있고 근거 문장이 없으면 크롤러가 인용할 게 없다."""
+    data = json.load(open(os.path.join(HERE, "reviews.json"), encoding="utf-8"))
+    html = open(os.path.join(HERE, "index.html"), encoding="utf-8").read()
+    blk = html[html.index(B.STATIC_START):html.index(B.STATIC_END)]
+    newest = sorted(data["reviews"], key=lambda v: v.get("date") or "", reverse=True)[0]
+    assert newest["text"][:20] in blk, "최신 후기 본문이 정적 블록에 없다"
+    assert blk.count('role="listitem"') == B.STATIC_N
+
+
+def test_static_block_escapes_html():
+    """후기는 게스트가 쓴 외부 입력이다 — 그대로 HTML 에 박으면 마크업이 깨진다."""
+    data = {"reviews": [{"name": "a<b>", "date": "2026-01-01", "rating": 5,
+                         "text": '<script>alert("x")</script> & "따옴표"'}]}
+    out = B.render_static_reviews(data, n=1)
+    assert "<script>" not in out and "&lt;script&gt;" in out
+    assert "&amp;" in out and "&quot;" in out
