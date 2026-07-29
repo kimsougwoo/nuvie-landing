@@ -52,7 +52,11 @@
 <meta name="twitter:description" content="눈치 보지 않는 코스프레 무인 스튜디오. 동양풍 블랙 호리존 A룸, 화이트 티타임 카페 B룸. 까치산역 도보 10분.">
 <meta name="twitter:image" content="https://www.nuviestudio.com/og.jpg">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<!-- 2026-07-29 P0 성능: static 전체(unicode-range 없음, 4 weight 합 3,121,336B = 2.98MB, 페이지 이미지
+     전량 2.24MB보다 컸다) → dynamic-subset 로 교체. 같은 호스트(cdn.jsdelivr.net)라 위 preconnect 불변.
+     @font-face 는 weight 100~900 전부 유지되고 각 weight 가 unicode-range 92개 조각으로 쪼개져
+     실제 쓰는 글자 조각만 내려받는다(400/500/600/700 4종 모두 포함 확인). -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"LocalBusiness","name":"누비 스튜디오 NUVIE STUDIO","alternateName":["누비스튜디오","NUVIE STUDIO"],"description":"코스프레 촬영을 위한 컨셉 렌탈 스튜디오. 동양풍 블랙 호리존 A룸, 화이트 티타임 카페 B룸. 무인 운영.","url":"https://www.nuviestudio.com/","image":"https://www.nuviestudio.com/og.jpg","areaServed":"서울","address":{"@type":"PostalAddress","streetAddress":"화곡동 874-12 남양빌딩 4층","addressLocality":"서울 강서구","addressRegion":"서울","addressCountry":"KR"},"openingHours":"Mo-Su 00:00-24:00","hasMap":["https://naver.me/GM334mVo","https://place.map.kakao.com/918861206"],"sameAs":["https://x.com/nuvie_studio","https://www.instagram.com/nuvie_studio","https://naver.me/GM334mVo","https://place.map.kakao.com/918861206"],"keywords":"코스프레 스튜디오, 코스프레 렌탈, 컨셉 스튜디오, 까치산역 스튜디오, 강서구 코스프레, 동양풍 스튜디오, 자연광 스튜디오, 화이트 티타임 카페, 티타임 스튜디오, 동양풍 코스프레 스튜디오, 동양풍 코스프레 촬영","knowsAbout":["코스프레 촬영","동양풍 코스프레","블랙 호리존(BLACK CYC) 촬영","자연광 룩북·프로필 촬영"],"priceRange":"₩₩","aggregateRating":{"@type":"AggregateRating","ratingValue":"5.0","reviewCount":"9","bestRating":"5"},"review":[{"@type":"Review","author":{"@type":"Person","name":"휘"},"reviewRating":{"@type":"Rating","ratingValue":"5","bestRating":"5"},"reviewBody":"스튜디오 이쁘고 소품도 다양해서 좋습니다! 동양풍 스튜디오 많이 없어서…","publisher":{"@type":"Organization","name":"아워플레이스"}},{"@type":"Review","author":{"@type":"Person","name":"sjm2449"},"reviewRating":{"@type":"Rating","ratingValue":"5","bestRating":"5"},"reviewBody":"여러 동양풍 스튜디오를 촬영해봤지만 누비 스튜디오는 기존 동양풍 스튜디오와 다르게…","publisher":{"@type":"Organization","name":"아워플레이스"}},{"@type":"Review","author":{"@type":"Person","name":"해초쪼"},"reviewRating":{"@type":"Rating","ratingValue":"5","bestRating":"5"},"reviewBody":"스튜디오 깔끔하고 좋아요","publisher":{"@type":"Organization","name":"아워플레이스"}},{"@type":"Review","author":{"@type":"Person","name":"cccnexon"},"reviewRating":{"@type":"Rating","ratingValue":"5","bestRating":"5"},"reviewBody":"좋습니다 사진 잘 나와요","publisher":{"@type":"Organization","name":"아워플레이스"}}],"makesOffer":[{"@type":"Offer","name":"A룸 — 동양풍 & 블랙 호리존(BLACK CYC)","url":"https://www.hourplace.co.kr/place/61823","category":"코스프레 스튜디오 대관"},{"@type":"Offer","name":"B룸 — 화이트 티타임 카페(8월 3일 오픈 · 예약 가능)","url":"https://www.hourplace.co.kr/place/62341","availability":"https://schema.org/PreOrder","category":"촬영 스튜디오 대관"}]}
 </script>
@@ -72,7 +76,7 @@
   *{box-sizing:border-box}
   :root{
     --bg:#0E0E10; --panel:#161618; --elev:#202022; --line:#2A2A2C;
-    --ink:#F0EFED; --dim:#B9B1A6; --faint:#837C72;
+    --ink:#F0EFED; --dim:#B9B1A6; --faint:#8A8379; /* 2026-07-29 대비: on --panel 4.38→4.82:1 (WCAG AA 4.5 충족) */
     --accent:#A98C91; --accentSoft:#C4ADB1; --onAccent:#0E0E10;
     --btnBg:#F0EFED; --btnFg:#0E0E10; --btnHover:#D8C8CB;
     --roomA:#A98C91; --roomB:#C4ADB1;
@@ -81,7 +85,7 @@
   }
   [data-theme="light"]{
     --bg:#F0EFED; --panel:#FFFFFF; --elev:#FFFFFF; --line:#E2DCD2;
-    --ink:#1D1D1D; --dim:#6E685E; --faint:#9A948B;
+    --ink:#1D1D1D; --dim:#6E685E; --faint:#726C63; /* 2026-07-29 대비: on --bg 2.62→4.52:1. 지정값 #7C766D 는 --bg 기준 3.91 로 미달이라 한 단계 더 낮춤 */
     --accent:#7A5C61; --accentSoft:#5E4449; --onAccent:#F0EFED;
     --btnBg:#1D1D1D; --btnFg:#F0EFED; --btnHover:#5E4449;
     --roomA:#7A5C61; --roomB:#5E4449;
@@ -108,7 +112,10 @@
   .desc{color:var(--dim);max-width:560px;font-size:15px}
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--btnBg);color:var(--btnFg);font-weight:700;padding:12px 26px;border-radius:3px;font-size:14px;text-decoration:none;transition:background .25s,transform .25s}
   .btn:hover{background:var(--btnHover);transform:translateY(-2px)}
-  .btn.line{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:500}
+  /* 2026-07-29 대비: 테두리가 유일한 경계인 컨트롤(.btn.line/.nv-chip)만 --line(1.19:1) 에서 분리.
+     WCAG 비텍스트 3:1 기준. --line 전역은 불변(구분선·카드테두리는 그대로).
+     ⚠️지정값 ink 32% 는 실측 1.98~2.67:1 로 미달이라 50% 로 올림(라이트 3.17 / 다크 4.76). */
+  .btn.line{background:transparent;color:var(--ink);border:1px solid color-mix(in srgb, var(--ink) 50%, transparent);font-weight:500}
   .btn.line:hover{border-color:var(--accent);color:var(--accent);background:transparent;transform:translateY(-1px)}
   /* calendar */
   #calGrid .cell{min-height:96px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 7px 9px;display:flex;flex-direction:column;gap:3px;overflow:hidden;cursor:pointer}
@@ -228,7 +235,15 @@
        #dayDetail JS(클릭 리스너·fetch 로직 포함)가 완전히 그대로 처리하므로 JS 변경 없음(CSS 전용). */
     #calGrid .cell{min-height:46px!important;padding:4px 3px 3px!important}
     #calGrid .cell>div:nth-child(2)>div{font-size:0!important;line-height:0!important;padding:0!important;margin:0!important;
-      height:5px!important;min-height:5px!important;border-radius:3px!important;background:var(--accent)!important;opacity:.95;white-space:nowrap;overflow:hidden}
+      height:5px!important;min-height:5px!important;border-radius:3px!important;background:currentColor!important;opacity:1;white-space:nowrap;overflow:hidden}
+    /* ⚠️2026-07-29: 종전 background:var(--accent)!important 가 renderCal() 의 룸별 인라인 색을 전부 덮어
+       마커가 일색(rgb(169,140,145))이었다. 그런데 그 선언을 **제거만** 하면 인라인 배경
+       color-mix(--calA 15%, transparent) 가 드러나는데, 5px 바에서 15% 틴트는 실측 대비 1.22~1.34:1 로
+       사실상 안 보인다(원래 목적인 "B룸 가동을 읽는다"를 그대로 놓친다. opacity 로는 못 고친다 —
+       흐림의 원인이 opacity 가 아니라 color-mix 알파다).
+       ⇒ currentColor 를 쓴다. 같은 인라인이 color:var(--calA/B) 를 풀채도로 이미 갖고 있어
+       룸별 색이 그대로 살고 대비도 확보된다(실측 A 6.04:1 / B 9.30:1 on --panel).
+       데스크탑(>640px)은 이 규칙 밖이라 기존 15% 틴트+텍스트 라벨 그대로. */
 
     /* 9) 탭 타겟 44px 확보(2026-07-29 P2) — 인라인 style로 34/30px이 박혀 있어 !important 필수.
        .rdot(8×8 점 인디케이터)만 시각 크기를 유지해야 하므로 히트영역만 ::after로 넓힌다. */
@@ -249,6 +264,10 @@
 
   /* FAQ 열림 상태 표시 — 종전엔 details[open]이어도 summary의 "+"가 그대로라 열림/닫힘이 구분되지 않았다.
      45° 회전으로 "+"를 "×"로 읽히게 한다(전 뷰포트 공통). */
+  /* 2026-07-29 탭 타겟: summary 실측 높이 27.2px → 44px 확보. 늘어난 만큼은 details 인라인
+     padding 을 20px→12px 로 낮춰(아래 #faq details 규칙) 상쇄해 섹션 길이를 유지한다. */
+  #faq summary{min-height:44px;align-items:center}
+  #faq details{padding:12px 0!important}
   details > summary > span:last-child{display:inline-block;transition:transform .2s ease}
   details[open] > summary > span:last-child{transform:rotate(45deg)}
   /* A룸 대표이미지 스와이프(작업2) — 데스크탑/모바일 공통, 룸 카드 그리드·rimg 크기는 불변 */
@@ -304,7 +323,7 @@
       padding:9px 14px;contain:layout;width:100%;max-width:100%}
     .nv-chipbar::-webkit-scrollbar{display:none}
     .nv-chip{flex:0 0 auto;white-space:nowrap;font-family:var(--label-font);font-size:12.5px;color:var(--dim);
-      text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:var(--bg);
+      text-decoration:none;border:1px solid color-mix(in srgb, var(--ink) 50%, transparent);border-radius:999px;padding:6px 14px;background:var(--bg);
       transition:color .2s,border-color .2s,transform .15s}
     /* 실측 고정 스택 = 헤더(.side) + 칩바(.nv-chipbar). 104px은 실제 스택보다 37px 부족해
        앵커 도착 시 섹션 제목이 칩바 아래로 파묻혔다(클릭 1위 「공간 보기」가 정통으로 맞음). */
@@ -408,7 +427,12 @@
                발화하지 않았다(라벨과 실동작 불일치). 대표 판단 = 라벨을 실동작에 맞춘다.
                가격을 노출하는 섹션으로 보내므로 「룸 · 요금 보기」가 정직하다.
                계측은 hero_cta_click 신설 — book_click 정의는 광고 파일럿 사전등록 지표라 건드리지 않는다. -->
-          <a href="#rooms" id="hero-rooms" class="btn" style="padding:15px 32px;font-size:15px">룸 · 요금 보기</a>
+          <!-- 2026-07-29 위계: 첫 화면 흰 채움 버튼이 3개(헤더 A룸예약·여기·스티키바)인데 가장 크고 가운데인
+               이것만 앵커 이동이었다. 흰 채움은 실제 아워플레이스 이동에만 남기고 여기는 외곽선으로 강등.
+               ⚠️라벨·href·id·hero_cta_click 배선 불변, 인라인 padding/font-size 유지(크기 불변).
+               ⚠️.btn.line 의 color:var(--ink) 를 그대로 쓰면 라이트 테마에서 #1D1D1D 가 어두운 히어로
+                  이미지 위에 얹혀 안 보인다 → 형제 #hero-gallery 와 같은 라이트 온 글래스로 인라인 고정. -->
+          <a href="#rooms" id="hero-rooms" class="btn line" style="padding:15px 32px;font-size:15px;background:rgba(255,255,255,.08);color:#F0EFED;border-color:rgba(240,239,237,.28);backdrop-filter:blur(4px)">룸 · 요금 보기</a>
           <a href="#gallery" id="hero-gallery" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);color:#F0EFED;border:1px solid rgba(240,239,237,.28);font-weight:500;flex:none;white-space:nowrap;padding:15px 32px;border-radius:3px;font-size:15px;text-decoration:none;backdrop-filter:blur(4px)">공간 보기</a>
         </div>
       </div>
@@ -416,8 +440,11 @@
     </header>
 
     <nav class="nv-chipbar" aria-label="섹션 바로가기">
+      <!-- 2026-07-29: ①가격·예약버튼이 있는 #rooms 로 가는 칩이 없었다 → 맨 앞에 신설.
+           ②「예약」칩의 목적지 #availability 는 읽기 전용 달력이라 라벨-도착지가 불일치했다 → 「빈 시간」으로 정정(href 불변). -->
+      <a class="nv-chip" href="#rooms">룸·요금</a>
       <a class="nv-chip" href="#gallery">공간</a>
-      <a class="nv-chip" href="#availability">예약</a>
+      <a class="nv-chip" href="#availability">빈 시간</a>
       <a class="nv-chip" href="#location">오시는 길</a>
       <a class="nv-chip" href="#faq">FAQ</a>
     </nav>
@@ -434,7 +461,10 @@
         <span class="snum">01</span>
         <div><div class="skick">Rooms</div><h2>두 개의 컨셉룸</h2></div>
       </div>
-      <p class="desc" data-reveal style="margin:0 0 46px">A룸과 B룸은 무드가 다릅니다.<br>예약 가능 시간은 아워플레이스에서 확인하세요.</p>
+      <!-- 2026-07-29: 무인 운영이 최대 진입 마찰인데 이를 해소하는 문장이 #firstvisit(문서 73.4% 지점,
+           도달률 10.9%)에만 있었다. 평균 방문자가 닿는 #rooms 도입부(9.8% 지점)에 한 줄 올린다.
+           ⚠️히어로에는 넣지 않는다 — 72svh 잘림 재발. 기존 리드문 문구는 불변, 뒤에 한 줄만 덧붙임. -->
+      <p class="desc" data-reveal style="margin:0 0 46px">A룸과 B룸은 무드가 다릅니다.<br>예약 가능 시간은 아워플레이스에서 확인하세요.<br>예약 확정 후, 이용 당일 오전에 도어락 비밀번호를 보내드립니다.</p>
 
       <div class="room" data-reveal style="position:relative;display:grid;grid-template-columns:1.25fr 1fr;border:1px solid var(--line);border-radius:6px;margin-bottom:18px;overflow:hidden">
         <div class="rimg" style="position:relative;min-height:380px;width:100%;min-width:0;background:linear-gradient(135deg,var(--elev),var(--panel))">
@@ -953,7 +983,10 @@
   themeBtn.addEventListener('click',function(){setTheme(document.body.getAttribute('data-theme')==='dark'?'light':'dark');});
 
   // calendar
-  var monthOffset=0, EVENTS=null, BYDATE={}, SELECTED_KEY=null;
+  // 2026-07-29: 소스(iCal)에 미래 확정분만 담기므로 월말로 갈수록 이번 달이 구조적으로 비어 보인다
+  // (실측 7/29: 7월 35칸 중 마커 2개 vs 8월 11건). 20일 이후엔 다음 달로 열어 첫 화면을 채운다.
+  // 「이번 달」 버튼(#calToday)은 그대로 monthOffset=0 으로 되돌린다.
+  var monthOffset=(new Date().getDate()>=20)?1:0, EVENTS=null, BYDATE={}, SELECTED_KEY=null;
   function pad(n){return String(n).padStart(2,'0');}
   function keyOf(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
   function fmt(h){var hh=Math.floor(h),mm=Math.round((h-hh)*60);return pad(hh)+':'+pad(mm);}
