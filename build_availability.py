@@ -21,6 +21,11 @@ except Exception:
 
 ENV = r"F:\무인 렌탈스튜디오 인수\.env"
 
+# ⚠️ 2026-07-29(과거 예약 누적): 아워플레이스 iCal은 과거 예약을 보존하지 않는다(실측 오늘 이전
+# VEVENT 0건) → 폴링 스냅샷을 안 남기면 지나간 예약은 영구 소실된다. 표시 여부는 아직 미정이라
+# 공개 레포(availability.json)에는 절대 안 넣고, repo 밖 로컬 파일에만 append-only로 쌓는다.
+HISTORY_PATH = r"C:\Users\kgr96\nuvie_morning\data\availability_history.json"
+
 def load_env(path):
     d = {}
     if os.path.exists(path):
@@ -143,6 +148,50 @@ def _load_old_events(dst):
     return None
 
 
+def _update_history(old_events, today, path=None):
+    """직전 availability.json의 events 중 '오늘 이전으로 넘어간 것'을 repo 밖 로컬 히스토리에
+    append-only 병합(중복 제거)한다. 과거 기록은 절대 삭제·수정하지 않음(보존기간 상한 없음).
+
+    ⚠️ fetch 성공/실패와 완전히 무관하게 동작한다 — 오직 date 문자열 비교(< today)만으로 판단한다.
+       old_events는 이미 compute_events의 안전장치(fetch 실패 룸=직전값 유지)를 거쳐온 값이므로,
+       이 함수가 "이 룸 fetch가 실패했으니 사라진 걸로 치자"는 판단을 할 필요도, 해서도 안 된다
+       (실패=모름이지 없음이 아니다 — 그래서 아직 미래인 이벤트는 fetch 실패 룸이라도 여기서
+       손대지 않고 그대로 availability.json 쪽 로직에 맡긴다).
+    공개 산출물(availability.json)은 절대 건드리지 않는다(별도 파일, repo 밖 경로).
+    """
+    path = path or HISTORY_PATH
+    old_events = old_events or []
+    today_iso = today.isoformat()
+    past = [e for e in old_events if str(e.get("date", "")) < today_iso]
+    if not past:
+        return
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    hist = {"events": []}
+    if os.path.exists(path):
+        try:
+            hist = json.load(open(path, encoding="utf-8"))
+        except Exception:
+            hist = {"events": []}
+    existing = hist.get("events") or []
+    seen = {(e.get("date"), e.get("start"), e.get("end"), e.get("room")) for e in existing}
+    added = 0
+    for e in past:
+        key = (e.get("date"), e.get("start"), e.get("end"), e.get("room"))
+        if key in seen:
+            continue
+        existing.append({"date": e.get("date"), "start": e.get("start"),
+                         "end": e.get("end"), "room": e.get("room")})
+        seen.add(key)
+        added += 1
+    if added:
+        existing.sort(key=lambda e: (e.get("date") or "", e.get("start") or 0,
+                                     e.get("end") or 0, e.get("room") or ""))
+        hist["events"] = existing
+        hist["updated"] = datetime.datetime.now().isoformat(timespec="minutes")
+        json.dump(hist, open(path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        print(f"  history: 과거예약 {added}건 누적(repo 밖 · 총 {len(existing)}건)")
+
+
 def compute_events(env, today, old_events):
     """iCal 페치 → 최종 events + (fetched_ok, fetch_failed) 카운트.
 
@@ -240,6 +289,13 @@ def main(argv=None, repo=None):
     repo = repo or os.path.dirname(os.path.abspath(__file__))
     dst = os.path.join(repo, "availability.json")
     old_events = _load_old_events(dst)
+
+    # 과거 예약 누적(repo 밖 로컬 히스토리, 공개 산출물과 무관) — 여기서 예외가 나도 본래 기능
+    # (availability.json 생성·push)은 절대 막히면 안 되므로 try/except로 감싸고 로그만 남긴다.
+    try:
+        _update_history(old_events, today)
+    except Exception as e:
+        print("  history 저장 실패(무시, 본 기능 계속):", e)
 
     events, fetched_ok, fetch_failed = compute_events(env, today, old_events)
 
