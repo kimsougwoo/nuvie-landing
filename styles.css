@@ -90,6 +90,16 @@ html{scroll-behavior:smooth}
      ⚠️지정값 ink 32% 는 실측 1.98~2.67:1 로 미달이라 50% 로 올림(라이트 3.17 / 다크 4.76). */
   .btn.line{background:transparent;color:var(--ink);border:1px solid color-mix(in srgb, var(--ink) 50%, transparent);font-weight:500}
   .btn.line:hover{border-color:var(--accent);color:var(--accent);background:transparent;transform:translateY(-1px)}
+  /* ── 히어로 높이 (2026-08-04) ──────────────────────────────────────
+     ⚠️ `height:76vh/90vh` **고정**은 짧은 창에서 콘텐츠를 **위쪽부터** 잘라먹는다
+        (flex-end + overflow:hidden 조합이라 아래가 아니라 위가 손실된다).
+        2026-07-29 에 ≤640px 에서 같은 버그를 고쳤는데, 상단 바 도입으로 히어로 가용 높이가
+        줄면서 **데스크탑 짧은 창(≈675px)에서 재현**됐다 — .herotop 과 h1 이 겹쳤다(실측).
+     ⇒ 높이는 콘텐츠에 맡기고(height:auto) 뷰포트 비율은 **하한(min-height)으로만** 쓴다.
+        svh = 인앱 브라우저 바를 뺀 실제 표시 높이(vh 는 과대계산 → 같은 잘림 재발).
+     ⚠️ 인라인 height/min-height 를 이겨야 하므로 !important 가 필수다. */
+  .hero{height:auto!important;min-height:76svh!important;padding-top:92px}
+
   /* ── 룸 페이지 2단 본문 (2026-08-04) ─────────────────────────────────
      좌측 = 소개·공간·후기 / 우측 = 고정 예약 카드.
      🔜 우측 카드가 **PortOne V2 체크아웃이 들어갈 자리**다(Stayfolio 상세 구조를 그대로 가져왔다).
@@ -122,7 +132,10 @@ html{scroll-behavior:smooth}
     .book .book2{display:none}
     .herotop{display:none!important}
     .inner,.heroin,.herotop{padding-left:22px;padding-right:22px}
-    .hero{height:78vh;min-height:440px}
+    /* ≤920px 은 .herotop 을 숨기므로(위 규칙) 상단 여백을 줄인다.
+       ⚠️ 구 `height:78vh;min-height:440px` 는 제거했다 — 기본 규칙(.hero height:auto!important)에
+          이미 져서 죽은 선언이었다(2026-08-04 상단 바 전환 후). */
+    .hero{padding-top:28px}
     .info{grid-template-columns:1fr 1fr}
     .info .it:nth-child(2){border-right:none}
   }
