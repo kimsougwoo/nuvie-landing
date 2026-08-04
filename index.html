@@ -654,15 +654,22 @@
     heroBack.src=HERO_BG[other].src; heroBack.style.filter=HERO_BG[other].filter;
     heroFront.parentNode.appendChild(heroBack);
   }
+  /* 🔴 **두 장을 동시에 페이드하면 중간이 검어진다** (2026-08-04 라이브 실측 — 전환 43% 지점에서
+     둘 다 반투명이라 뒤의 검은 그라디언트가 비쳤다. 크로스페이드의 고전적 함정 "dip to background").
+     ⇒ 새 사진을 **맨 위로 올려** 0→1 로 페이드인하고, 아래 레이어는 **opacity 1 을 유지**한다.
+       위가 차오르는 동안 아래가 계속 화면을 채우므로 배경이 드러날 틈이 없다. */
   function heroSwap(c){
     var f=heroFront, b=heroBack;
     b.style.filter=c.filter;
     function go(){
-      if(heroReduce){f.style.transition='none';b.style.transition='none';}
-      b.style.opacity='1'; f.style.opacity='0';
+      b.style.transition='none'; b.style.opacity='0';
+      f.parentNode.appendChild(b);                // b 를 f 위로(DOM 순서 = 쌓임 순서)
+      void b.offsetWidth;                         // 리플로우 강제 — 없으면 0→1 이 한 프레임에 합쳐져 전환이 사라진다
+      b.style.transition=heroReduce?'none':'opacity .55s ease';
+      b.style.opacity='1';
       b.alt=c.alt; b.removeAttribute('aria-hidden');
       f.alt=''; f.setAttribute('aria-hidden','true');
-      heroFront=b; heroBack=f;                    // 역할 교대
+      heroFront=b; heroBack=f;                    // 역할 교대(f 는 opacity 1 인 채 아래에 남는다)
     }
     if(b.getAttribute('src')===c.src&&b.complete){go();return;}
     b.addEventListener('load',go,{once:true});

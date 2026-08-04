@@ -229,6 +229,12 @@ def test_히어로_전환이_크로스페이드다():
     assert "function heroSwap(" in HTML, "크로스페이드 스왑이 없다(src 직접 교체로 회귀)"
     assert "transition:opacity" in HTML, "히어로 img 에 opacity 트랜지션이 없다"
     assert "heroFront=b; heroBack=f;" in HTML, "레이어 역할 교대가 없다"
+    # 🔴 두 장을 동시에 페이드하면 중간이 검어진다(라이브 실측). 아래 레이어는 켜둔 채
+    #    위 레이어만 올려야 한다 — f.style.opacity='0' 을 다시 넣으면 그 결함이 재발한다.
+    assert "f.parentNode.appendChild(b);" in HTML, "새 사진을 맨 위로 올리지 않는다"
+    assert "void b.offsetWidth;" in HTML, "리플로우 강제가 없으면 0→1 이 합쳐져 전환이 사라진다"
+    swap = HTML[HTML.index("function heroSwap("):HTML.index("function paintHero(")]
+    assert "f.style.opacity='0'" not in swap, "아래 레이어를 끄면 전환 중간에 배경이 비친다"
     # 접근성: 숨은 레이어는 스크린리더에서 빠져야 한다
     assert "b.removeAttribute('aria-hidden')" in HTML and "f.setAttribute('aria-hidden','true')" in HTML,         "전환 시 aria-hidden 이 따라가지 않는다(같은 사진이 두 번 읽힌다)"
     assert "heroReduce" in HTML, "prefers-reduced-motion 을 존중하지 않는다"
