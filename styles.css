@@ -90,6 +90,26 @@ html{scroll-behavior:smooth}
      ⚠️지정값 ink 32% 는 실측 1.98~2.67:1 로 미달이라 50% 로 올림(라이트 3.17 / 다크 4.76). */
   .btn.line{background:transparent;color:var(--ink);border:1px solid color-mix(in srgb, var(--ink) 50%, transparent);font-weight:500}
   .btn.line:hover{border-color:var(--accent);color:var(--accent);background:transparent;transform:translateY(-1px)}
+  /* ── 룸 카드 그리드 (2026-08-04 정보구조 재편) ──────────────────────
+     Stayfolio 홈은 **큰 사진 카드가 사진을 나르고** 별도 갤러리 섹션이 없다.
+     허브는 「고르는 곳」이고 상세는 /a·/b 가 맡는다 — 그래서 카드는 사진·이름·한 줄·태그까지만.
+     ⚠️ 카드 전체가 링크다(a.roomcard) — 안에 또 버튼을 넣지 않는다(중첩 링크 금지). */
+  .roomcards{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .roomcard{display:block;text-decoration:none;color:inherit;min-width:0}
+  .roomcard-img{aspect-ratio:4/3;overflow:hidden;border-radius:8px;border:1px solid var(--line);
+                background:linear-gradient(135deg,var(--elev),var(--panel))}
+  .roomcard-img img{width:100%;height:100%;object-fit:cover;display:block;
+                    transition:transform .7s cubic-bezier(.22,.61,.36,1)}
+  .roomcard:hover .roomcard-img img{transform:scale(1.04)}
+  .roomcard-body{padding:16px 2px 0}
+  .roomcard-kick{font-family:var(--label-font);font-size:11px;letter-spacing:.2em;color:var(--dim)}
+  .roomcard h3{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:7px 0 8px}
+  .roomcard p{color:var(--dim);font-size:14px;line-height:1.7;margin:0 0 12px}
+  .roomcard-tags{display:flex;gap:6px;flex-wrap:wrap}
+  .roomcard-tags span{font-family:var(--label-font);font-size:11px;color:var(--dim);
+                      border:1px solid var(--line);padding:4px 10px;border-radius:999px}
+  @media(max-width:760px){.roomcards{grid-template-columns:1fr;gap:32px}}
+
   /* ── 히어로 높이 (2026-08-04) ──────────────────────────────────────
      ⚠️ `height:76vh/90vh` **고정**은 짧은 창에서 콘텐츠를 **위쪽부터** 잘라먹는다
         (flex-end + overflow:hidden 조합이라 아래가 아니라 위가 손실된다).
