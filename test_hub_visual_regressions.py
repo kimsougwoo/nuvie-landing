@@ -210,3 +210,12 @@ def test_faq_열이_독립_컨테이너다():
     after = body[first:].lstrip()
     assert after.startswith("<div>"), "그리드 첫 자식이 컬럼 div 가 아니다(details 가 직접 놓였다)"
     assert body.count("<div>") >= 2, "컬럼 div 가 2개 미만 — 열이 독립돼 있지 않다"
+
+
+def test_반대_테마_히어로_이미지를_미리_받는다():
+    """🔴 없으면 테마 토글 때마다 히어로가 검게 깜빡인다(2026-08-04 라이브 관찰).
+
+    사진을 그 자리에서 로드하기 때문. load 이후 프리로드로 교체를 즉시로 만든다.
+    ⚠️ load 이전에 받으면 초기 LCP 대역을 뺏는다 — 그래서 window load 훅이어야 한다."""
+    assert "window.addEventListener('load'" in HTML, "프리로드가 load 훅에 걸려 있지 않다"
+    assert "Object.keys(HERO_BG).forEach" in HTML, "HERO_BG 이미지를 미리 받지 않는다"

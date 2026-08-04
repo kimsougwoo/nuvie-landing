@@ -643,6 +643,12 @@
   }
   function setTheme(t){document.body.setAttribute('data-theme',t);themeBtn.textContent=(t==='dark'?'☀':'☾');themeBtn.setAttribute('aria-label',t==='dark'?'라이트 모드로 전환':'다크 모드로 전환');paintHero(t);}
   themeBtn.addEventListener('click',function(){setTheme(document.body.getAttribute('data-theme')==='dark'?'light':'dark');});
+  /* 반대 테마의 히어로 이미지를 미리 받아둔다 — 없으면 토글할 때마다 사진이 그 자리에서
+     로드되며 히어로가 **검게 깜빡인다**(2026-08-04 라이브에서 실제로 관찰).
+     ⚠️ load 이후에만 — 초기 LCP(현재 테마 이미지) 대역을 뺏으면 안 된다. */
+  window.addEventListener('load',function(){
+    Object.keys(HERO_BG).forEach(function(k){var i=new Image();i.src=HERO_BG[k].src;});
+  });
 
   // calendar
   // 2026-07-29: 소스(iCal)에 미래 확정분만 담기므로 월말로 갈수록 이번 달이 구조적으로 비어 보인다
