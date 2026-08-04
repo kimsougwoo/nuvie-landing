@@ -138,6 +138,20 @@ def test_칩에_룸_글자가_들어간다():
     assert "chip.textContent=(e.room||'A')+'룸';" in HTML, "날짜 상세의 룸 칩이 사라졌다"
 
 
+def test_faq가_넓은_화면에서_비지_않는다():
+    """🔴 대표 지적 「05 FAQ … 빈공간이 좀 보여요 pc로 봤을때」 (2026-08-04).
+
+    inner 는 1380px 인데 FAQ 본문만 `max-width:760px` 한 컬럼이라 우측 620px 이 통째로
+    비었다(실측). 같은 페이지의 「오시는 길」·리뷰는 이미 grid 였고 FAQ 만 문법이 달랐다.
+    ⇒ auto-fit minmax 로 통일. 이 테스트는 「한 컬럼 고정으로 되돌아가는 것」을 막는다."""
+    i = HTML.index('id="faq"')
+    j = HTML.index("<details", i)
+    head = HTML[i:j]
+    assert "max-width:760px" not in head, "FAQ 가 다시 760px 한 컬럼으로 고정됐다(우측이 빈다)"
+    assert "repeat(auto-fit,minmax(" in head, "FAQ 본문이 auto-fit grid 가 아니다"
+    assert "align-items:start" in head, "align-items:start 가 없으면 details 를 열 때 행 높이가 튄다"
+
+
 def test_범례가_같은_토큰을_쓴다():
     """범례 점과 칩이 다른 색이면 범례가 거짓말을 한다."""
     for room in ("A", "B"):
