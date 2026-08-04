@@ -38,14 +38,18 @@
         "minHours": 2,
         "unit": "hour",
         "currency": "KRW",
-        "taxIncluded": true
+        "taxIncluded": true,
+        "baseGuests": 4,
+        "extraGuestPerHour": 5500,
+        "weekendDefinition": "토·일·공휴일",
+        "accessoryFeePerItem": 10000
       },
       "capacity": { "min": 1, "max": 4 },
 
       "seo": {
         "title": "A룸 동양풍 & 블랙 호리존 — 누비 스튜디오 · 까치산 코스프레 스튜디오",
         "description": "월동문·격자문 동양풍 세트와 블랙 호리존(4M × 2.5M × 2.3M)을 한 룸에서. 천장 커튼레일 드레이핑, 소품·천 자유 배치. 까치산역 도보 10분 무인 단독 대관.",
-        "ogImage": "/img/galA0.jpg"
+        "ogImage": "/img/og-a.jpg"
       },
       "hero": {
         "kicker": "A ROOM",
@@ -87,14 +91,18 @@
         "minHours": 2,
         "unit": "hour",
         "currency": "KRW",
-        "taxIncluded": true
+        "taxIncluded": true,
+        "baseGuests": 4,
+        "extraGuestPerHour": 5500,
+        "weekendDefinition": "토·일·공휴일",
+        "accessoryFeePerItem": 10000
       },
       "capacity": { "min": 1, "max": 4 },
 
       "seo": {
         "title": "B룸 화이트 티타임 카페 — 누비 스튜디오 · 까치산 자연광 스튜디오",
         "description": "오후 3시부터 노을까지 통창 자연광이 드는 화이트 톤 공간. 티세트·앤티크 소품, 파우더룸. 약 11평 무인 단독 대관. 까치산역 도보 10분.",
-        "ogImage": "/img/galB4.jpg"
+        "ogImage": "/img/og-b.jpg"
       },
       "hero": {
         "kicker": "B ROOM",
@@ -107,7 +115,7 @@
       "blocks": [
         { "head": "자연광", "body": "오후 3시부터 노을까지, 통창으로 빛이 깊게 들어옵니다. 시간대에 따라 같은 자리에서도 다른 색이 나옵니다." },
         { "head": "티타임 세팅", "body": "3단 트롤리와 금장 찻잔, 케이크 소품으로 티파티 장면을 그대로 만들 수 있습니다." },
-        { "head": "앤티크 코너 · 파우더룸", "body": "원목 서랍장과 거울, 레이스 티테이블. 룸에 딸린 파우더룸에서 준비하실 수 있습니다." }
+        { "head": "앤티크 코너", "body": "원목 서랍장과 거울, 레이스 티테이블. 원목 데스크와 거울이 있는 파우더룸에서 준비하실 수 있습니다." }
       ],
       "tags": ["통창 자연광", "화이트 톤", "티세트", "약 11평"],
       "gallery": [
@@ -116,7 +124,7 @@
         { "src": "/img/galB0.jpg", "alt": "B룸 티 카트 — 3단 트롤리에 올린 찻잔과 케이크" },
         { "src": "/img/galB2.jpg", "alt": "B룸 티세트 — 금장 찻잔과 케이크" },
         { "src": "/img/galB3.jpg", "alt": "B룸 앤티크 코너 — 원목 서랍장과 거울, 레이스 티테이블" },
-        { "src": "/img/galB5.jpg", "alt": "B룸에 딸린 파우더룸 — 원목 데스크와 거울" }
+        { "src": "/img/galB5.jpg", "alt": "파우더룸 — 원목 데스크와 거울" }
       ],
       "showReviews": false
     }
