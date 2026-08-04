@@ -46,7 +46,10 @@ html{scroll-behavior:smooth}
     /* 라이트 = Stayfolio 값을 거의 그대로 채택 */
     --bg:#FFFFFF; --panel:#F7F7F8; --elev:#FFFFFF; --line:#DFE0E2;
     --line2:#B4B4B8;
-    --ink:#181818; --dim:#5E5E61; --faint:#8A8A8E;
+    /* --faint 2026-08-05: #8A8A8E → #6E6E72. 흰 배경에서 3.21:1 로 AA(4.5) 미달이었다(실측).
+       후기 작성자·날짜, 예약 안내문, 푸터가 전부 이 토큰이라 라이트 모드에서 본문급 텍스트가 규격 미달로 나갔다.
+       새 값 = 흰 배경 5.11:1 · 패널(#F5F5F6) 위 4.68:1 로 둘 다 통과. 다크(#7F7F84)는 4.83:1 이라 그대로 둔다. */
+    --ink:#181818; --dim:#5E5E61; --faint:#6E6E72;
     --accent:#5E5E61; --accentSoft:#181818; --onAccent:#FFFFFF;
     --btnBg:#000000; --btnFg:#FFFFFF; --btnHover:#2A2A2C;
     --roomA:#5E5E61; --roomB:#5E5E61;
@@ -282,6 +285,44 @@ html{scroll-behavior:smooth}
     .rdot{position:relative}
     .rdot::after{content:"";position:absolute;inset:-18px}
     .nv-privacy{display:inline-block;padding:10px 6px}
+
+    /* ===== 2026-08-05 모바일 E2E 검수(390×844 실측) 수정 3건 ===== */
+
+    /* 10) 🔴 히어로 스크림이 헤드라인 구간에서 사실상 사라져 라이트 모드 h1 2행이 안 읽혔다.
+       원인: 스크림 중간 정지점이 **26%에서 alpha .06** 인데, 모바일 h1 은 래퍼의 10~29% 구간에 온다
+       (실측: 래퍼 top 61 h 621 / h1 top 125 bottom 241). 그 구간 실효 alpha 가 .21→.10 로 떨어져
+       밝은 B룸 사진(라이트 모드 히어로) 위에 흰 글자가 그대로 얹혔다.
+       실측 대비: h1 1행 평균 5.46·최악 3.22 / **h1 2행(white .68) 평균 3.43·최악 2.05** (large 기준 3:1 미달)
+                 / 본문 16px 평균 5.02·**최악 2.19** (4.5 필요).
+       ⚠️ 데스크탑은 히어로가 더 커서 텍스트가 다른 구간에 앉는다 → **모바일에서만** 중간을 올린다.
+       상단도 .30→.58 로 올린다(로고·"무인·까치산" 라벨이 얹히는 구간). */
+    .heroScrim{background:linear-gradient(180deg,rgba(6,6,7,.58) 0%,rgba(6,6,7,.46) 30%,rgba(6,6,7,.66) 62%,rgba(6,6,7,.94) 100%)!important}
+
+    /* 11) 🔴 후기 캐러셀 화살표가 카드 **본문 위**에 얹혀 첫 줄을 가렸다.
+       카드가 flex:0 0 85%(=331px/390) 라 좌우 끝이 arrow(left:6·right:6, 44px)와 정확히 겹친다.
+       ⇒ 트랙을 좌우 52px 인셋해 화살표를 여백으로 밀어낸다. 카드는 content-box 를 꽉 채워(=286px)
+          x 52~338 에 앉고 화살표는 6~50 / 340~384 에 남는다(겹침 0).
+       ⚠️ flex-basis 를 calc(100% - 104px) 로 쓰면 안 된다 — % 가 이미 좁아진 content box 기준이라 이중 차감된다. */
+    #reviewCards{padding-left:52px!important;padding-right:52px!important;scroll-padding-left:52px;scroll-padding-right:52px}
+    #reviewCards>div{flex:0 0 100%!important}
+    /* 11b) 인셋만 하면 카드가 176px 로 쪼그라들어(후기 한 줄에 8자) 더 나빠진다 —
+       후기 패널의 모바일 좌우 패딩이 32px 이라 캐러셀 가용폭이 280px 뿐이었다.
+       패널 패딩을 20px 로 줄이고 캐러셀만 그만큼 **블리드**(음수 마진)해 폭을 되찾는다 → 카드 242px.
+       같은 32px 패딩 때문에 패널 헤더("A ROOM · 후기 / ★5.0 / 11개 후기")도 3줄로 깨져 있었다. */
+    #reviews .inner > div{padding:20px!important}
+    #reviews .nv-carwrap{margin-left:-20px;margin-right:-20px}
+
+    /* 12) 탭 타겟 44px — 9)에서 화살표·달력 버튼만 잡고 나머지가 남아 있었다(실측 13개 미달).
+       히어로 뱃지 32px·칩바 35px·「이번 달」30px·헤더 예약 36px·로고 25px·개인정보 41px.
+       ⚠️ 시각 크기는 유지하고 **히트영역만** 넓힌다(패딩·min-height) — 레이아웃 밀림 최소화. */
+    .herobadges a{min-height:44px;display:inline-flex;align-items:center;font-size:12.5px!important}
+    .nv-chip{min-height:44px;display:inline-flex;align-items:center}
+    #calToday{min-height:44px!important}
+    /* ⚠️ 허브와 룸 페이지의 마크업이 다르다 — 허브 로고는 href="#top"·예약은 id="book-side" 인데
+       룸 페이지(room.template.html)는 href="/"·id 없음이다. 공통 조상 클래스로 잡아야 둘 다 걸린다. */
+    .side a.btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+    .sidetop > a{min-height:44px;display:flex!important;flex-direction:column;justify-content:center}
+    .nv-privacy{min-height:44px;display:inline-flex;align-items:center}
   }
   /* 모바일 스티키 예약 CTA — ≤640px에서만 노출, 스크롤 무관 상시 접근.
      2026-07-29 P0: 라벨은 룸 중립("지금 예약하기")인데 목적지는 A룸 고정이라 B룸 소구로 온 방문자가
@@ -324,7 +365,8 @@ html{scroll-behavior:smooth}
   .nv-arrow{display:none}
   @media(max-width:640px){
     .nv-arrow{display:flex;position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:34px;height:34px;
-      align-items:center;justify-content:center;border:0;border-radius:50%;background:rgba(0,0,0,.42);color:#fff;
+      /* 2026-08-05: .42 는 흰 패널 위에서 흰 화살표 대비 3.0:1(그래픽 하한 턱걸이)이라 실기기에서 흐렸다 → .60 (약 4.4:1) */
+      align-items:center;justify-content:center;border:0;border-radius:50%;background:rgba(0,0,0,.60);color:#fff;
       font-size:19px;line-height:1;cursor:pointer;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
     .nv-arrow.prev{left:6px}
     .nv-arrow.next{right:6px}

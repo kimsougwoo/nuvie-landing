@@ -326,7 +326,7 @@
     <header class="hero" style="position:relative;height:76vh;min-height:480px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden">
       <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0B0B0C,#1C1C1F)"></div>
       <div class="heroImgWrap" style="position:absolute;inset:0"><img data-fallback="1" data-ken decoding="async" fetchpriority="high" src="/img/hero.jpg" alt="누비 스튜디오 A룸 동양풍 블랙 호리존 세트" style="display:block;width:100%;height:100%;object-fit:cover;filter:brightness(.76) saturate(.95);transform:scale(1.05)"></div>
-      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,6,7,.30) 0%,rgba(6,6,7,.06) 26%,rgba(6,6,7,.60) 62%,rgba(6,6,7,.92) 100%)"></div>
+      <div class="heroScrim" style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,6,7,.30) 0%,rgba(6,6,7,.06) 26%,rgba(6,6,7,.60) 62%,rgba(6,6,7,.92) 100%)"></div>
       <div class="herotop" style="position:absolute;top:0;left:0;right:0;z-index:3;padding:26px 40px;display:flex;justify-content:space-between;align-items:center;gap:14px;font-family:var(--label-font);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.8)">
         <a href="/" style="white-space:nowrap;color:inherit;text-decoration:none">← 누비 스튜디오</a>
         <span style="text-align:right;white-space:nowrap">A ROOM</span>
@@ -337,7 +337,7 @@
              늘리면 3줄로 깨진다. 값은 rooms.json hero.h1 에서 온다. -->
         <h1 data-reveal style="font-weight:700;font-size:clamp(42px,7vw,92px);line-height:.98;letter-spacing:-.035em;margin:16px 0 0;color:#FFFFFF">남과 겹치지 않는<br><span style="color:rgba(255,255,255,.68)">동양풍 스튜디오</span></h1>
         <p data-reveal style="margin:22px 0 0;color:#D8D8DA;max-width:480px;font-size:16px;line-height:1.7">월동문 너머로 펼쳐지는 동양풍, 그리고 블랙 호리존.<br>소품과 천을 직접 옮겨 배치하고, 천장 레일에 드레이핑까지.</p>
-        <div data-reveal style="display:flex;gap:8px;flex-wrap:wrap;margin-top:24px"><a href="#about" style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;white-space:nowrap;text-decoration:none">월동문</a><a href="#about" style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;white-space:nowrap;text-decoration:none">블랙 호리존</a><a href="#about" style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;white-space:nowrap;text-decoration:none">한 룸, 두 컨셉</a></div>
+        <div class="herobadges" data-reveal style="display:flex;gap:8px;flex-wrap:wrap;margin-top:24px"><a href="#about" style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;white-space:nowrap;text-decoration:none">월동문</a><a href="#about" style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;white-space:nowrap;text-decoration:none">블랙 호리존</a><a href="#about" style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;white-space:nowrap;text-decoration:none">한 룸, 두 컨셉</a></div>
         <div class="herocta" data-reveal style="display:flex;gap:11px;flex-wrap:wrap;margin-top:30px">
           <a class="btn" data-book="a" href="https://www.hourplace.co.kr/place/61823" style="padding:15px 32px;font-size:15px">A룸 예약하기</a>
           <a href="#gallery" id="hero-gallery" class="btn line" style="padding:15px 32px;font-size:15px;background:rgba(255,255,255,.08);color:#FFFFFF;border-color:rgba(255,255,255,.28);backdrop-filter:blur(4px)">공간 보기</a>
@@ -431,9 +431,10 @@
     <footer class="sec" style="padding-top:48px;padding-bottom:48px">
       <div class="inner" style="display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;color:var(--faint);font-size:12.5px;line-height:1.9">
         <div>📍 서울 강서구 까치산역 도보 10분 / 예약·문의: 아워플레이스</div>
+        <!-- 2026-08-05: 두 링크 모두 실측 24px 로 탭 타겟 44px 미달이었다. 허브와 같은 .nv-privacy 로 히트영역만 넓힌다(시각 크기 불변). -->
         <div style="display:flex;gap:16px;flex-wrap:wrap">
-          <a href="/" style="color:var(--dim);text-decoration:none">누비 스튜디오 홈</a>
-          <a href="/privacy.html" style="color:var(--dim);text-decoration:none">개인정보처리방침</a>
+          <a class="nv-privacy" href="/" style="color:var(--dim);text-decoration:none">누비 스튜디오 홈</a>
+          <a class="nv-privacy" href="/privacy.html" style="color:var(--dim);text-decoration:none">개인정보처리방침</a>
         </div>
       </div>
     </footer>

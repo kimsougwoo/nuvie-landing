@@ -150,7 +150,8 @@
            ⚠️ 밝기는 룸마다 다르다 — A룸 원본이 이미 매우 어두워 .76 을 먹이면 검정 덩어리가 된다
               (그게 「최상단이 까맣다」의 원인이었다). 교체는 setTheme() 이 맡는다(아래 HERO_BG). -->
       <div class="heroImgWrap" style="position:absolute;inset:0"><img id="heroImg" data-fallback="1" data-ken decoding="async" fetchpriority="high" src="/img/room-b.jpg" alt="누비 스튜디오 B룸 화이트 티타임 카페 — 통창 자연광이 드는 화이트 톤 공간" style="display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.62) saturate(.95);transform:scale(1.05);opacity:1;transition:opacity .55s ease"></div>
-      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,6,7,.30) 0%,rgba(6,6,7,.06) 26%,rgba(6,6,7,.60) 62%,rgba(6,6,7,.92) 100%)"></div>
+      <!-- 2026-08-05: class 신설. 모바일에서 이 스크림을 덮어써야 하는데 선택할 이름이 없었다(styles.css 참조). -->
+      <div class="heroScrim" style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,6,7,.30) 0%,rgba(6,6,7,.06) 26%,rgba(6,6,7,.60) 62%,rgba(6,6,7,.92) 100%)"></div>
       <div class="herotop" style="position:absolute;top:0;left:0;right:0;z-index:3;padding:26px 40px;display:flex;justify-content:space-between;align-items:center;gap:14px;font-family:var(--label-font);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.8)">
         <span style="white-space:nowrap">무인 · 까치산</span>
         <span style="text-align:right;white-space:nowrap">1–4인 · A·B 2 Rooms</span>
@@ -179,7 +180,7 @@
                   index.html · a.html · rooms.json **세 곳을 함께** 고쳐야 한다. -->
         <h1 data-reveal style="font-weight:700;font-size:clamp(42px,7vw,92px);line-height:.98;letter-spacing:-.035em;margin:16px 0 0;color:#FFFFFF">남과 겹치지 않는<br><span style="color:rgba(255,255,255,.68)">코스프레 스튜디오</span></h1>
         <p data-reveal style="margin:22px 0 0;color:#D8D8DA;max-width:480px;font-size:16px;line-height:1.7">소품과 천을 직접 옮겨 배치하고, 천장 레일에 드레이핑까지.<br>동양풍 A룸, 자연광 B룸 두 컨셉.<br>까치산역 10분, 무인 단독 대관.</p>
-        <div data-reveal style="display:flex;gap:8px;flex-wrap:wrap;margin-top:24px">
+        <div class="herobadges" data-reveal style="display:flex;gap:8px;flex-wrap:wrap;margin-top:24px">
           <!-- 2026-07-29 P0: 뱃지 3개가 링크도 핸들러도 없는 죽은 <span>이었다(A룸 뱃지에만 15클릭이 그대로 소멸).
                태그만 <a href="#rooms">로 바꾼다 — 인라인 style이라 시각 변화 0, text-decoration:none만 추가.
                ⚠️ heroReviewBadge의 id는 유지 — JS가 style.display='inline-flex'로 노출을 제어한다(<a>여도 동일 동작). -->
@@ -281,7 +282,8 @@
         <!-- REVIEWS:STATIC:END -->
           </div>
         </div>
-        <p style="margin:14px 0 0;font-size:11.5px;color:var(--faint)">출처: 아워플레이스 A룸 후기 · 전체 <span id="reviewTotal">11</span>건 ★5.0</p>
+        <!-- 2026-08-05: --faint(#8A8A8E) 는 흰 배경에서 3.21:1 로 AA(4.5) 미달이었다. 출처 표기는 신뢰 정보라 흐리면 안 된다. -->
+        <p style="margin:14px 0 0;font-size:11.5px;color:var(--dim)">출처: 아워플레이스 A룸 후기 · 전체 <span id="reviewTotal">11</span>건 ★5.0</p>
       </div>
       <!-- 후기 사진 확대 라이트박스(썸네일 클릭 시) -->
       <div id="reviewLightbox" role="dialog" aria-modal="true" aria-label="후기 사진 확대" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.86);align-items:center;justify-content:center;padding:24px">
