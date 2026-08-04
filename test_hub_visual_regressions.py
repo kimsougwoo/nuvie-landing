@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-"""예약 현황 달력에서 A룸/B룸이 실제로 구분되는가 — 회귀 테스트 (2026-08-04).
+"""허브(index.html) 시각 회귀 모음 — 2026-08-04 대표 지적 4건을 박제한다.
+
+[1] 예약 현황 달력에서 A룸/B룸이 실제로 구분되는가
 
 🔴 재현한 결함 (대표 지적 「A룸과 B룸의 차이가 안보입니다」·「회색끼리 두면 의미가 없잖아요」)
   ① `--calA`/`--calB` 가 **명도만 다른 회색 2개**였다(다크 #F5F5F6/#B8B8BE · 라이트 #181818/#4A4A4E).
@@ -161,3 +163,50 @@ def test_범례가_같은_토큰을_쓴다():
     """범례 점과 칩이 다른 색이면 범례가 거짓말을 한다."""
     for room in ("A", "B"):
         assert "background:var(--cal%s)" % room in HTML, "%s룸 범례가 --cal%s 를 안 쓴다" % (room, room)
+
+
+# ── [4] 히어로 배경이 테마를 따라가는가 (2026-08-04 대표 안) ──────────────────
+def test_히어로가_테마별로_다른_룸을_쓴다():
+    """대표 안 「라이트일 땐 B룸, 다크일 땐 A룸」.
+
+    A룸=어둠(달 조명) · B룸=빛(통창)이라 테마와 그대로 대응하고, 어느 룸도 편들지 않는다.
+    🔴 이전 상태: h1 은 룸 중립("코스프레 스튜디오")인데 배경은 A룸 사진 하나였다 —
+       08-04 디자인 재설계의 사유가 「액센트 하나가 A룸에 붙어 B룸을 못 받는다」였는데
+       정작 가장 큰 표면에 같은 편향이 남아 있었다."""
+    m = re.search(r"var HERO_BG=\{(.*?)\};", HTML, re.S)
+    assert m, "HERO_BG 매핑이 사라졌다"
+    blk = m.group(1)
+    assert re.search(r"dark\s*:\{src:'/img/hero\.jpg'", blk), "다크 = A룸(hero.jpg) 이 아니다"
+    assert re.search(r"light\s*:\{src:'/img/room-b\.jpg'", blk), "라이트 = B룸(room-b.jpg) 이 아니다"
+    assert "paintHero(t);}" in HTML, "setTheme 이 배경을 갈아끼우지 않는다"
+
+
+def test_히어로_초기_이미지가_초기_테마와_일치한다():
+    """🔴 어긋나면 LCP 이미지를 버리고 다시 받는다(첫 화면 깜빡임 + 낭비).
+
+    초기 테마는 <body data-theme="..."> 하드코딩이고 setTheme 은 토글 때만 돈다 →
+    **초기 src 는 HTML 이 정본**이라 손으로 맞춰야 하고, 그래서 조용히 어긋나기 쉽다."""
+    theme = re.search(r'<body data-theme="(\w+)"', HTML).group(1)
+    want = "/img/room-b.jpg" if theme == "light" else "/img/hero.jpg"
+    hero = re.search(r'<img id="heroImg"[^>]*src="([^"]+)"', HTML)
+    assert hero, "heroImg 를 못 찾음"
+    assert hero.group(1) == want, (
+        "초기 테마가 %s 인데 히어로 초기 src 가 %s (기대 %s)" % (theme, hero.group(1), want))
+
+
+def test_faq_열이_독립_컨테이너다():
+    """🔴 대표 지적 「하나를 열면 옆열에 있는 것도 길어져요」 (2026-08-04).
+
+    grid 아이템을 그냥 늘어놓으면 한 행의 높이가 그 행의 가장 큰 아이템에 맞춰져,
+    한쪽 details 를 펴면 반대쪽 칸 아래에 빈 공간이 생긴다.
+    align-items:start 로는 못 막는다(아이템을 늘리지 않을 뿐 행 높이는 커진다).
+    ⇒ 각 열을 div 하나로 묶어야 열마다 독립적으로 흐른다."""
+    i = HTML.index('id="faq"')
+    j = HTML.index("</section>", i)
+    seg = re.sub(r"<!--.*?-->", "", HTML[i:j], flags=re.S)
+    body = seg[seg.index("display:grid"):]
+    # 그리드 직계 자식이 details 가 아니라 컬럼 div 여야 한다
+    first = body.index(">") + 1
+    after = body[first:].lstrip()
+    assert after.startswith("<div>"), "그리드 첫 자식이 컬럼 div 가 아니다(details 가 직접 놓였다)"
+    assert body.count("<div>") >= 2, "컬럼 div 가 2개 미만 — 열이 독립돼 있지 않다"
