@@ -1,0 +1,124 @@
+{
+  "_doc": [
+    "룸 상품 정본(SSOT). 룸 페이지(a.html·b.html)·JSON-LD·허브 카드가 전부 이 파일에서 나온다.",
+    "값을 HTML 에 손으로 적지 말 것 — build_rooms.py 가 여기서 생성한다(이중기재 금지).",
+    "",
+    "🔜 PortOne V2 자사몰 전환 대비:",
+    "  · 룸 = 상품. pricing 은 결제 모듈이 그대로 먹을 수 있게 정수 KRW·단위·최소수량으로 적는다.",
+    "  · fulfillment.mode 가 유일한 전환 스위치다. 지금 'external'(아워플레이스 위탁) →",
+    "    결제 붙는 날 'own' 으로 바꾸면 예약 CTA 목적지가 자사 체크아웃으로 넘어간다(booking.js).",
+    "  · availabilityKey 는 availability.json events[].room 과 맞춰 둔다 — 그게 슬롯 재고가 된다.",
+    "  · 예약된 URL 공간(지금 쓰지 말 것): /book/<slug> · /checkout · /orders"
+  ],
+
+  "catalog": {
+    "currency": "KRW",
+    "unit": "hour",
+    "taxIncluded": true,
+    "fulfillment": {
+      "mode": "external",
+      "provider": "hourplace",
+      "note": "예약·결제·정산 전부 아워플레이스. 자사 결제는 흑자 게이트 통과 후 PortOne V2."
+    }
+  },
+
+  "rooms": [
+    {
+      "slug": "a",
+      "sku": "ROOM-A",
+      "label": "A룸",
+      "name": "동양풍 & 블랙 호리존",
+      "status": "open",
+      "availabilityKey": "A",
+      "external": { "provider": "hourplace", "placeId": 61823 },
+
+      "pricing": {
+        "weekday": 40000,
+        "weekend": 45000,
+        "minHours": 2,
+        "unit": "hour",
+        "currency": "KRW",
+        "taxIncluded": true
+      },
+      "capacity": { "min": 1, "max": 4 },
+
+      "seo": {
+        "title": "A룸 동양풍 & 블랙 호리존 — 누비 스튜디오 · 까치산 코스프레 스튜디오",
+        "description": "월동문·격자문 동양풍 세트와 블랙 호리존(4M × 2.5M × 2.3M)을 한 룸에서. 천장 커튼레일 드레이핑, 소품·천 자유 배치. 까치산역 도보 10분 무인 단독 대관.",
+        "ogImage": "/img/galA0.jpg"
+      },
+      "hero": {
+        "kicker": "A ROOM",
+        "h1": ["남과 겹치지 않는", "동양풍 스튜디오"],
+        "sub": "월동문 너머로 펼쳐지는 동양풍, 그리고 블랙 호리존.<br>소품과 천을 직접 옮겨 배치하고, 천장 레일에 드레이핑까지.",
+        "image": "/img/hero.jpg",
+        "alt": "누비 스튜디오 A룸 동양풍 블랙 호리존 세트"
+      },
+
+      "blocks": [
+        { "head": "동양풍", "body": "월동문 너머로 펼쳐지는 공간. 다양한 소품과 천을 비치해, 같은 공간에서도 나만의 독창적인 연출을 하실 수 있도록 열어두었습니다." },
+        { "head": "블랙 호리존", "body": "천장 커튼레일로 천을 드레이핑해 자유로운 연출이 가능합니다(가로 4M × 세로 2.5M × 높이 2.3M)." },
+        { "head": "천장 연출", "body": "월동문 위와 문가벽 상단에도 커튼레일을 달아두었습니다. 아쉬운 천장을 원하시는 색 천으로 덮으실 수 있습니다." }
+      ],
+      "tags": ["월동문", "블랙 호리존", "한 룸, 두 컨셉"],
+      "gallery": [
+        { "src": "/img/galA0.jpg", "alt": "A룸 동양풍 블랙 호리존 — 월문과 격자문 세트" },
+        { "src": "/img/galA1.jpg", "alt": "A룸 동양풍 월문 백라이트" },
+        { "src": "/img/galA2.jpg", "alt": "A룸 격자문 세트" },
+        { "src": "/img/galA3.jpg", "alt": "A룸 동양풍 디테일" },
+        { "src": "/img/galA4.jpg", "alt": "A룸 블랙 호리존" },
+        { "src": "/img/galA5.jpg", "alt": "A룸 조명·뒷공간(조명 셋업 공간)" }
+      ],
+      "showReviews": true
+    },
+
+    {
+      "slug": "b",
+      "sku": "ROOM-B",
+      "label": "B룸",
+      "name": "화이트 티타임 카페",
+      "status": "open",
+      "availabilityKey": "B",
+      "external": { "provider": "hourplace", "placeId": 62341 },
+
+      "pricing": {
+        "weekday": 40000,
+        "weekend": 45000,
+        "minHours": 2,
+        "unit": "hour",
+        "currency": "KRW",
+        "taxIncluded": true
+      },
+      "capacity": { "min": 1, "max": 4 },
+
+      "seo": {
+        "title": "B룸 화이트 티타임 카페 — 누비 스튜디오 · 까치산 자연광 스튜디오",
+        "description": "오후 3시부터 노을까지 통창 자연광이 드는 화이트 톤 공간. 티세트·앤티크 소품, 파우더룸. 약 11평 무인 단독 대관. 까치산역 도보 10분.",
+        "ogImage": "/img/galB4.jpg"
+      },
+      "hero": {
+        "kicker": "B ROOM",
+        "h1": ["오후 3시부터", "노을까지"],
+        "sub": "통창으로 자연광이 드는 화이트 톤 공간.<br>티세트와 소품으로 밝은 무드의 촬영을 담을 수 있습니다.",
+        "image": "/img/room-b.jpg",
+        "alt": "B룸 화이트 티타임 카페 전경 — 자연광이 드는 화이트 톤 공간에 흰 테이블 세팅"
+      },
+
+      "blocks": [
+        { "head": "자연광", "body": "오후 3시부터 노을까지, 통창으로 빛이 깊게 들어옵니다. 시간대에 따라 같은 자리에서도 다른 색이 나옵니다." },
+        { "head": "티타임 세팅", "body": "3단 트롤리와 금장 찻잔, 케이크 소품으로 티파티 장면을 그대로 만들 수 있습니다." },
+        { "head": "앤티크 코너 · 파우더룸", "body": "원목 서랍장과 거울, 레이스 티테이블. 룸에 딸린 파우더룸에서 준비하실 수 있습니다." }
+      ],
+      "tags": ["통창 자연광", "화이트 톤", "티세트", "약 11평"],
+      "gallery": [
+        { "src": "/img/galB4.jpg", "alt": "B룸 전경 — 통창과 흰 테이블 세팅" },
+        { "src": "/img/galB1.jpg", "alt": "B룸 오후 자연광이 드는 창가와 핑크 소파" },
+        { "src": "/img/galB0.jpg", "alt": "B룸 티 카트 — 3단 트롤리에 올린 찻잔과 케이크" },
+        { "src": "/img/galB2.jpg", "alt": "B룸 티세트 — 금장 찻잔과 케이크" },
+        { "src": "/img/galB3.jpg", "alt": "B룸 앤티크 코너 — 원목 서랍장과 거울, 레이스 티테이블" },
+        { "src": "/img/galB5.jpg", "alt": "B룸에 딸린 파우더룸 — 원목 데스크와 거울" }
+      ],
+      "showReviews": false
+    }
+  ]
+}
