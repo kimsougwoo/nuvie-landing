@@ -106,6 +106,89 @@ def sync_static_reviews(html, data):
     return html[:i] + render_static_reviews(data) + html[j + len(STATIC_END):]
 
 
+ORIGINALS = os.path.join(HERE, "reviews_originals.json")
+
+SENT_END = ("!", ".", "?", "~")
+
+
+def _flat(s):
+    return re.sub(r"\s+", " ", (s or "")).strip()
+
+
+def verify_verbatim(data, originals):
+    """reviews.json 의 인용이 원문에서 벗어나지 않았는지 판정. 위반 목록을 돌려준다.
+
+    🔴 2026-08-05 신설 — 이 검사가 없어서 **개작·스플라이스 6건이 라이브에 떠 있었다**:
+       · "빠방하구" → "빵빵하고" (게스트 말투 개작)
+       · 원문 문장을 요약·어미 변경해 다시 씀
+       · **스플라이스** — 원문 앞·뒤를 붙여 한 문장처럼 보이게 하고 그 사이 불만 2건을 흔적 없이 삭제
+       작성자 닉네임과 함께 공개되는 글이라 «내가 이렇게 안 썼는데»가 되는 상태였다.
+
+    판정 2조건:
+      ① 원문의 **연속 부분문자열**인가 (말줄임 «…» 로 표시된 잘림은 허용)
+      ② 발췌 시작점이 **문장 경계**인가 (원문 시작이거나 직전이 . ! ? ~)
+    """
+    srcs = [(o.get("name", ""), _flat(o.get("text", ""))) for o in originals.get("reviews") or []]
+    bad = []
+    for r in data.get("reviews") or []:
+        q = _flat(r.get("text", "")).rstrip("…").strip()
+        if not q:
+            continue
+        hit = None
+        for name, src in srcs:
+            if q in src:
+                hit = (name, src, src.index(q))
+                break
+        if hit is None:
+            bad.append((r.get("name", "?"), "원문에 없음(개작·이어붙임)", q[:48]))
+            continue
+        _, src, i = hit
+        if i > 0 and not src[:i].rstrip().endswith(SENT_END):
+            bad.append((r.get("name", "?"), "문장 중간에서 시작", q[:48]))
+    return bad
+
+
+def jsonld_snippet(text, limit=80):
+    """JSON-LD reviewBody 용 짧은 인용. **연속 구간만**, 자르면 «…» 를 붙인다.
+
+    ⚠️ 이 함수가 생긴 이유(2026-08-05): reviewBody 가 손으로 적혀 있어 원문과 어긋나 있었다 —
+       "기존 동양풍 스튜디오**와 다르게**"(원문: "**와는 또 다른** 분위기를"). JSON-LD 는 구글
+       리치결과로 나가는 **외부 표면**이라, 개작된 인용이 우리 이름으로 검색결과에 실린다.
+       ⇒ 손으로 적지 말고 reviews.json(SSOT)에서 파생시킨다.
+    """
+    one = re.sub(r"\s+", " ", (text or "")).strip().rstrip("…").strip()
+    if len(one) <= limit:
+        return one
+    head = one[:limit]
+    sp = head.rfind(" ")
+    return (head[:sp] if sp > 20 else head).strip() + "…"
+
+
+def sync_jsonld_reviews(html, data):
+    """JSON-LD 의 reviewBody 를 작성자 이름으로 매칭해 reviews.json 본문에서 갈아끼운다.
+
+    구조(개수·순서·author)는 건드리지 않고 **본문 문자열만** 바꾼다 — 리치결과 스키마를 흔들지 않기 위해.
+    reviews.json 에 없는 작성자는 그대로 둔다(조용히 지우지 않는다).
+    """
+    by_name = {}
+    for r in data.get("reviews") or []:
+        by_name.setdefault(r.get("name", ""), r.get("text", ""))
+
+    pat = re.compile(
+        r'("@type":"Review","author":\{"@type":"Person","name":"([^"]+)"\}.*?"reviewBody":")([^"]*)(")'
+    )
+
+    def repl(m):
+        name = m.group(2)
+        src = by_name.get(name)
+        if not src:
+            return m.group(0)
+        body = jsonld_snippet(src).replace("\\", "\\\\").replace('"', '\\"')
+        return m.group(1) + body + m.group(4)
+
+    return pat.sub(repl, html)
+
+
 def sync_reviews_json_text(text, count, rating):
     """reviews.json 원문의 최상위 count/rating 필드만 targeted 치환(수기 포맷·photos 배열 보존).
     ⚠️ 개별 review의 'rating': 5는 건드리지 않는다(최상위 필드만 — 앞 들여쓰기 2칸 기준)."""
@@ -121,12 +204,24 @@ def main(check_only=False):
     html = open(INDEX, encoding="utf-8").read()
     llms = open(LLMS, encoding="utf-8").read()
 
-    new_html = sync_static_reviews(sync_index_html(html, count, rating), data)
+    new_html = sync_jsonld_reviews(sync_static_reviews(sync_index_html(html, count, rating), data), data)
     new_llms = sync_llms_text(llms, count, rating)
     new_raw = sync_reviews_json_text(raw, count, rating)
     drift = (new_html != html) or (new_llms != llms) or (new_raw != raw)
 
+    # verbatim 검사 — 원문 스냅샷이 있을 때만(없으면 조용히 건너뛰지 말고 알린다)
+    violations = None
+    if os.path.exists(ORIGINALS):
+        with open(ORIGINALS, encoding="utf-8") as f:
+            violations = verify_verbatim(data, json.load(f))
+        for name, why, q in violations:
+            print(f"[reviews][VERBATIM] {name}: {why} — {q}")
+    else:
+        print(f"[reviews][WARN] 원문 스냅샷 없음 → verbatim 검사 건너뜀: {ORIGINALS}")
+
     if check_only:
+        if violations:
+            return 1
         if drift:
             print(f"[reviews][DRIFT] SSOT count={count} rating={rating} — 표면 불일치 발견")
             if new_html != html: print("  · index.html 불일치")
