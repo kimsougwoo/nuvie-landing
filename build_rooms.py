@@ -74,9 +74,11 @@ def render_info_cells(room: dict) -> str:
 
 
 def render_hero_tags(room: dict) -> str:
+    # ⚠️ 히어로는 테마와 무관하게 항상 어두운 사진 위다 → 테마 토큰을 쓰면 라이트에서 글자가 사라진다.
+    #    고정 라이트 값으로 못박는다(2026-08-04 Stayfolio 전환 시 실제로 밟은 함정).
     style = (
-        "font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#e6e0d7;"
-        "border:1px solid rgba(245,242,236,.28);padding:5px 12px;border-radius:999px;"
+        "font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;"
+        "border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;"
         "white-space:nowrap;text-decoration:none"
     )
     return "".join(
@@ -124,14 +126,47 @@ def render_reviews(room: dict, reviews_doc: dict) -> str:
     if not items:
         return ""
     items = sorted(items, key=lambda r: r.get("date", ""), reverse=True)
+    label = room["label"]
     cards = []
     for r in items:
-        stars = "★" * int(r.get("rating", 5))
+        rating = int(r.get("rating", 5))
+        stars = "★" * rating
+
+        # 후기 사진 — 게스트가 아워플레이스에 올린 컷 중 수기 큐레이션된 것.
+        # ⚠️ 허브(index.html)는 이걸 렌더하는데 룸 페이지만 빠져 있었다(2026-08-04 대표 지적).
+        # ✅ G4(초상권) 경계 — 대표 결정 2026-08-04: **후기 사진은 인물이 있어도 된다.**
+        #    사유 = 게스트 본인이 자기 후기에 직접 올린 사진이라, 우리가 촬영·발행하는 콘텐츠와 층이 다르다.
+        #    ⇒ 얼굴 블러(G4)는 **우리 촬영물**에 적용하고 게스트 후기 UGC 에는 적용하지 않는다.
+        #    (종전 reviews.json 주석의 「인물 0명」은 사실이 아니었고 — rv_ragang.jpg 에 1명 —
+        #     그래서 이 규칙이 필요했다. 다시 「인물 있으니 빼자」로 되돌리지 말 것.)
+        # 확대는 라이트박스 JS 대신 <a target="_blank"> 로 연다 — 키보드 접근이 기본으로 되고 JS 의존이 없다.
+        photos = [p for p in (r.get("photos") or []) if p][:2]
+        pg = ""
+        if photos:
+            cells = "".join(
+                f'<a href="{esc(src)}" target="_blank" rel="noopener" '
+                f'aria-label="후기 사진 크게 보기" style="display:block;min-width:0">'
+                f'<img loading="lazy" decoding="async" src="{esc(src)}" '
+                f'alt="{esc(label)} 후기 사진" '
+                'style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:4px;display:block"></a>'
+                for src in photos
+            )
+            pg = (
+                f'<div style="display:grid;grid-template-columns:repeat({len(photos)},1fr);'
+                f'gap:6px;margin:0 0 11px">{cells}</div>'
+            )
+
+        # white-space:pre-line — 게스트 원문의 줄바꿈을 살린다(허브와 동일).
+        # 기본값이면 여러 줄 후기가 한 덩어리로 접혀 읽기 나빠진다(2026-07-24 대표 지적).
+        # verbatim 인용 규칙과도 정합 — 원문을 원문대로 보인다.
         cards.append(
             '<div style="border:1px solid var(--line);min-width:0;'
             'border-radius:6px;padding:18px 18px 16px;background:var(--panel)">'
-            f'<div style="color:var(--accentSoft);font-size:12px;letter-spacing:.1em">{stars}</div>'
-            f'<p style="margin:9px 0 12px;color:var(--ink);font-size:14px;line-height:1.75">{esc(r.get("text", ""))}</p>'
+            f'<div style="color:var(--accent);font-size:12px;letter-spacing:.1em" aria-hidden="true">{stars}</div>'
+            f'<span class="sr-only">5점 만점에 {rating}점</span>'
+            f"{pg}"
+            f'<p style="margin:9px 0 12px;color:var(--ink);font-size:14px;line-height:1.75;'
+            f'white-space:pre-line">{esc(r.get("text", ""))}</p>'
             f'<div style="color:var(--faint);font-size:11.5px">{esc(r.get("name", ""))} · {esc(r.get("date", ""))}</div>'
             "</div>"
         )
@@ -394,7 +429,8 @@ def main(argv: list[str]) -> int:
         # ⚠️ 콘솔이 cp949 라 비ASCII 기호(✓·이모지)는 UnicodeEncodeError 를 낸다 — 쓰지 말 것.
         print("생성물 최신 OK")
         return 0
-    print(f"완료 — {len(files)}개 파일")
+    # ⚠️ cp949 콘솔에서 em-dash·✓ 등 비ASCII 기호는 UnicodeEncodeError 를 낸다. 출력은 ASCII 로.
+    print(f"완료 {len(files)}개 파일")
     return 0
 
 
