@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
+r"""
 아워플레이스 iCal → availability.json (free/busy, 이름 비노출)
 - iCal URL은 F:\무인 렌탈스튜디오 인수\.env 에서만 읽음(공개레포에 URL·이름 안 나감).
 - A룸·B룸 iCal에서 예약 '날짜·시각·룸'만 추출(이름·UID·SUMMARY 전부 버림).
@@ -107,10 +107,16 @@ def merge_events(events):
 
     규칙(대표 확정 2026-07-15):
     - 최소 대여가 2시간이므로 **2h 미만 블록은 실예약일 수 없다 = 무료연장/호의시간**.
-    - 무료 1h는 항상 **≥2h 블록 '뒤'에만** 붙는다 → 그 1h는 바로 앞 예약의 게스트 것.
-    - 따라서 <2h 블록은 직전(맞닿은) 구간에 뒤로 흡수한다.
+    - <2h 블록은 직전(맞닿은) 구간에 **뒤로 흡수**한다.
+    - 🔴 **2026-08-04 보강 — 무료 1h 가 예약 '앞'에 붙는 사례가 실제로 발생했다**(대표 보고).
+      07-15 규칙은 "무료 1h 는 항상 ≥2h 블록 '뒤'에만 붙는다"를 전제했는데 그게 틀렸다.
+      라이브 실측: `2026-08-23 B룸 14-15(1h) | 15-18(3h)` — 앞에 붙어 흡수가 안 되고
+      "(1H) 예약됨"으로 따로 떠서, 07-15 에 없애려던 오해가 그대로 재발했다.
+      ⇒ 직전과 안 맞닿는 <2h 블록은 **바로 뒤 ≥2h 블록에 앞으로 흡수**한다.
+      **뒤흡수가 우선**이다(앞뒤 양쪽에 맞닿으면 종전대로 앞 예약 것으로 본다).
     - **≥2h 블록끼리는 절대 병합하지 않는다**(다른 게스트가 등을 맞대도 각자 분리 유지 —
       게스트가 홈페이지 예약현황을 '내 예약 리마인드'로 봐도 옆 예약과 안 섞이게).
+    - 앞뒤 어디에도 안 맞닿는 고립 <2h 는 그대로 둔다(슬롯이 실제로 막혀 있으므로).
 
     이렇게 하면 무료연장이 별도 "(1H) 예약됨"으로 뜨지 않아 "1시간만 예약되나요?" 오해가 사라지고,
     게스트는 자기 전체 이용시간(유료+무료)을 한 블록으로 확인한다. iCal에 이름이 없어도
@@ -125,15 +131,32 @@ def merge_events(events):
     for (date, room), evs in groups.items():
         evs.sort(key=lambda e: (e["start"], e["end"]))
         cur = None
+        pending_free = []   # 앞에 붙은 무료 블록들 — 뒤에 올 ≥2h 를 기다린다
         for e in evs:
             dur = e["end"] - e["start"]
             if cur is not None and e["start"] <= cur["end"] + EPS and dur < MIN_BOOK_H - EPS:
-                # <2h(무료연장) + 앞 구간과 맞닿음 → 뒤로 흡수(직전 예약 확장)
+                # <2h(무료연장) + 앞 구간과 맞닿음 → 뒤로 흡수(직전 예약 확장). 뒤흡수 우선.
                 cur["end"] = max(cur["end"], e["end"])
                 continue
-            # 그 외(≥2h 블록, 또는 앞과 떨어진 블록)는 새 구간으로 — ≥2h끼리는 병합 안 함
-            cur = {"date": date, "start": e["start"], "end": round(e["end"], 2), "room": room}
+            if dur < MIN_BOOK_H - EPS:
+                # 앞에 붙일 구간이 없는 <2h → 바로 뒤 ≥2h 에 붙을 수 있으니 일단 보류
+                if pending_free and e["start"] > pending_free[-1]["end"] + EPS:
+                    out.extend(pending_free)   # 체인이 끊겼다 = 앞 것들은 고립 확정
+                    pending_free = []
+                pending_free.append({"date": date, "start": e["start"], "end": round(e["end"], 2), "room": room})
+                continue
+            # 여기부터 ≥2h 블록 — ≥2h 끼리는 병합 안 함
+            start = e["start"]
+            if pending_free and abs(pending_free[-1]["end"] - start) < EPS:
+                # 보류된 무료 블록이 이 예약과 맞닿는다 → 앞으로 흡수(2026-08-04 보강)
+                start = pending_free[0]["start"]
+                pending_free = []
+            elif pending_free:
+                out.extend(pending_free)       # 안 맞닿으면 고립 블록으로 확정
+                pending_free = []
+            cur = {"date": date, "start": start, "end": round(e["end"], 2), "room": room}
             out.append(cur)
+        out.extend(pending_free)               # 뒤에 ≥2h 가 끝내 안 온 무료 블록은 그대로 유지
     out.sort(key=lambda e: (e["date"], e["start"], e["room"]))
     return out
 
