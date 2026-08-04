@@ -151,6 +151,9 @@ def test_faq가_넓은_화면에서_비지_않는다():
     head = re.sub(r"<!--.*?-->", "", HTML[i:j], flags=re.S)
     assert "max-width:760px" not in head, "FAQ 가 다시 760px 한 컬럼으로 고정됐다(우측이 빈다)"
     assert "repeat(auto-fit,minmax(" in head, "FAQ 본문이 auto-fit grid 가 아니다"
+    # 하한 480px 미만이면 넓은 화면에서 3열이 되어 열이 좁아지고 마지막 행이 또 빈다(실측).
+    m = re.search(r"minmax\(min\(100%,\s*(\d+)px\)", head)
+    assert m and int(m.group(1)) >= 480, "FAQ 컬럼 하한이 480px 미만 — 3열로 쪼개진다"
     assert "align-items:start" in head, "align-items:start 가 없으면 details 를 열 때 행 높이가 튄다"
 
 
