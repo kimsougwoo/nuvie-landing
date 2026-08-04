@@ -101,3 +101,38 @@ def test_generated_room_pages_carry_the_fixes():
         html = strip_html_comments((ROOT / name).read_text(encoding="utf-8"))
         assert 'class="heroScrim"' in html, f"{name} 에 heroScrim 이 없다 — build_rooms.py 를 다시 돌릴 것"
         assert 'class="herobadges"' in html, f"{name} 에 herobadges 가 없다 — build_rooms.py 를 다시 돌릴 것"
+
+
+# ── 2026-08-05 Checklist Design(checklist.design) 대조로 메운 갭 ──────────────
+
+def test_404_page_exists_and_covers_checklist():
+    """Vercel 기본 404("The page could not be found")가 그대로 노출되고 있었다.
+
+    「404 Website」 5항목 = 로고 · 타이틀 · 설명 · 다른 페이지 링크 · 브랜드 개성.
+    """
+    p = ROOT / "404.html"
+    assert p.exists(), "404.html 이 없다 — 잘못된 링크로 들어온 방문자가 플랫폼 기본 화면을 본다"
+    html = strip_html_comments(p.read_text(encoding="utf-8"))
+    assert "NUVIE" in html, "로고 없음"
+    assert "404" in html, "404 표기 없음"
+    assert "찾을 수 없" in html, "타이틀 없음"
+    for href in ('href="/"', 'href="/a"', 'href="/b"', 'href="/#faq"'):
+        assert href in html, f"복귀 링크 {href} 없음"
+    assert "아워플레이스" in html, "예약·문의 경로 없음"
+
+
+def test_faq_has_contact_fallback():
+    """FAQ 10문항에 없는 질문을 가진 사람이 갈 곳이 없었다(「FAQ」 Contact options)."""
+    start = INDEX_CODE.find('id="faq"')
+    faq = INDEX_CODE[start:]
+    faq = faq[:faq.find("</section>")]
+    assert "여기서 답을 못 찾으셨나요" in faq, "FAQ 하단 연락 경로 블록이 없다"
+    assert "hourplace.co.kr" in faq, "가장 쉬운 연락 수단(아워플레이스)이 빠졌다"
+    assert "x.com/nuvie_studio" in faq, "X 연락 수단이 빠졌다"
+    assert "instagram.com/nuvie_studio" in faq, "Instagram 연락 수단이 빠졌다"
+    assert "kakao" not in faq.lower(), "카카오 채널은 재심사 중이라 대외 표기 금지"
+
+
+def test_faq_accordion_has_hover_state():
+    """「Accordion」 States 5종(default·expanded·hover·focused·disabled) 중 hover 만 없었다."""
+    assert re.search(r"#faq summary:hover\s*\{", CSS_CODE), "아코디언 hover 상태가 없다"
