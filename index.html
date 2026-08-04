@@ -138,8 +138,8 @@
                ⚠️ heroReviewBadge의 id는 유지 — JS가 style.display='inline-flex'로 노출을 제어한다(<a>여도 동일 동작). -->
           <a href="#rooms" style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;white-space:nowrap;text-decoration:none">시간당 40,000원부터</a>
           <!-- 2026-08-04: 룸 뱃지는 이제 해당 룸 페이지로 직행한다(종전엔 둘 다 #rooms 앵커였다). -->
-          <a href="/a" style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;white-space:nowrap;text-decoration:none">A룸 · 동양풍</a>
-          <a href="/b" style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;white-space:nowrap;text-decoration:none">B룸 · 화이트 티타임 카페</a>
+          <a href="/a" data-room-detail="a" data-room-detail-from="hero_badge" style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;white-space:nowrap;text-decoration:none">A룸 · 동양풍</a>
+          <a href="/b" data-room-detail="b" data-room-detail-from="hero_badge" style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;white-space:nowrap;text-decoration:none">B룸 · 화이트 티타임 카페</a>
           <a href="#rooms" id="heroReviewBadge" style="display:none;align-items:center;gap:5px;font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;white-space:nowrap;text-decoration:none"><span style="color:rgba(255,255,255,.72)" aria-hidden="true">★</span><span id="heroReviewText"></span></a>
         </div>
         <div class="herocta" data-reveal style="display:flex;gap:11px;flex-wrap:wrap;margin-top:30px">
@@ -217,7 +217,7 @@
           </div>
           <!-- 2026-08-04: 「자세히 보기」(룸 페이지)를 1차 동선으로 올리고 예약은 유지한다.
                ⚠️ id="book-a" · book_click 배선은 불변 — 광고 파일럿 사전등록 지표라 정의를 건드리지 않는다. -->
-          <div style="display:flex;gap:9px;flex-wrap:wrap"><a class="btn" href="/a">A룸 자세히 보기 →</a><a class="btn line" id="book-a" href="#" target="_blank" rel="noopener">예약</a></div>
+          <div style="display:flex;gap:9px;flex-wrap:wrap"><a class="btn" href="/a" data-room-detail="a" data-room-detail-from="card">A룸 자세히 보기 →</a><a class="btn line" id="book-a" href="#" target="_blank" rel="noopener">예약</a></div>
         </div>
       </div>
       <script>
@@ -402,7 +402,7 @@
             <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">티세트</span>
             <span style="font-family:var(--label-font);font-size:11px;color:var(--dim);border:1px solid var(--line);padding:4px 10px;border-radius:999px">약 11평</span>
           </div>
-          <div style="display:flex;gap:9px;flex-wrap:wrap"><a class="btn" href="/b">B룸 자세히 보기 →</a><a class="btn line" id="book-b" href="#" target="_blank" rel="noopener">예약</a></div>
+          <div style="display:flex;gap:9px;flex-wrap:wrap"><a class="btn" href="/b" data-room-detail="b" data-room-detail-from="card">B룸 자세히 보기 →</a><a class="btn line" id="book-b" href="#" target="_blank" rel="noopener">예약</a></div>
         </div>
       </div></div>
 
@@ -621,8 +621,10 @@
       return m?decodeURIComponent(m[1]):'';
     }catch(e){return '';}
   }
+  // page 출처 파라미터(2026-08-04 감사 개선 #1): 허브·룸페이지가 같은 book_click 을 쏴서 이탈 출처가 안 갈렸다.
+  // ⚠️ book_click 의 기존 파라미터(room·transport_type)·이벤트명은 절대 불변, page 는 "추가"만.
   function trackBook(room){return function(){
-    try{if(window.gtag)gtag('event','book_click',{room:room,transport_type:'beacon'});if(window.fbq)fbq('track','Lead',{room:room});}catch(e){}
+    try{if(window.gtag)gtag('event','book_click',{room:room,transport_type:'beacon',page:'hub'});if(window.fbq)fbq('track','Lead',{room:room});}catch(e){}
     try{
       var fbc=readCookie('_fbc'), fbp=readCookie('_fbp');
       if((fbc||fbp)&&window.gtag)gtag('event','ad_capture',{fbc:fbc,fbp:fbp,room:room,transport_type:'beacon'});
@@ -638,6 +640,15 @@
     var e=document.getElementById(id); if(!e) return;
     e.addEventListener('click',function(){
       try{ if(window.gtag) gtag('event','hero_cta_click',{target:id,transport_type:'beacon'}); }catch(e){}
+    });
+  });
+  // 허브 → 룸 상세(/a·/b) 이동 계측 신설(2026-08-04 감사 개선 #3). 히어로 룸 뱃지·카드 「자세히 보기」가
+  // 전부 무이벤트였다. book_click 을 재사용하지 않고 새 이벤트명 room_detail_click 으로 분리한다
+  // (book_click 은 광고 파일럿 사전등록 판독 지표라 재사용하면 정의가 오염된다).
+  document.querySelectorAll('[data-room-detail]').forEach(function(e){
+    var room=e.getAttribute('data-room-detail'), from=e.getAttribute('data-room-detail-from');
+    e.addEventListener('click',function(){
+      try{ if(window.gtag) gtag('event','room_detail_click',{room:room,from:from,transport_type:'beacon'}); }catch(err){}
     });
   });
   // 예약 현황 클릭 → 아워플레이스 (Clarity 실측: '예약됨' 칩 데드클릭 1·2위 — 클릭 의도를 예약으로 전환)

@@ -59,7 +59,7 @@
 {{JSONLD}}
 </script>
 </head>
-<body data-theme="dark">
+<body data-theme="dark" data-room="{{SLUG}}">
 <div id="root">
 
   <aside class="side">
@@ -110,7 +110,7 @@
         <div data-reveal style="display:flex;gap:8px;flex-wrap:wrap;margin-top:24px">{{HERO_TAGS}}</div>
         <div class="herocta" data-reveal style="display:flex;gap:11px;flex-wrap:wrap;margin-top:30px">
           <a class="btn" data-book="{{SLUG}}" href="{{BOOKING_HREF}}" style="padding:15px 32px;font-size:15px">{{LABEL}} 예약하기</a>
-          <a href="#gallery" class="btn line" style="padding:15px 32px;font-size:15px;background:rgba(255,255,255,.08);color:#FFFFFF;border-color:rgba(255,255,255,.28);backdrop-filter:blur(4px)">공간 보기</a>
+          <a href="#gallery" id="hero-gallery" class="btn line" style="padding:15px 32px;font-size:15px;background:rgba(255,255,255,.08);color:#FFFFFF;border-color:rgba(255,255,255,.28);backdrop-filter:blur(4px)">공간 보기</a>
         </div>
       </div>
     </header>

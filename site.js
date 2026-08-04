@@ -37,10 +37,14 @@
       return m ? decodeURIComponent(m[1]) : '';
     } catch (e) { return ''; }
   }
+  // page 출처 파라미터(2026-08-04 감사 개선): 허브(index.html)의 book_click 과 이 페이지의
+  // book_click 이 동일 이벤트라 이탈 출처가 안 갈렸다. room.template.html 의 <body data-room="{{SLUG}}">
+  // 에서만 읽는다 — ⚠️ book_click 의 기존 파라미터(room·transport_type)·이벤트명은 절대 불변, page 는 "추가"만.
+  var PAGE_ORIGIN = 'room_' + (document.body.getAttribute('data-room') || '');
   function trackBook(room) {
     return function () {
       try {
-        if (window.gtag) gtag('event', 'book_click', { room: room, transport_type: 'beacon' });
+        if (window.gtag) gtag('event', 'book_click', { room: room, transport_type: 'beacon', page: PAGE_ORIGIN });
         if (window.fbq) fbq('track', 'Lead', { room: room });
       } catch (e) {}
       try {
@@ -50,6 +54,17 @@
         }
       } catch (e) {}
     };
+  }
+
+  /* ---------- 히어로 CTA 계측(감사 개선 #2) ----------
+   * 허브는 #hero-rooms·#hero-gallery 를 hero_cta_click 으로 계측하는데 룸 페이지 히어로엔 없었다.
+   * 같은 이벤트명으로 맞춘다. book_click 과는 완전히 분리된 이벤트라 정의 오염이 없다. */
+  function wireHeroCta(root) {
+    root.querySelectorAll('#hero-gallery, #hero-rooms').forEach(function (el) {
+      el.addEventListener('click', function () {
+        try { if (window.gtag) gtag('event', 'hero_cta_click', { target: el.id, transport_type: 'beacon' }); } catch (e) {}
+      });
+    });
   }
 
   function wireBooking(root) {
@@ -131,6 +146,7 @@
   function init() {
     var root = document.getElementById('root') || document;
     wireBooking(root);
+    wireHeroCta(root);
     wireTheme();
     wireImages(root);
     wireReveal(root);

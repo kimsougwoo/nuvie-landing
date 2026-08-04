@@ -51,6 +51,26 @@
       "source": "/pm3",
       "destination": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-meta-pilot-2026q3&utm_content=reels",
       "permanent": false
+    },
+    {
+      "source": "/ig-a",
+      "destination": "/a?utm_source=instagram&utm_medium=social&utm_campaign=bio",
+      "permanent": false
+    },
+    {
+      "source": "/ig-b",
+      "destination": "/b?utm_source=instagram&utm_medium=social&utm_campaign=bio",
+      "permanent": false
+    },
+    {
+      "source": "/x-a",
+      "destination": "/a?utm_source=x&utm_medium=social&utm_campaign=bio",
+      "permanent": false
+    },
+    {
+      "source": "/x-b",
+      "destination": "/b?utm_source=x&utm_medium=social&utm_campaign=bio",
+      "permanent": false
     }
   ]
 }
