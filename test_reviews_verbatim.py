@@ -51,7 +51,7 @@ def test_detector_catches_a_splice():
 def test_detector_catches_midsentence_start():
     """문장 중간에서 시작하는 발췌(오늘 카드·캡션 결함)도 잡아야 한다."""
     mid = {"reviews": [{
-        "name": "ctebdgvrf",
+        "name": "ct***",
         "text": "기물이나 조명, 삼각대 모두 넉넉해서 편하게 촬영했어요! 에어컨 빠방하구 탈의실도 시원해서 좋았습니다~",
     }]}
     bad = B.verify_verbatim(mid, ORIG)
@@ -65,6 +65,33 @@ def test_marked_truncation_is_allowed():
         "text": "스튜디오 이쁘고 소품도 다양해서 좋습니다! 동양풍 스튜디오 많이 없어서 아쉬웠는데 가까운곳에 생겨서 너무 좋아요…",
     }]}
     assert not B.verify_verbatim(ok, ORIG)
+
+
+def test_all_published_names_are_masked():
+    """작성자 닉네임은 부분만 노출한다 (대표 지시 2026-08-05).
+
+    ⚠️ 이 레포는 **공개**다 — reviews.json 이 GitHub 과 라이브 양쪽에 그대로 노출된다.
+    """
+    for r in DATA["reviews"]:
+        n = r.get("name", "")
+        assert n.endswith("***"), f"마스킹 안 된 닉네임: {n}"
+        assert len(n) - 3 <= 2, f"앞부분을 너무 많이 남겼다: {n}"
+
+
+def test_photo_filenames_do_not_leak_names():
+    """화면에서 가려도 **사진 URL 이 닉네임을 담고 있으면 새어나간다**(실제로 그랬다)."""
+    import re as _re
+    for r in DATA["reviews"]:
+        for path in r.get("photos") or []:
+            base = path.rsplit("/", 1)[-1]
+            assert _re.fullmatch(r"rv_\d{8}_\d+\.jpg", base), \
+                f"사진 파일명이 중립 형식이 아니다(닉네임 유출 가능): {base}"
+
+
+def test_originals_snapshot_has_no_names():
+    """대조용 원문 스냅샷에는 닉네임을 담지 않는다 — 본문 텍스트만으로 대조한다."""
+    for r in ORIG["reviews"]:
+        assert "name" not in r, "원문 스냅샷에 닉네임이 남아 있다(공개 레포)"
 
 
 def test_jsonld_bodies_are_derived_not_handwritten():

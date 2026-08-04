@@ -111,6 +111,24 @@ ORIGINALS = os.path.join(HERE, "reviews_originals.json")
 SENT_END = ("!", ".", "?", "~")
 
 
+def mask_name(name):
+    """후기 작성자 닉네임을 부분만 노출 (대표 지시 2026-08-05).
+
+    규칙: 앞 2글자(1글자 이름은 1글자) + 고정 `***`.
+      · 별표를 **고정 3개**로 두는 건 의도다 — 길이에 맞춰 늘리면 원래 닉네임 길이가 새어나간다.
+      · 아워플레이스에 공개된 닉네임이긴 하지만, 우리 사이트가 이름과 후기를 한 줄로 묶어
+        재게시하는 표면이라 노출을 줄인다.
+    ⚠️ 이 레포는 **공개(public)** 다 — reviews.json 이 그대로 GitHub 에 노출된다.
+       그래서 마스킹을 «렌더 시점»이 아니라 **저장 시점(SSOT)** 에 건다. 렌더러가 하나라도
+       마스킹을 빠뜨리면 새기 때문이다.
+    """
+    n = (name or "").strip()
+    if not n:
+        return n
+    keep = 1 if len(n) <= 2 else 2
+    return n[:keep] + "***"
+
+
 def _flat(s):
     return re.sub(r"\s+", " ", (s or "")).strip()
 
@@ -164,29 +182,52 @@ def jsonld_snippet(text, limit=80):
     return (head[:sp] if sp > 20 else head).strip() + "…"
 
 
+def _jsonld_esc(s):
+    return (s or "").replace("\\", "\\\\").replace('"', '\\"')
+
+
 def sync_jsonld_reviews(html, data):
-    """JSON-LD 의 reviewBody 를 작성자 이름으로 매칭해 reviews.json 본문에서 갈아끼운다.
+    """JSON-LD 의 `"review":[...]` 배열을 reviews.json 에서 통째로 파생한다.
 
-    구조(개수·순서·author)는 건드리지 않고 **본문 문자열만** 바꾼다 — 리치결과 스키마를 흔들지 않기 위해.
-    reviews.json 에 없는 작성자는 그대로 둔다(조용히 지우지 않는다).
+    ⚠️ 종전엔 «작성자 이름으로 매칭해 본문만» 갈아끼웠는데, 닉네임 마스킹(2026-08-05)이 들어가면서
+       매칭 키 자체가 바뀌어 그 방식이 성립하지 않는다. 이름·본문 둘 다 SSOT 에서 나오게 재작성한다.
+    ⚠️ 손으로 적힌 값이 남지 않게 배열을 **전량 재생성**한다 — 실제로 여기 개작이 있었다
+       ("기존 동양풍 스튜디오**와 다르게**" / 원문은 "**와는 또 다른** 분위기를").
+    개수는 기존 배열의 항목 수를 유지한다(리치결과 노출 범위를 임의로 늘리지 않는다).
     """
-    by_name = {}
-    for r in data.get("reviews") or []:
-        by_name.setdefault(r.get("name", ""), r.get("text", ""))
+    m = re.search(r'"review":\[', html)
+    if not m:
+        return html
+    # 대괄호 균형으로 배열 끝을 찾는다(정규식으로는 중첩 객체를 못 센다)
+    start = m.end() - 1
+    depth, end = 0, None
+    for i in range(start, len(html)):
+        c = html[i]
+        if c == "[":
+            depth += 1
+        elif c == "]":
+            depth -= 1
+            if depth == 0:
+                end = i + 1
+                break
+    if end is None:
+        return html
+    old = html[start:end]
+    keep = old.count('"@type":"Review"') or 4
 
-    pat = re.compile(
-        r'("@type":"Review","author":\{"@type":"Person","name":"([^"]+)"\}.*?"reviewBody":")([^"]*)(")'
-    )
-
-    def repl(m):
-        name = m.group(2)
-        src = by_name.get(name)
-        if not src:
-            return m.group(0)
-        body = jsonld_snippet(src).replace("\\", "\\\\").replace('"', '\\"')
-        return m.group(1) + body + m.group(4)
-
-    return pat.sub(repl, html)
+    items = []
+    for r in (data.get("reviews") or [])[:keep]:
+        obj = {
+            "@type": "Review",
+            "author": {"@type": "Person", "name": r.get("name", "")},
+            "reviewRating": {"@type": "Rating",
+                             "ratingValue": str(int(float(r.get("rating", 5)))),
+                             "bestRating": "5"},
+            "reviewBody": jsonld_snippet(r.get("text", "")),
+            "publisher": {"@type": "Organization", "name": "아워플레이스"},
+        }
+        items.append(json.dumps(obj, ensure_ascii=False, separators=(",", ":")))
+    return html[:start] + "[" + ",".join(items) + "]" + html[end:]
 
 
 def sync_reviews_json_text(text, count, rating):
