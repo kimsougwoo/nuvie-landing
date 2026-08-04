@@ -217,5 +217,18 @@ def test_반대_테마_히어로_이미지를_미리_받는다():
 
     사진을 그 자리에서 로드하기 때문. load 이후 프리로드로 교체를 즉시로 만든다.
     ⚠️ load 이전에 받으면 초기 LCP 대역을 뺏는다 — 그래서 window load 훅이어야 한다."""
-    assert "window.addEventListener('load'" in HTML, "프리로드가 load 훅에 걸려 있지 않다"
-    assert "Object.keys(HERO_BG).forEach" in HTML, "HERO_BG 이미지를 미리 받지 않는다"
+    assert "window.addEventListener('load',heroMakeBack)" in HTML, "뒤 레이어 생성이 load 훅에 없다"
+    assert "heroBack.src=HERO_BG[other].src" in HTML, "반대 테마 이미지를 미리 받지 않는다"
+
+
+def test_히어로_전환이_크로스페이드다():
+    """🔴 대표 「히어로 전환이 좀 딱딱하네요」 (2026-08-04).
+
+    같은 <img> 의 src 를 갈아끼우면 교체 순간 사진이 사라져 뒤의 검은 그라디언트가 드러난다.
+    두 레이어를 겹쳐 opacity 만 넘겨야 부드럽다."""
+    assert "function heroSwap(" in HTML, "크로스페이드 스왑이 없다(src 직접 교체로 회귀)"
+    assert "transition:opacity" in HTML, "히어로 img 에 opacity 트랜지션이 없다"
+    assert "heroFront=b; heroBack=f;" in HTML, "레이어 역할 교대가 없다"
+    # 접근성: 숨은 레이어는 스크린리더에서 빠져야 한다
+    assert "b.removeAttribute('aria-hidden')" in HTML and "f.setAttribute('aria-hidden','true')" in HTML,         "전환 시 aria-hidden 이 따라가지 않는다(같은 사진이 두 번 읽힌다)"
+    assert "heroReduce" in HTML, "prefers-reduced-motion 을 존중하지 않는다"

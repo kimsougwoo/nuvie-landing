@@ -118,7 +118,7 @@
            ⚠️ 초기 src 는 **기본 테마(라이트) = B룸**이어야 LCP 이미지가 헛되지 않는다.
            ⚠️ 밝기는 룸마다 다르다 — A룸 원본이 이미 매우 어두워 .76 을 먹이면 검정 덩어리가 된다
               (그게 「최상단이 까맣다」의 원인이었다). 교체는 setTheme() 이 맡는다(아래 HERO_BG). -->
-      <div class="heroImgWrap" style="position:absolute;inset:0"><img id="heroImg" data-fallback="1" data-ken decoding="async" fetchpriority="high" src="/img/room-b.jpg" alt="누비 스튜디오 B룸 화이트 티타임 카페 — 통창 자연광이 드는 화이트 톤 공간" style="display:block;width:100%;height:100%;object-fit:cover;filter:brightness(.62) saturate(.95);transform:scale(1.05)"></div>
+      <div class="heroImgWrap" style="position:absolute;inset:0"><img id="heroImg" data-fallback="1" data-ken decoding="async" fetchpriority="high" src="/img/room-b.jpg" alt="누비 스튜디오 B룸 화이트 티타임 카페 — 통창 자연광이 드는 화이트 톤 공간" style="display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.62) saturate(.95);transform:scale(1.05);opacity:1;transition:opacity .55s ease"></div>
       <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,6,7,.30) 0%,rgba(6,6,7,.06) 26%,rgba(6,6,7,.60) 62%,rgba(6,6,7,.92) 100%)"></div>
       <div class="herotop" style="position:absolute;top:0;left:0;right:0;z-index:3;padding:26px 40px;display:flex;justify-content:space-between;align-items:center;gap:14px;font-family:var(--label-font);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.8)">
         <span style="white-space:nowrap">무인 · 까치산</span>
@@ -635,20 +635,54 @@
     dark :{src:'/img/hero.jpg',  filter:'brightness(1) saturate(1)',      alt:'누비 스튜디오 A룸 동양풍 블랙 호리존 세트'},
     light:{src:'/img/room-b.jpg',filter:'brightness(.62) saturate(.95)',  alt:'누비 스튜디오 B룸 화이트 티타임 카페 — 통창 자연광이 드는 화이트 톤 공간'}
   };
+  /* 🎞 전환은 **크로스페이드**다 (2026-08-04 대표 「히어로 전환이 좀 딱딱하네요」).
+     종전엔 같은 <img> 의 src 를 갈아끼웠다 → 교체 순간 사진이 사라지며 뒤의 검은 그라디언트가
+     드러나 «툭» 끊겼다. 두 레이어를 겹쳐 두고 opacity 만 넘긴다.
+     ⚠️ 두 번째 레이어는 **load 이후에 만든다** — HTML 에 두 장을 박으면 초기 LCP 대역을 나눠 쓴다.
+        그래서 이 레이어가 프리로드 역할까지 겸한다(별도 new Image() 불필요).
+     ⚠️ reduced-motion 이면 페이드 없이 즉시 교체한다. */
+  var heroReduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var heroFront=document.getElementById('heroImg'), heroBack=null;
+  function heroMakeBack(){
+    if(heroBack||!heroFront)return;
+    heroBack=heroFront.cloneNode(false);
+    heroBack.id='heroImg2'; heroBack.removeAttribute('fetchpriority');
+    heroBack.setAttribute('aria-hidden','true'); heroBack.alt='';
+    heroBack.style.opacity='0';
+    heroBack.addEventListener('error',function(){heroBack.style.display='none';});
+    var other=(document.body.getAttribute('data-theme')==='dark')?'light':'dark';
+    heroBack.src=HERO_BG[other].src; heroBack.style.filter=HERO_BG[other].filter;
+    heroFront.parentNode.appendChild(heroBack);
+  }
+  function heroSwap(c){
+    var f=heroFront, b=heroBack;
+    b.style.filter=c.filter;
+    function go(){
+      if(heroReduce){f.style.transition='none';b.style.transition='none';}
+      b.style.opacity='1'; f.style.opacity='0';
+      b.alt=c.alt; b.removeAttribute('aria-hidden');
+      f.alt=''; f.setAttribute('aria-hidden','true');
+      heroFront=b; heroBack=f;                    // 역할 교대
+    }
+    if(b.getAttribute('src')===c.src&&b.complete){go();return;}
+    b.addEventListener('load',go,{once:true});
+    if(b.getAttribute('src')!==c.src)b.setAttribute('src',c.src);
+  }
   function paintHero(t){
-    var el=document.getElementById('heroImg'), c=HERO_BG[t]||HERO_BG.light;
-    if(!el)return;
-    if(el.getAttribute('src')!==c.src)el.setAttribute('src',c.src);
-    el.style.filter=c.filter; el.alt=c.alt;
+    var c=HERO_BG[t]||HERO_BG.light;
+    if(!heroFront)return;
+    if(heroFront.getAttribute('src')===c.src){heroFront.style.filter=c.filter;return;}
+    if(!heroBack){                                 // 아직 레이어가 없으면(load 전 토글) 즉시 교체
+      heroFront.setAttribute('src',c.src); heroFront.style.filter=c.filter; heroFront.alt=c.alt; return;
+    }
+    heroSwap(c);
   }
   function setTheme(t){document.body.setAttribute('data-theme',t);themeBtn.textContent=(t==='dark'?'☀':'☾');themeBtn.setAttribute('aria-label',t==='dark'?'라이트 모드로 전환':'다크 모드로 전환');paintHero(t);}
   themeBtn.addEventListener('click',function(){setTheme(document.body.getAttribute('data-theme')==='dark'?'light':'dark');});
-  /* 반대 테마의 히어로 이미지를 미리 받아둔다 — 없으면 토글할 때마다 사진이 그 자리에서
-     로드되며 히어로가 **검게 깜빡인다**(2026-08-04 라이브에서 실제로 관찰).
+  /* 뒤 레이어를 만들면서 반대 테마 이미지도 함께 받힌다 — 없으면 토글할 때마다 사진이 그
+     자리에서 로드되며 히어로가 **검게 깜빡인다**(2026-08-04 라이브 관찰).
      ⚠️ load 이후에만 — 초기 LCP(현재 테마 이미지) 대역을 뺏으면 안 된다. */
-  window.addEventListener('load',function(){
-    Object.keys(HERO_BG).forEach(function(k){var i=new Image();i.src=HERO_BG[k].src;});
-  });
+  window.addEventListener('load',heroMakeBack);
 
   // calendar
   // 2026-07-29: 소스(iCal)에 미래 확정분만 담기므로 월말로 갈수록 이번 달이 구조적으로 비어 보인다
