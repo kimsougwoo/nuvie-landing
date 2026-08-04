@@ -146,7 +146,9 @@ def test_faq가_넓은_화면에서_비지_않는다():
     ⇒ auto-fit minmax 로 통일. 이 테스트는 「한 컬럼 고정으로 되돌아가는 것」을 막는다."""
     i = HTML.index('id="faq"')
     j = HTML.index("<details", i)
-    head = HTML[i:j]
+    # ⚠️ HTML 주석을 먼저 걷어낸다 — 이 결함을 설명하는 주석이 옛 값을 그대로 인용하고 있어서,
+    #   날것으로 검사하면 «주석 때문에 실패»한다(2026-08-04 실제로 한 번 걸렸다).
+    head = re.sub(r"<!--.*?-->", "", HTML[i:j], flags=re.S)
     assert "max-width:760px" not in head, "FAQ 가 다시 760px 한 컬럼으로 고정됐다(우측이 빈다)"
     assert "repeat(auto-fit,minmax(" in head, "FAQ 본문이 auto-fit grid 가 아니다"
     assert "align-items:start" in head, "align-items:start 가 없으면 details 를 열 때 행 높이가 튄다"
