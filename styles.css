@@ -49,12 +49,32 @@ html{scroll-behavior:smooth}
   a{color:inherit}
   @keyframes nvKen{from{transform:scale(1.05)}to{transform:scale(1.13)}}
   @keyframes nvFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
-  .side{position:fixed;left:0;top:0;bottom:0;width:284px;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:32px 26px;overflow-y:auto;z-index:50}
-  .side a.nav{color:var(--dim);font-size:15.5px;padding:9px 0;display:flex;align-items:center;gap:14px;text-decoration:none}
+  /* ── 헤더 = 상단 고정 바 (2026-08-04 Stayfolio 레이아웃 전환) ──────────────
+     종전엔 데스크탑만 좌측 고정 사이드바(284px)였다. 그걸 걷어낸 이유는 미감이 아니라:
+       ① 사이드바가 **사진 폭을 284px 깎는다** — 방금 채택한 「사진이 주인공」 원칙과 충돌.
+       ② 예약 UI 가 좌측 세로 막대에 갇혀 있어 **나중에 결제(PortOne)를 붙일 자리가 없다.**
+          Stayfolio 처럼 상세 우측에 예약 카드를 두면 그 카드가 그대로 체크아웃이 된다.
+     ⚠️ HTML 구조는 그대로 두고 CSS 로만 재배치한다(index.html·room.template.html 공용).
+        `.sidetop` 은 인라인 style 로 flex 라 `display:contents!important` 로 풀어
+        자식(로고·테마버튼)을 상단 바의 직접 flex 아이템으로 만든다 → 테마버튼만 order 로 우측 이동. */
+  .side{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:24px;
+        padding:13px 40px;background:color-mix(in srgb,var(--panel) 88%,transparent);
+        -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+        border-bottom:1px solid var(--line)}
+  .sidetop{display:contents!important}
+  .sidetag,.siderule,.sidefoot{display:none}
+  .brandsub{display:none}
+  /* ⚠️ .sidenav 는 인라인 style="display:flex;flex-direction:column;gap:1px" 를 갖고 있다.
+     인라인이 스타일시트를 이기므로 gap 도 !important 가 필수다(안 하면 링크가 전부 붙어 나온다). */
+  .sidenav{flex-direction:row!important;gap:24px!important;margin-left:6px}
+  .side a.nav{color:var(--dim);font-size:14px;padding:0;display:flex;align-items:center;gap:7px;text-decoration:none;white-space:nowrap}
   .side a.nav:hover{color:var(--ink)}
-  .side a.nav .no{font-family:var(--label-font);font-size:11px;color:var(--accent);min-width:18px;font-variant-numeric:tabular-nums}
-  .book a{transition:background .25s,transform .25s,border-color .25s,color .25s}
-  .main{margin-left:284px;min-width:0}
+  .side a.nav .no{display:none}          /* 가로 배치에선 번호가 노이즈다 */
+  #themeBtn{order:99;flex:none}
+  .book{margin:0 0 0 auto!important;flex-direction:row!important;gap:9px}
+  .book a{width:auto!important;padding:9px 18px;font-size:13.5px;white-space:nowrap;
+          transition:background .25s,transform .25s,border-color .25s,color .25s}
+  .main{margin-left:0;min-width:0}
   .inner{max-width:1380px;margin:0 auto;padding:0 40px}
   .sec{padding:96px 0;border-top:1px solid var(--line)}
   .sechead{display:flex;align-items:flex-start;gap:18px;margin-bottom:18px}
@@ -74,20 +94,16 @@ html{scroll-behavior:smooth}
   #calGrid .cell{min-height:96px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 7px 9px;display:flex;flex-direction:column;gap:3px;overflow:hidden;cursor:pointer}
   #calGrid .cell:hover{background:color-mix(in srgb, var(--accent) 12%, transparent)}
   @media(max-width:920px){
-    .side{position:sticky;width:auto;left:auto;top:0;bottom:auto;height:auto;flex-direction:row;align-items:center;gap:10px;padding:8px 18px;border-right:none;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--panel) 86%,transparent);backdrop-filter:blur(12px)}
-    .sidetag,.siderule,.sidenav,.sidefoot{display:none!important}
-    .sidetop{flex:0 0 auto}
-    /* ⚠️!important 필수(2026-07-29) — .book 은 인라인 style="margin-top:24px" 를 갖고 있고
-       인라인이 스타일시트 선언을 이긴다. 그래서 이 shorthand 의 margin-top:0 이 **지금까지 무시돼**
-       모바일 헤더에 세로 24px 사장 공간이 남아 있었다(헤더 높이의 실제 지배자였다. 테마버튼 44px이
-       아니라 이 .book 행 60.1px 이 헤더 높이를 정한다).
-       인라인을 지우지 않는 이유 = 그 24px 은 데스크탑(≥920px) 세로 사이드바에서 nav 와 예약버튼
-       사이 간격을 만드는 실사용 값이다(실측 확인). 모바일에서만 눌러 데스크탑을 보존한다. */
-    .book{margin:0 0 0 auto!important;flex-direction:row;gap:8px}
-    .book a{padding:7px 16px;font-size:13px;width:auto;white-space:nowrap}
+    /* 좁아지면 nav 링크는 접고 하단 chipbar 에 넘긴다(바 높이 유지). 나머지는 상단 바 기본값 그대로. */
+    .side{gap:10px;padding:8px 18px}
+    .sidenav{display:none!important}
+    /* ⚠️ .book 은 인라인 style="margin-top:24px" 를 갖고 있고 인라인이 스타일시트를 이긴다
+       → margin 오버라이드는 !important 가 필수다(2026-07-29 실측). 상단 바 전환 후에도 동일.
+       ※ 구 주석의 「데스크탑 세로 사이드바에서 nav 와 예약버튼 사이 간격」 사유는 2026-08-04
+         상단 바 전환으로 소멸했다(세로 사이드바가 없다). !important 는 인라인 때문에 남는다. */
+    .book a{padding:7px 16px;font-size:13px}
     .book .book2{display:none}
-    .brandsub,.herotop{display:none!important}
-    .main{margin-left:0}
+    .herotop{display:none!important}
     .inner,.heroin,.herotop{padding-left:22px;padding-right:22px}
     .hero{height:78vh;min-height:440px}
     .info{grid-template-columns:1fr 1fr}
