@@ -154,3 +154,72 @@ if __name__ == "__main__":
     import pytest
 
     sys.exit(pytest.main([__file__, "-q"]))
+
+
+# ── 내부 트래픽 게이트 (2026-08-04) ──────────────────────────────────
+# 🔴 신설 사유(GA4 실측): 주간 (direct) 26세션 = 전체 19% 인데 81%가 재방문이고 랜딩 URL 에
+#    /index.html·/?v=live 가 섞여 있었다 = 대표와 내가 라이브를 확인하며 만든 우리 트래픽.
+#    그래서 (direct) 만 전환 3.4% 로 유독 낮았다. 광고 재개 조건이 「판정 계기 GA4 고정」이라
+#    오염을 끊는다. ⚠️ 이벤트 정의·이름·파라미터는 불변 — 바뀐 건 「태그를 로드할지」뿐이다.
+import re as _re
+from pathlib import Path as _P
+
+_ROOT = _P(__file__).parent
+_PAGES = ["index.html", "a.html", "b.html", "room.template.html"]
+
+
+def _gate(src):
+    """게이트 블록만 정확히 잘라낸다.
+
+    ⚠️ 「__nvInternal 주변 ±N자」로 자르면 안 된다 — 허브엔 앞에 google-site-verification
+      meta 가 있어서 앞뒤 컨텍스트가 달라지고, 동일성 비교가 거짓 실패한다(2026-08-04 겪음)."""
+    s = src.index("<!-- 계측 3태그")
+    e = src.index("</script>", src.index("})();", s)) + len("</script>")
+    return src[s:e]
+
+
+def test_모든_페이지에_내부_트래픽_게이트가_있다():
+    for name in _PAGES:
+        src = (_ROOT / name).read_text(encoding="utf-8")
+        assert "window.__nvInternal" in src, f"{name} 에 게이트가 없다"
+        assert "nv_internal" in src, f"{name} 에 localStorage 키가 없다"
+
+
+def test_게이트가_태그보다_먼저_온다():
+    """게이트가 늦으면 태그가 이미 로드돼 의미가 없다."""
+    for name in _PAGES:
+        src = (_ROOT / name).read_text(encoding="utf-8")
+        assert src.index("window.__nvInternal") < src.index("googletagmanager.com/gtag/js"), name
+
+
+def test_내부일_때_태그를_안_붙이고_스텁만_둔다():
+    for name in _PAGES:
+        src = (_ROOT / name).read_text(encoding="utf-8")
+        g = _gate(src)
+        assert "window.gtag = function(){}" in g, f"{name}: gtag 스텁 없음"
+        assert "window.fbq = function(){}" in g, f"{name}: fbq 스텁 없음"
+        assert "window.clarity = function(){}" in g, f"{name}: clarity 스텁 없음"
+
+
+def test_localStorage_차단시_정상계측으로_폴백():
+    """사파리 프라이빗 등에서 localStorage 가 던지면 «계측 안 됨» 이 기본값이 되면 안 된다."""
+    for name in _PAGES:
+        src = (_ROOT / name).read_text(encoding="utf-8")
+        assert "catch (e) { internal = false; }" in src, f"{name}: 예외 시 기본값이 안전하지 않다"
+
+
+def test_이벤트_정의는_불변이다():
+    """광고 파일럿 판독 지표 — 게이트를 넣으면서 건드리면 안 된다."""
+    hub = (_ROOT / "index.html").read_text(encoding="utf-8")
+    assert "'book_click',{room:room,transport_type:'beacon',page:'hub'}" in hub
+    assert "fbq('track','Lead',{room:room})" in hub
+    assert "fbq('init', '1062603212821765')" in hub
+    assert "gtag('config', 'G-53WEQ1DGXG')" in hub
+
+
+def test_허브와_룸템플릿의_게이트가_동일하다():
+    """한쪽만 고치면 페이지마다 계측 정책이 갈린다."""
+    a = _gate((_ROOT / "index.html").read_text(encoding="utf-8"))
+    b = _gate((_ROOT / "room.template.html").read_text(encoding="utf-8"))
+    norm = lambda s: _re.sub(r"\s+", " ", s)
+    assert norm(a) == norm(b), "허브와 룸 템플릿의 게이트가 갈렸다"
