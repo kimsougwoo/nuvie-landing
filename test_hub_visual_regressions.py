@@ -238,3 +238,30 @@ def test_히어로_전환이_크로스페이드다():
     # 접근성: 숨은 레이어는 스크린리더에서 빠져야 한다
     assert "b.removeAttribute('aria-hidden')" in HTML and "f.setAttribute('aria-hidden','true')" in HTML,         "전환 시 aria-hidden 이 따라가지 않는다(같은 사진이 두 번 읽힌다)"
     assert "heroReduce" in HTML, "prefers-reduced-motion 을 존중하지 않는다"
+
+
+# ── [5] 허브 OG 카피가 h1 과 갈라지지 않는가 (2026-08-04) ─────────────
+def test_og_생성기가_h1을_읽어온다():
+    """🔴 실제로 갈라졌던 결함: 랜딩 h1 은 「남과 겹치지 않는」인데 og.jpg 는
+    옛 카피 「눈치 보지 않는 코스프레 무인 스튜디오」를 담고 있었다.
+    X 고정 트윗 카드에서 그 옛 문구가 그대로 노출됐다(2026-08-04 실물 확인).
+
+    ⇒ 생성기가 index.html 의 h1 을 **읽어서** 쓰게 했다. 여기에 문자열을 또 적으면
+      같은 방식으로 다시 갈라지므로, 그걸 막는다."""
+    src = (ROOT / "build_og.py").read_text(encoding="utf-8")
+    assert "def read_hub_h1(" in src, "OG 생성기가 h1 을 읽지 않는다"
+    assert "make_hub()" in src.split("def main(")[1], "main() 이 허브 OG 를 안 만든다"
+    # 카피를 하드코딩으로 되돌리는 회귀 차단.
+    # ⚠️ 주석 줄을 먼저 걷는다 — 이 결함을 설명하는 주석이 옛/현 카피를 그대로 인용하고 있어서,
+    #   날것으로 검사하면 «주석 때문에» 실패한다(2026-08-04 FAQ 테스트에서 한 번 겪고 또 겪었다).
+    code = "\n".join(ln for ln in src.splitlines() if not ln.lstrip().startswith("#"))
+    assert "남과 겹치지" not in code, "OG 생성기에 카피가 하드코딩됐다(h1 과 갈라진다)"
+    assert "{line1} {line2}" in code, "읽어온 h1 을 실제로 그리지 않는다"
+
+
+def test_og_생성기가_읽는_셀렉터가_실제_h1과_맞는다():
+    """셀렉터가 어긋나면 빌드가 SystemExit 으로 죽어야 한다 — 조용히 옛 이미지를 남기면 안 된다."""
+    import re
+    m = re.search(r'<h1 data-reveal[^>]*>(.*?)<br><span[^>]*>(.*?)</span></h1>', HTML, re.S)
+    assert m, "build_og.read_hub_h1 의 정규식이 현재 index.html 과 안 맞는다"
+    assert m.group(1).strip() and m.group(2).strip()
