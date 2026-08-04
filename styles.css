@@ -30,7 +30,15 @@ html{scroll-behavior:smooth}
     --accent:#A8A8AC; --accentSoft:#F5F5F6; --onAccent:#0B0B0C;   /* 뉴트럴 — 색 아님 */
     --btnBg:#F5F5F6; --btnFg:#0B0B0C; --btnHover:#D9D9DC;
     --roomA:#A8A8AC; --roomB:#A8A8AC;    /* 룸을 색으로 구분하지 않는다(사진이 구분한다) */
-    --calA:#F5F5F6; --calB:#B8B8BE;      /* 달력 칩만 예외 — 기능적 구분. 색상이 아니라 **A=채움 / B=채움+테두리** 형태로 가른다 */
+    /* 🎨 달력 칩만 예외 — **기능적 구분이라 진짜 색을 쓴다** (2026-08-04 대표 지시).
+       종전 값(A #F5F5F6 / B #B8B8BE)은 «명도만 다른 회색 2개» 였고, 모바일은 텍스트를 숨겨
+       5px 바 색만 남기므로 **두 룸이 사실상 구분되지 않았다** — 대표 「회색끼리 두면 의미가
+       없잖아요」. 예외를 선언해 놓고 회색으로 구현하면 예외가 죽는다.
+       A=동양풍 달 조명의 앰버 / B=자연광·통창의 청록. 색상환에서 멀고 **황-청 축**이라
+       적록색맹에서도 갈린다. 대비는 칩 배경(15/18% 틴트) 위 5.1:1 이상 실측(테스트로 박제).
+       ⚠️ 이건 --roomA/--roomB(룸 카드)의 「색으로 구분하지 않는다」와 층이 다르다 — 저긴
+          브랜드 표현, 여긴 **읽어내야 하는 데이터**다. 색맹 안전판으로 칩에 룸 글자도 넣는다. */
+    --calA:#E8965A; --calB:#5CC9BE;
     --promo:#017BC6;                     /* ⚠️ 프로모·할인 배지 전용. 일반 UI 사용 금지 */
     --label-font:'Pretendard',sans-serif;
   }
@@ -42,7 +50,7 @@ html{scroll-behavior:smooth}
     --accent:#5E5E61; --accentSoft:#181818; --onAccent:#FFFFFF;
     --btnBg:#000000; --btnFg:#FFFFFF; --btnHover:#2A2A2C;
     --roomA:#5E5E61; --roomB:#5E5E61;
-    --calA:#181818; --calB:#4A4A4E;
+    --calA:#8F3D12; --calB:#0C5F5B;   /* 라이트: 같은 앰버/청록을 어둡게 — 대비 5.45 / 5.30 */
   }
   body{font-family:'Pretendard',system-ui,sans-serif;font-weight:400;line-height:1.7;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;word-break:keep-all}
   [data-theme] *{transition:background-color .45s ease, border-color .45s ease, color .35s ease}

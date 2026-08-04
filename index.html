@@ -646,7 +646,13 @@
         var dur=e.end-e.start, durStr=(dur%1===0?dur:dur.toFixed(1))+'H';
         var ev=document.createElement('div');
         ev.style.cssText='font-size:10px;line-height:1.45;border-radius:3px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums;'+(ROOM[e.room]||ROOM.A);
-        ev.textContent=fmt(e.start)+' - '+fmt(e.end)+' ('+durStr+') 예약됨';
+        // 2026-08-04: 종전 문구는 "12:00 - 15:00 (3H) 예약됨" 으로 **룸이 어디에도 없었다** —
+        // 구분이 오직 색뿐이라 색만으로 정보를 전달하는 셈(WCAG 1.4.1)이었고, 그 색마저 회색
+        // 2개였다(대표 지적). 색은 진짜로 갈랐고(--calA/--calB), 여기에 룸 글자를 넣어 색맹·
+        // 흑백 인쇄에서도 읽히게 한다. 「예약됨」은 섹션 제목이 '예약 현황'이라 중복 → 자리를 양보.
+        var label=(e.room||'A')+'룸';
+        ev.textContent=label+' '+fmt(e.start)+' - '+fmt(e.end)+' ('+durStr+')';
+        ev.title=label+' '+fmt(e.start)+' - '+fmt(e.end)+' 예약됨';   // 폭이 좁아 잘릴 때 hover 보완
         box.appendChild(ev);
       });
       cell.appendChild(box);
