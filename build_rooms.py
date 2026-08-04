@@ -172,17 +172,19 @@ def render_reviews(room: dict, reviews_doc: dict) -> str:
         )
     rating = reviews_doc.get("rating")
     count = reviews_doc.get("count", len(items))
-    return f"""<section id="reviews" class="sec"><div class="inner">
+    # ⚠️ .sec/.inner 를 쓰지 않는다 — 2단 그리드(.roomgrid-main) 안에 들어가므로
+    #    그리드가 이미 폭·여백을 잡는다(붙이면 패딩이 이중으로 걸린다).
+    return f"""<section id="reviews">
       <div class="sechead" data-reveal>
-        <span class="snum">＋</span>
+        <span class="snum">03</span>
         <div><div class="skick">Reviews</div><h2 style="margin:0;font-size:clamp(26px,3vw,40px);letter-spacing:-.02em">후기</h2></div>
       </div>
       <p class="desc" data-reveal style="margin:0 0 30px">아워플레이스에 남겨주신 후기예요 · 평점 {esc(rating)} / 5 · {esc(count)}건</p>
       <!-- ⚠️ column-width(멀티컬럼)를 쓰지 않는다 — 이 사이트에서 핀치줌 가로넘침 버그의
            근본원인으로 특정돼 데스크탑 전용으로 격리된 기법이다(styles.css #reviewCards 주석).
            auto-fill 그리드는 같은 매이슨리 느낌을 내면서 그 버그 계열을 통째로 피하고 JS 도 필요 없다. -->
-      <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;align-items:start">{''.join(cards)}</div>
-    </div></section>"""
+      <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;align-items:start">{''.join(cards)}</div>
+    </section>"""
 
 
 def render_jsonld(room: dict, other: dict, catalog: dict, reviews_doc: dict) -> str:

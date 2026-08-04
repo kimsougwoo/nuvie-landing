@@ -90,6 +90,23 @@ html{scroll-behavior:smooth}
      ⚠️지정값 ink 32% 는 실측 1.98~2.67:1 로 미달이라 50% 로 올림(라이트 3.17 / 다크 4.76). */
   .btn.line{background:transparent;color:var(--ink);border:1px solid color-mix(in srgb, var(--ink) 50%, transparent);font-weight:500}
   .btn.line:hover{border-color:var(--accent);color:var(--accent);background:transparent;transform:translateY(-1px)}
+  /* ── 룸 페이지 2단 본문 (2026-08-04) ─────────────────────────────────
+     좌측 = 소개·공간·후기 / 우측 = 고정 예약 카드.
+     🔜 우측 카드가 **PortOne V2 체크아웃이 들어갈 자리**다(Stayfolio 상세 구조를 그대로 가져왔다).
+     ⚠️ 좌측 섹션은 .sec/.inner 를 쓰지 않는다 — 여기서 폭·여백을 잡으므로 붙이면 이중이 된다. */
+  .roombody{padding:80px 0;border-top:1px solid var(--line)}
+  .roomgrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:56px;align-items:start}
+  .roomgrid-main{min-width:0}
+  .roomgrid-main > section{margin:0 0 76px;min-width:0}
+  .roomgrid-main > section:last-child{margin-bottom:0}
+  .roomgrid-side{position:sticky;top:76px;min-width:0}   /* 76px = 상단 바 높이 여유 */
+  .bookcard{border:1px solid var(--line);border-radius:10px;padding:24px;background:var(--panel)}
+  @media(max-width:1080px){
+    .roomgrid{grid-template-columns:1fr;gap:44px}
+    .roomgrid-side{position:static}
+    .roombody{padding:56px 0}
+    .roomgrid-main > section{margin-bottom:56px}
+  }
   /* calendar */
   #calGrid .cell{min-height:96px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 7px 9px;display:flex;flex-direction:column;gap:3px;overflow:hidden;cursor:pointer}
   #calGrid .cell:hover{background:color-mix(in srgb, var(--accent) 12%, transparent)}
