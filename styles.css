@@ -118,6 +118,14 @@ html{scroll-behavior:smooth}
   .roomcard:hover .roomcard-img img{transform:scale(1.04)}
   .roomcard-body{padding:16px 2px 0}
   .roomcard-kick{font-family:var(--label-font);font-size:11px;letter-spacing:.2em;color:var(--dim)}
+  /* 「NEW」 칩 — 새로 연 룸 표시(B룸 2026-08-03 오픈).
+     ⚠️ 색으로 강조하지 않는다 — 디자인 정본 v1.3 은 액센트 색이 없고 위계는 «크기+웨이트»다.
+     그래서 --promo(#017BC6) 도 쓰지 않는다(그건 할인·프로모 배지 «면» 전용이고 NEW 는 프로모가 아니다).
+     강조 수단 = **명도 반전**. 배경 --ink / 글자 --bg 라 다크·라이트 양쪽에서 자동으로 뒤집히고
+     대비는 다크 18:1 · 라이트 16.9:1 이다(--btnBg/--btnFg 와 같은 반전 문법). */
+  .roomcard-new{display:inline-block;margin-left:8px;
+    font-family:var(--label-font);font-size:10px;font-weight:700;letter-spacing:.14em;line-height:1;
+    background:var(--ink);color:var(--bg);padding:4px 7px 3px;border-radius:3px}
   .roomcard h3{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:7px 0 8px}
   .roomcard p{color:var(--dim);font-size:14px;line-height:1.7;margin:0 0 12px}
   .roomcard-tags{display:flex;gap:6px;flex-wrap:wrap}
