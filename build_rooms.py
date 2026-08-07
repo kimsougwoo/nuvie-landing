@@ -94,7 +94,7 @@ def render_blocks(room: dict) -> str:
             '<div data-reveal style="max-width:60ch;margin:0 0 26px">'
             f'<div style="font-family:var(--label-font);font-size:12px;letter-spacing:.16em;'
             f'text-transform:uppercase;color:var(--accentSoft);margin-bottom:8px">{esc(b["head"])}</div>'
-            f'<p style="margin:0;color:var(--dim);font-size:15.5px;line-height:1.85">{b["body"]}</p>'
+            f'<p style="margin:0;color:var(--dim);font-size:15.5px;line-height:1.85;text-wrap:pretty">{b["body"]}</p>'
             "</div>"
         )
     return "\n      ".join(out)
@@ -151,8 +151,10 @@ def render_reviews(room: dict, reviews_doc: dict) -> str:
                 'style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:4px;display:block"></a>'
                 for src in photos
             )
+            # 항상 2열 고정 — 사진 1장짜리 후기가 전체폭으로 커지면 2장짜리 카드와
+            # 나란히 스크롤될 때 사진 크기가 들쭉날쭉해 보인다(2026-08-07 대표 지적).
             pg = (
-                f'<div style="display:grid;grid-template-columns:repeat({len(photos)},1fr);'
+                f'<div style="display:grid;grid-template-columns:repeat(2,1fr);'
                 f'gap:6px;margin:0 0 11px">{cells}</div>'
             )
 
