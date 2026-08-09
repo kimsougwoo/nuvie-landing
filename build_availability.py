@@ -280,7 +280,7 @@ def push_changes(repo, n_events):
         # 강제덮어쓰기 없이 availability 커밋을 그 위에 리베이스(split-brain·수동수정 유실 방지).
         # availability.json은 봇 전용이라 index.html 등 수동파일과 충돌 사실상 없음.
         pr = subprocess.run(["git", "-C", repo, "pull", "--rebase", "origin", "main"],
-                            capture_output=True, text=True)
+                            capture_output=True, text=True, encoding="utf-8", errors="replace")
         if pr.returncode != 0:
             subprocess.run(["git", "-C", repo, "rebase", "--abort"], capture_output=True)
             # 🔧 2026-07-23: 충돌 자가치유. availability.json은 봇 전용이라, 스톨된 로컬 커밋이
@@ -288,7 +288,7 @@ def push_changes(repo, n_events):
             #   과거엔 abort 후 그냥 return False → 커밋이 영구 적체(ahead 누적)돼 스톨했다.
             #   ⚠️ 다른 파일이 섞였으면 자동 폐기 위험 → 종전대로 보류(수동 확인).
             diff = subprocess.run(["git", "-C", repo, "diff", "--name-only", "origin/main..HEAD"],
-                                  capture_output=True, text=True)
+                                  capture_output=True, text=True, encoding="utf-8", errors="replace")
             touched = {f.strip() for f in (diff.stdout or "").splitlines() if f.strip()}
             if touched and touched <= {"availability.json"}:
                 subprocess.run(["git", "-C", repo, "reset", "--hard", "origin/main"], check=True)

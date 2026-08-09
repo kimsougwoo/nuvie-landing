@@ -120,9 +120,8 @@
       <a href="#rooms" class="nav" data-nav="rooms"><span class="no">01</span> 룸</a>
       <a href="#reviews" class="nav" data-nav="reviews"><span class="no">02</span> 후기</a>
       <a href="#availability" class="nav" data-nav="availability"><span class="no">03</span> 예약</a>
-      <a href="#interest" class="nav" data-nav="interest"><span class="no">04</span> 관심 접수</a>
-      <a href="#location" class="nav" data-nav="location"><span class="no">05</span> 오시는 길</a>
-      <a href="#faq" class="nav" data-nav="faq"><span class="no">06</span> FAQ</a>
+      <a href="#location" class="nav" data-nav="location"><span class="no">04</span> 오시는 길</a>
+      <a href="#faq" class="nav" data-nav="faq"><span class="no">05</span> FAQ</a>
     </nav>
     <div class="book" style="margin-top:24px;display:flex;flex-direction:column;gap:9px">
       <!-- 라벨-목적지 일치(2026-07-29) — 종전 「예약하기」는 룸 중립인데 목적지는 A룸(place/61823) 고정이었다.
@@ -432,51 +431,9 @@
       </div>
     </div></section>
 
-    <section id="interest" class="sec" aria-labelledby="interest-title"><div class="inner">
-      <div class="sechead" data-reveal>
-        <span class="snum">04</span>
-        <div><div class="skick">Interest</div><h2 id="interest-title">빈 시간 알림</h2></div>
-      </div>
-      <p class="desc" data-reveal style="margin:0 0 30px">원하는 룸이나 시간대가 아직 열리지 않았다면 남겨 주세요.<br>예약 가능 여부를 확인한 뒤 입력하신 연락처로 안내드립니다.</p>
-      <div class="nv-interest-layout" data-reveal>
-        <div class="nv-interest-note">
-          <div class="skick">First-party contact</div>
-          <h3>자사몰에서 관심을 남길 수 있습니다.</h3>
-          <p>예약과 결제는 현재 아워플레이스에서 진행됩니다. 이 접수는 예약을 확정하지 않으며, 관심 룸·연락처·유입 경로를 운영 안내 목적으로만 사용합니다.</p>
-          <p class="nv-interest-muted">개인정보 수집·이용 동의는 필수이고, 광고성 정보 수신 동의는 선택입니다.</p>
-        </div>
-        <form id="interestForm" class="nv-interest-form" action="/api/interest" method="post">
-          <div class="nv-form-row">
-            <label>관심 룸
-              <select name="room" required>
-                <option value="">선택해 주세요</option>
-                <option value="A룸">A룸</option>
-                <option value="B룸">B룸</option>
-                <option value="둘 다">둘 다</option>
-              </select>
-            </label>
-            <label>이메일
-              <input name="email" type="email" autocomplete="email" maxlength="254" placeholder="name@example.com">
-            </label>
-          </div>
-          <label>전화번호 <span class="nv-interest-muted">(이메일과 둘 중 하나)</span>
-            <input name="phone" type="tel" autocomplete="tel" maxlength="40" placeholder="010-0000-0000">
-          </label>
-          <label>문의 내용 <span class="nv-interest-muted">(선택)</span>
-            <textarea name="inquiry" rows="4" maxlength="1000" placeholder="원하는 날짜나 시간대를 알려 주세요."></textarea>
-          </label>
-          <label class="nv-check"><input name="privacy_consent" type="checkbox" required> <span>개인정보 수집·이용에 동의합니다. <a href="/privacy.html" target="_blank" rel="noopener">내용 보기</a></span></label>
-          <label class="nv-check"><input name="marketing_consent" type="checkbox"> <span>광고성 정보 수신에 동의합니다. (선택)</span></label>
-          <input class="nv-honeypot" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
-          <button class="btn" type="submit">관심 접수하기</button>
-          <p id="interestStatus" class="nv-interest-status" role="status" aria-live="polite"></p>
-        </form>
-      </div>
-    </div></section>
-
     <section id="location" class="sec" style="background:var(--panel)"><div class="inner">
       <div class="sechead" data-reveal style="margin-bottom:40px">
-        <span class="snum">05</span>
+        <span class="snum">04</span>
         <div><div class="skick">Location</div><h2>오시는 길</h2></div>
       </div>
       <div class="specs" data-reveal style="display:grid;grid-template-columns:repeat(2,1fr);border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--bg)">
@@ -537,7 +494,7 @@
 
     <section id="faq" class="sec"><div class="inner">
       <div class="sechead" data-reveal style="margin-bottom:34px">
-        <span class="snum">06</span>
+        <span class="snum">05</span>
         <div><div class="skick">FAQ</div><h2>자주 묻는 질문</h2></div>
       </div>
       <!-- 2026-08-04 대표 지적 「PC로 봤을 때 빈 공간이 보여요」 — inner 는 1380px 인데 FAQ 만
@@ -902,7 +859,7 @@
   function setActive(id){navlinks.forEach(function(a){var on=a.getAttribute('data-nav')===id;a.classList.toggle('active',on);a.style.color=on?'var(--ink)':'var(--dim)';var num=a.querySelector('span');if(num)num.style.opacity=on?'1':'.5';});}
   try{
     var spy=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)setActive(e.target.id);});},{rootMargin:'-45% 0px -50% 0px'});
-    ['rooms','reviews','availability','interest','location','faq'].forEach(function(id){var s=root.querySelector('#'+id);if(s)spy.observe(s);});
+    ['rooms','reviews','availability','location','faq'].forEach(function(id){var s=root.querySelector('#'+id);if(s)spy.observe(s);});
   }catch(e){}
   // scroll reveal
   var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;

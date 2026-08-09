@@ -4,7 +4,7 @@
 
 - 정적 1페이지(빌드 불필요). 예약은 아워플레이스로 외부 링크.
 - AEO: llms.txt + JSON-LD(LocalBusiness·FAQPage) + OG/Twitter meta.
-- 예약현황 캘린더: `/availability.json`(free/busy, 이름 비노출) — 서버리스 크론으로 갱신 예정.
+- 예약현황 캘린더: `/availability.json`(free/busy, 이름 비노출) — Windows Task Scheduler `NUVIE_CS_Watch`가 30분마다 `아워플레이스 iCal → build_availability.py → GitHub → Vercel`로 갱신.
 - 배포: Vercel (도메인 nuviestudio.com).
 
 ## 확인/교체 필요

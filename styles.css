@@ -441,26 +441,3 @@ html{scroll-behavior:smooth}
     .nv-skel{animation:none!important}
     #calGrid .cell{animation:none!important}
   }
-
-  /* First-party interest capture: same border, type, and accent tokens as the existing form controls. */
-  .nv-interest-layout{display:grid;grid-template-columns:minmax(0,.85fr) minmax(320px,1.15fr);gap:14px;align-items:start}
-  .nv-interest-note,.nv-interest-form{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:26px 24px}
-  .nv-interest-note h3{margin:8px 0 12px;font-size:22px;letter-spacing:-.02em}
-  .nv-interest-note p{margin:0;color:var(--dim);font-size:14px;line-height:1.8}
-  .nv-interest-note p + p{margin-top:12px}
-  .nv-interest-muted{color:var(--faint);font-size:12px}
-  .nv-interest-form{display:flex;flex-direction:column;gap:14px}
-  .nv-interest-form label{display:flex;flex-direction:column;gap:7px;color:var(--dim);font-size:13px;line-height:1.5}
-  .nv-form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .nv-interest-form input:not([type="checkbox"]),.nv-interest-form select,.nv-interest-form textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:3px;background:var(--bg);color:var(--ink);font:inherit;padding:11px 12px}
-  .nv-interest-form textarea{resize:vertical;min-height:96px}
-  .nv-interest-form input:focus,.nv-interest-form select:focus,.nv-interest-form textarea:focus{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:1px;border-color:var(--accent)}
-  .nv-check{display:flex!important;flex-direction:row!important;align-items:flex-start;gap:8px!important;font-size:12.5px!important;color:var(--dim)!important}
-  .nv-check input{margin-top:3px;accent-color:var(--accent);flex:none}
-  .nv-check a{color:var(--accent);text-decoration:underline}
-  .nv-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;opacity:0!important}
-  .nv-interest-status{min-height:1.5em;margin:0;color:var(--dim);font-size:12.5px;line-height:1.6}
-  .nv-interest-status[data-state="error"]{color:#a65b4b}
-  .nv-interest-status[data-state="ok"]{color:var(--accent)}
-  .nv-interest-form button:disabled{opacity:.55;cursor:wait}
-  @media(max-width:760px){.nv-interest-layout{grid-template-columns:1fr}.nv-form-row{grid-template-columns:1fr}}
