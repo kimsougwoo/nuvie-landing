@@ -97,9 +97,20 @@ function originOf(req) {
   return (req.headers && (req.headers.origin || req.headers.Origin)) || '';
 }
 
+function vercelOrigin(name) {
+  const value = process.env[name];
+  if (!value) return '';
+  return (value.startsWith('http://') || value.startsWith('https://') ? value : `https://${value}`).replace(/\/$/, '');
+}
+
 function allowedOrigin(origin) {
   const configured = process.env.NUVIE_SITE_ORIGIN || DEFAULT_ORIGIN;
-  return !origin || origin === configured || origin === 'http://localhost:3000' || origin === 'http://127.0.0.1:3000';
+  const runtimeOrigins = [
+    vercelOrigin('VERCEL_URL'),
+    vercelOrigin('VERCEL_BRANCH_URL'),
+    vercelOrigin('VERCEL_PROJECT_PRODUCTION_URL')
+  ].filter(Boolean);
+  return !origin || origin === configured || runtimeOrigins.includes(origin) || origin === 'http://localhost:3000' || origin === 'http://127.0.0.1:3000';
 }
 
 module.exports = async function interestHandler(req, res) {

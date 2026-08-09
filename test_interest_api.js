@@ -72,6 +72,28 @@ test('does not claim success when the Notion deployment environment is not confi
   assert.deepEqual(res.body, { ok: false, error: 'submission unavailable' });
 });
 
+test('allows the current Vercel preview origin while keeping persistence fail-closed', async () => {
+  const previousFetch = global.fetch;
+  const previousToken = process.env.NOTION_TOKEN;
+  const previousDataSource = process.env.NOTION_CRM_DATA_SOURCE_ID;
+  const previousVercelUrl = process.env.VERCEL_URL;
+  let called = false;
+  global.fetch = async () => { called = true; return { ok: true }; };
+  delete process.env.NOTION_TOKEN;
+  delete process.env.NOTION_CRM_DATA_SOURCE_ID;
+  process.env.VERCEL_URL = 'nuvie-landing-preview.vercel.app';
+  const res = await call(valid, { headers: { origin: 'https://nuvie-landing-preview.vercel.app' } });
+  global.fetch = previousFetch;
+  if (previousToken === undefined) delete process.env.NOTION_TOKEN;
+  else process.env.NOTION_TOKEN = previousToken;
+  if (previousDataSource === undefined) delete process.env.NOTION_CRM_DATA_SOURCE_ID;
+  else process.env.NOTION_CRM_DATA_SOURCE_ID = previousDataSource;
+  if (previousVercelUrl === undefined) delete process.env.VERCEL_URL;
+  else process.env.VERCEL_URL = previousVercelUrl;
+  assert.equal(res.statusCode, 503);
+  assert.equal(called, false);
+});
+
 test('writes only the consented lead fields to the configured Notion data source', async () => {
   const previousFetch = global.fetch;
   let request;
