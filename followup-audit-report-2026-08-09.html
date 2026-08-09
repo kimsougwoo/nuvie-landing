@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>NUVIE 운영 전수점검 후속 보고서 — 2026-08-09</title>
+  <style>
+    :root{--bg:#f6f4f1;--panel:#fff;--ink:#1b1b1d;--dim:#626168;--line:#dedbd6;--accent:#8c5b43;--ok:#2e7657;--warn:#a05d24;--block:#9a443e}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",Arial,sans-serif;line-height:1.65}.wrap{max-width:1080px;margin:0 auto;padding:48px 24px 80px}.eyebrow{color:var(--accent);font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700}h1{font-size:clamp(30px,5vw,54px);line-height:1.12;letter-spacing:-.045em;margin:10px 0 14px}h2{font-size:22px;letter-spacing:-.025em;margin:0 0 16px}h3{font-size:16px;margin:0 0 8px}.sub{color:var(--dim);margin:0 0 28px}.hero,.section,.gate{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:28px 30px}.hero{border-top:4px solid var(--accent);margin-bottom:16px}.section{margin-top:16px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);border-radius:8px;padding:18px;background:#fcfbfa}.card strong{display:block;font-size:22px;line-height:1.2;margin:5px 0}.muted{color:var(--dim);font-size:13px}.status{display:inline-flex;align-items:center;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700}.done{background:#e5f2eb;color:var(--ok)}.pending{background:#fff0df;color:var(--warn)}.blocked{background:#f9e5e3;color:var(--block)}table{width:100%;border-collapse:collapse;font-size:13px}th,td{border-bottom:1px solid var(--line);padding:12px 10px;text-align:left;vertical-align:top}th{color:var(--dim);font-weight:600;background:#faf9f7}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;background:#f0eeeb;border-radius:4px;padding:2px 5px}a{color:var(--accent);text-decoration:underline}.callout{border-left:4px solid var(--ok);background:#f3faf6;padding:15px 17px;border-radius:4px;margin-top:12px}.callout.warn{border-left-color:var(--warn);background:#fff8ee}.flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;align-items:stretch;margin:16px 0}.flow div{border:1px solid var(--line);border-radius:8px;background:#fcfbfa;padding:14px 10px;text-align:center;font-size:13px}.flow b{display:block;margin-bottom:4px}.arrow{display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:20px}.meta{display:flex;gap:16px;flex-wrap:wrap;color:var(--dim);font-size:12px;border-top:1px solid var(--line);margin-top:24px;padding-top:14px}.footer{color:var(--dim);font-size:12px;margin-top:24px}@media(max-width:760px){.wrap{padding:28px 14px 56px}.hero,.section,.gate{padding:22px 18px}.grid{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">NUVIE / Follow-up Audit</div>
+    <h1>운영 전수점검<br>후속 보고서</h1>
+    <p class="sub">작성일 2026-08-09 KST · 범위: 랜딩 예약 흐름, Interest 중복 표면, 예약현황 갱신 배선, Notion S1 발행일</p>
+    <div class="callout"><strong>현재 결론</strong><br>예약은 항시 열려 있고 A룸·B룸 모두 아워플레이스에서 바로 결제할 수 있으므로, 자사몰의 중복 Interest 화면을 제거했습니다. 예약현황은 실제 iCal 페치와 라이브 JSON까지 재조회해 2026-08-09 19:23 기준으로 반영했습니다.</div>
+    <div class="meta"><span>코드 커밋: <code>8c4b3f9</code> · <code>958b20b</code> · <code>ebe3850</code></span><span>Production: <code>dpl_FQHhbn7AB5oiJUtK9EF3wUfDs9PU</code> READY</span><span>원격: <code>origin/main</code></span></div>
+  </section>
+
+  <section class="section">
+    <h2>1. 실행 상태</h2>
+    <div class="grid">
+      <div class="card"><span class="status done">완료</span><strong>Interest 제거</strong><span class="muted">공개 화면·전용 CSS·죽은 추적 코드 제거</span></div>
+      <div class="card"><span class="status done">확인</span><strong>예약현황 갱신</strong><span class="muted">iCal 2개 성공 · 라이브 12건/9일</span></div>
+      <div class="card"><span class="status pending">대기</span><strong>CRM 재활성화</strong><span class="muted">API·Notion 경계만 보존, 현재 UI 호출 없음</span></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>2. 반영한 변경</h2>
+    <table>
+      <thead><tr><th>영역</th><th>변경</th><th>검증</th></tr></thead>
+      <tbody>
+        <tr><td>랜딩 UX</td><td><a href="index.html">index.html</a>에서 <code>04 관심 접수</code> 내비게이션과 Interest 섹션을 제거하고 오시는 길·FAQ 번호를 재정렬했습니다.</td><td><span class="status done">확인</span></td></tr>
+        <tr><td>계측</td><td><a href="attribution.js">attribution.js</a>의 Interest open/submit 이벤트와 폼 전송 코드를 제거했습니다. 기존 <code>booking_intent</code>·UTM 귀속은 유지했습니다.</td><td><span class="status done">확인</span></td></tr>
+        <tr><td>예약 링크</td><td>A룸 <code>61823</code>, B룸 <code>62341</code> 외부 예약 링크와 읽기 전용 가용성 캘린더는 유지했습니다.</td><td><span class="status done">라이브 재조회</span></td></tr>
+        <tr><td>CRM 경계</td><td><a href="api/interest.js">/api/interest</a>와 API 테스트는 미래 재활성화용으로 보존했습니다. 현재 Vercel 환경변수 0건이며 공개 화면에서 호출되지 않습니다.</td><td><span class="status pending">비활성</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="section">
+    <h2>3. 예약현황 갱신 배선</h2>
+    <div class="flow" aria-label="예약현황 데이터 흐름">
+      <div><b>아워플레이스</b>A/B iCal</div><div class="arrow" aria-hidden="true">→</div><div><b>build_availability.py</b>free/busy 변환</div><div class="arrow" aria-hidden="true">→</div><div><b>GitHub → Vercel</b><code>availability.json</code></div>
+    </div>
+    <table>
+      <thead><tr><th>점검 항목</th><th>실측</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>원인</td><td>기존 크론 복제본은 iCal 페치와 로컬 커밋까지 했지만 원격 <code>main</code>보다 34커밋 뒤처져 rebase가 보류되었습니다. Windows CP949 환경에서는 Git 출력 디코딩 예외도 있었습니다.</td><td><span class="status done">재현</span></td></tr>
+        <tr><td>런처</td><td><code>NUVIE_CS_Watch</code>는 활성·30분 주기입니다. 현재 로컬 런처가 배포용 <code>Projects\nuvie-landing\build_availability.py</code>를 호출하도록 수정됐습니다.</td><td><span class="status done">배선 수정</span></td></tr>
+        <tr><td>실패 신호</td><td>페치 0건 또는 push 실패가 스케줄러에 0으로 보이지 않도록 CLI 종료코드로 전달하고 UTF-8 대체 디코딩을 추가했습니다.</td><td><span class="status done">회귀 테스트</span></td></tr>
+        <tr><td>라이브 결과</td><td><code>https://www.nuviestudio.com/availability.json</code> → <code>updated=2026-08-09T19:23</code>, events 12건, busyDates 9일.</td><td><span class="status done">확인</span></td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn"><strong>커밋 범위 메모</strong><br><code>nuvie_morning</code> parent repo에는 다른 세션의 변경이 다수 있어 전체 커밋은 보류했습니다. 런처의 로컬 수정은 현재 Task Scheduler에 적용되어 있으며, parent repo 전체 정리는 별도 승인·정리 작업입니다.</div>
+  </section>
+
+  <section class="section">
+    <h2>4. Notion S1 발행일</h2>
+    <table>
+      <thead><tr><th>순서</th><th>콘텐츠</th><th>채널</th><th>발행 예정일시</th><th>현재 상태</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><a href="https://app.notion.com/p/3b7c620fc30e8169a7b4c72df2de8a33">B룸 장비리스트 — 상시 비치 조명 전부 무료</a></td><td>IG</td><td>2026-08-10 20:00 KST</td><td>📝 Draft · ⏳ 대기</td></tr>
+        <tr><td>1</td><td><a href="https://app.notion.com/p/3b7c620fc30e81b29a28d4e83f2b85b0">B룸 장비리스트 — 상시 비치 조명 전부 무료</a></td><td>X</td><td>2026-08-10 20:00 KST</td><td>📝 Draft · ⏳ 대기</td></tr>
+        <tr><td>2</td><td><a href="https://app.notion.com/p/3b5c620fc30e8126b2b9e7df5853f26e">A룸 장비리스트 — 상시 비치 조명 전부 무료</a></td><td>IG</td><td>2026-08-11 20:00 KST</td><td>📝 Draft · ⏳ 대기</td></tr>
+        <tr><td>2</td><td><a href="https://app.notion.com/p/3b7c620fc30e81a2bb21ec1d39d1d321">A룸 장비리스트 — 상시 비치 조명 전부 무료</a></td><td>X</td><td>2026-08-11 20:00 KST</td><td>📝 Draft · ⏳ 대기</td></tr>
+      </tbody>
+    </table>
+    <p class="muted">대표 G3 발행 승인과 G4 이미지 육안 확인 전에는 상태를 Ready/Published로 바꾸지 않았습니다.</p>
+  </section>
+
+  <section class="section">
+    <h2>5. 검증 결과</h2>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>Node 문법·API</td><td><span class="status done">7 passed</span></td><td><code>attribution.js</code>·<code>api/interest.js</code> 문법 및 API 단위 테스트</td></tr>
+        <tr><td>랜딩·예약현황 회귀군</td><td><span class="status done">80 passed</span></td><td>Interest 제거, 기존 계측, 룸 생성물, 가용성 이력·실패·push 배선 포함</td></tr>
+        <tr><td>Production</td><td><span class="status done">READY</span></td><td><a href="https://www.nuviestudio.com">www.nuviestudio.com</a> 외부 재조회</td></tr>
+        <tr><td>Interest 표면</td><td><span class="status done">없음</span></td><td><code>interestForm</code>·<code>#interest</code>·<code>id="interest"</code> 모두 라이브 HTML에서 미검출</td></tr>
+        <tr><td>예약현황</td><td><span class="status done">최신</span></td><td>라이브 JSON HTTP 200, 8월 8일 과거 잔여일 없음</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="gate">
+    <h2>6. 후속 작업</h2>
+    <ol>
+      <li>다음 <code>NUVIE_CS_Watch</code> 실행 후 <code>LastTaskResult</code>와 <code>Projects\nuvie-landing\refresh_log.txt</code>를 확인합니다.</li>
+      <li>parent repo의 기존 변경을 대표 기준으로 정리한 뒤 런처 변경을 별도 커밋할지 결정합니다.</li>
+      <li>자사 CRM이 다시 필요해지는 시점에만 Vercel Notion 환경변수·권한을 설정하고 API를 별도 E2E 검증합니다.</li>
+      <li>PortOne V2 전환은 예약 재고 잠금·서버 검증·웹훅 멱등·환불 경계가 준비된 뒤 별도 게이트로 진행합니다.</li>
+    </ol>
+  </section>
+  <p class="footer">본 보고서는 인증정보·고객 개인정보를 포함하지 않습니다. 라이브 판정은 2026-08-09 외부 재조회 기준입니다.</p>
+</main>
+</body>
+</html>
