@@ -41,8 +41,17 @@
   // book_click 이 동일 이벤트라 이탈 출처가 안 갈렸다. room.template.html 의 <body data-room="{{SLUG}}">
   // 에서만 읽는다 — ⚠️ book_click 의 기존 파라미터(room·transport_type)·이벤트명은 절대 불변, page 는 "추가"만.
   var PAGE_ORIGIN = 'room_' + (document.body.getAttribute('data-room') || '');
+  function clarityTag(key, value) {
+    try {
+      var safe = String(value || '').slice(0, 80);
+      if (window.clarity && safe) window.clarity("set", key, safe);
+    } catch (e) {}
+  }
   function trackBook(room) {
     return function () {
+      clarityTag('event', 'book_click');
+      clarityTag('room', room);
+      clarityTag('page', PAGE_ORIGIN);
       try {
         if (window.gtag) gtag('event', 'book_click', { room: room, transport_type: 'beacon', page: PAGE_ORIGIN });
         if (window.fbq) fbq('track', 'Lead', { room: room });
@@ -62,6 +71,8 @@
   function wireHeroCta(root) {
     root.querySelectorAll('#hero-gallery, #hero-rooms').forEach(function (el) {
       el.addEventListener('click', function () {
+        clarityTag('event', 'hero_cta_click');
+        clarityTag('placement', el.id);
         try { if (window.gtag) gtag('event', 'hero_cta_click', { target: el.id, transport_type: 'beacon' }); } catch (e) {}
       });
     });

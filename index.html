@@ -584,6 +584,9 @@
 <script src="/attribution.js"></script>
 <script>
 (function(){
+  function clarityTag(key,value){
+    try{var safe=String(value||'').slice(0,80);if(window.clarity&&safe)window.clarity("set",key,safe);}catch(e){}
+  }
   var A_URL='https://www.hourplace.co.kr/place/61823';
   var B_URL='https://www.hourplace.co.kr/place/62341';
   // B룸 예약 배선 재개(2026-07-24): 리스팅 공개 전환 완료(place/62341 노출 ON) → book-b/end-b <a>로 복구·재연결.
@@ -599,6 +602,7 @@
   // page 출처 파라미터(2026-08-04 감사 개선 #1): 허브·룸페이지가 같은 book_click 을 쏴서 이탈 출처가 안 갈렸다.
   // ⚠️ book_click 의 기존 파라미터(room·transport_type)·이벤트명은 절대 불변, page 는 "추가"만.
   function trackBook(room){return function(){
+    clarityTag('event','book_click'); clarityTag('room',room); clarityTag('page','hub');
     try{if(window.gtag)gtag('event','book_click',{room:room,transport_type:'beacon',page:'hub'});if(window.fbq)fbq('track','Lead',{room:room});}catch(e){}
     try{
       var fbc=readCookie('_fbc'), fbp=readCookie('_fbp');
@@ -614,6 +618,7 @@
   ['hero-rooms','hero-gallery'].forEach(function(id){
     var e=document.getElementById(id); if(!e) return;
     e.addEventListener('click',function(){
+      clarityTag('event','hero_cta_click'); clarityTag('placement',id);
       try{ if(window.gtag) gtag('event','hero_cta_click',{target:id,transport_type:'beacon'}); }catch(e){}
     });
   });
@@ -623,6 +628,7 @@
   document.querySelectorAll('[data-room-detail]').forEach(function(e){
     var room=e.getAttribute('data-room-detail'), from=e.getAttribute('data-room-detail-from');
     e.addEventListener('click',function(){
+      clarityTag('event','room_detail_click'); clarityTag('room',room); clarityTag('placement',from);
       try{ if(window.gtag) gtag('event','room_detail_click',{room:room,from:from,transport_type:'beacon'}); }catch(err){}
     });
   });
@@ -630,7 +636,7 @@
   // ⚠️ GA 이벤트는 avail_click 별도 사용 — book_click은 광고 파일럿 판독 지표라 정의 불변(계측 오염 금지)
   // ⚠️ book_click 은 여기서 절대 발화시키지 않는다 — 광고 파일럿의 사전 등록 판독 지표라
   //    파일럿 도중 정의를 넓히면 앞뒤 데이터가 비교 불가가 된다. room 파라미터만 추가한다.
-  function trackAvail(room){return function(){try{if(window.gtag)gtag('event','avail_click',{room:room,transport_type:'beacon'});}catch(e){}};}
+  function trackAvail(room){return function(){clarityTag('event','avail_click');clarityTag('room',room);try{if(window.gtag)gtag('event','avail_click',{room:room,transport_type:'beacon'});}catch(e){}};}
   // 달력 CTA 4개(섹션 CTA 2 + 날짜 상세 2) 일괄 배선 — href 도 A_URL/B_URL 로 다시 세워 정본을 한 곳에 모은다.
   [['availBookA','a'],['availBookB','b'],['dayDetailBookA','a'],['dayDetailBookB','b']].forEach(function(p){
     var e=document.getElementById(p[0]); if(!e)return;

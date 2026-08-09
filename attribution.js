@@ -81,13 +81,26 @@
     } catch (e) {}
   }
 
-  window.NUVIE_ATTRIBUTION = { get: snapshot, event: event };
+  // Clarity custom tags are aggregate labels only: never pass email, phone,
+  // booking IDs, or query-string values.  Internal QA traffic is already
+  // stubbed by the page loader, so this remains fail-safe when Clarity is off.
+  function clarityTag(key, value) {
+    try {
+      var safe = clip(value, 80);
+      if (window.clarity && safe) window.clarity("set", key, safe);
+    } catch (e) {}
+  }
+
+  window.NUVIE_ATTRIBUTION = { get: snapshot, event: event, tag: clarityTag };
   event('landing_view', {
     first_source: clip(state.first_touch && state.first_touch.utm_source, 60) || 'direct',
     last_source: clip(state.last_touch && state.last_touch.utm_source, 60) || 'direct',
     page: clip(window.location.pathname, 80),
     transport_type: 'beacon'
   });
+  clarityTag('page', window.location.pathname);
+  clarityTag('utm_source', state.last_touch && state.last_touch.utm_source || 'direct');
+  clarityTag('utm_medium', state.last_touch && state.last_touch.utm_medium || 'none');
 
   function roomFor(el) {
     var room = el.getAttribute('data-room') || el.getAttribute('data-book');
@@ -106,6 +119,9 @@
         placement: clip(target.id || 'booking_cta', 60),
         transport_type: 'beacon'
       });
+      clarityTag('event', 'booking_intent');
+      clarityTag('room', roomFor(target) || 'unknown');
+      clarityTag('placement', target.id || 'booking_cta');
       return;
     }
   });
