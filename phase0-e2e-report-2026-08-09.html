@@ -118,6 +118,20 @@
     <p class="muted">직접 Preview URL을 브라우저로 열었을 때의 401은 로그인 실패가 아니라 Vercel Deployment Protection 응답입니다. 보호를 끄지 않고 <code>vercel curl</code>의 보호 우회 경로로 검증했습니다.</p>
   </section>
 
+  <section class="section">
+    <h2>8. Production 배포 및 원격 반영</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>Git 원격 push</td><td><span class="status done">완료</span></td><td><code>origin/main</code>이 <code>7aaab93</code>까지 반영됨</td></tr>
+        <tr><td>Production 배포</td><td><span class="status done">READY</span></td><td><a href="https://www.nuviestudio.com">www.nuviestudio.com</a> 별칭 연결</td></tr>
+        <tr><td>라이브 재조회</td><td><span class="status done">확인</span></td><td>랜딩·privacy·API GET 405·OPTIONS 204 확인, 최근 에러 로그 없음</td></tr>
+        <tr><td>관심 접수 저장</td><td><span class="status blocked">환경변수 대기</span></td><td>Vercel 환경변수 0건이라 Notion 저장은 503 fail-closed</td></tr>
+      </tbody>
+    </table>
+    <p class="muted">Production은 배포됐지만 실제 리드 저장을 활성화하려면 Vercel에 필요한 Notion 연동 환경변수를 보안 방식으로 설정한 뒤 별도 재검증이 필요합니다.</p>
+  </section>
+
 </main>
 </body>
 </html>
