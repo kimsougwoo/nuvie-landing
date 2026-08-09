@@ -20,9 +20,12 @@ function asBoolean(value) {
 }
 
 function parseBody(req) {
-  if (req.body && typeof req.body === 'object') return req.body;
-  if (typeof req.body !== 'string' || req.body.length > 32768) return null;
-  try { return JSON.parse(req.body); } catch (e) { return null; }
+  let raw = req.body;
+  if (raw && typeof raw === 'object' && !Buffer.isBuffer(raw) && !(raw instanceof Uint8Array)) return raw;
+  if (Buffer.isBuffer(raw)) raw = raw.toString('utf8');
+  else if (raw instanceof Uint8Array) raw = Buffer.from(raw).toString('utf8');
+  if (typeof raw !== 'string' || raw.length > 32768) return null;
+  try { return JSON.parse(raw); } catch (e) { return null; }
 }
 
 function cleanTouch(touch) {
@@ -87,10 +90,11 @@ function buildNotionProperties(input, now, leadId) {
 }
 
 function reply(res, status, body) {
-  if (typeof res.status === 'function' && typeof res.json === 'function') return res.status(status).json(body);
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  return res.end(JSON.stringify(body));
+  const payload = JSON.stringify(body);
+  res.setHeader('Content-Length', Buffer.byteLength(payload));
+  return res.end(payload);
 }
 
 function originOf(req) {

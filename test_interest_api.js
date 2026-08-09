@@ -121,6 +121,20 @@ test('writes only the consented lead fields to the configured Notion data source
   assert.doesNotMatch(JSON.stringify(res.body), /person@example\.com/);
 });
 
+test('accepts a JSON string body as sent by a raw HTTP client', async () => {
+  const previousToken = process.env.NOTION_TOKEN;
+  const previousDataSource = process.env.NOTION_CRM_DATA_SOURCE_ID;
+  delete process.env.NOTION_TOKEN;
+  delete process.env.NOTION_CRM_DATA_SOURCE_ID;
+  const res = await call(JSON.stringify(valid));
+  if (previousToken === undefined) delete process.env.NOTION_TOKEN;
+  else process.env.NOTION_TOKEN = previousToken;
+  if (previousDataSource === undefined) delete process.env.NOTION_CRM_DATA_SOURCE_ID;
+  else process.env.NOTION_CRM_DATA_SOURCE_ID = previousDataSource;
+  assert.equal(res.statusCode, 503);
+  assert.deepEqual(res.body, { ok: false, error: 'submission unavailable' });
+});
+
 test('rejects unsupported methods', async () => {
   const res = await call(null, { method: 'GET' });
   assert.equal(res.statusCode, 405);
