@@ -330,7 +330,7 @@ def main(argv=None, repo=None):
             _alert_fetch_fail(
                 f"🔴 예약현황 iCal {fetch_failed}개 전부 페치 실패 — availability.json 갱신 중단"
                 "(직전값 유지·공개 사이트 안전). 피드 URL·아워플레이스 점검 필요.")
-        return
+        return False
 
     busy = sorted({e["date"] for e in events})
     changed = ((old_events or []) != events)
@@ -356,9 +356,10 @@ def main(argv=None, repo=None):
             #   다음 런의 pull --rebase가 막히지 않게 한다. 변경 없으니 되돌려도 무손실.
             subprocess.run(["git", "-C", repo, "checkout", "--", "availability.json"],
                            capture_output=True)
-            return
-        push_changes(repo, len(events))
+            return True
+        return bool(push_changes(repo, len(events)))
+    return True
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(0 if main() else 1)

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """예약현황 갱신 런처가 실제 랜딩 저장소를 호출하는지 검증한다."""
 from pathlib import Path
+import datetime
+
+import build_availability as BA
 
 
 LANDING = Path(r"C:\Users\kgr96\Projects\nuvie-landing")
@@ -27,3 +30,13 @@ def test_cs_watch_keeps_the_hidden_launcher_and_working_home():
 def test_availability_push_decodes_git_output_as_utf8_on_windows():
     text = LANDING.joinpath("build_availability.py").read_text(encoding="utf-8")
     assert text.count('capture_output=True, text=True, encoding="utf-8", errors="replace"') >= 2
+
+
+def test_main_reports_push_failure_to_the_scheduler(tmp_path, monkeypatch):
+    today = datetime.date.today()
+    event = {"date": today.isoformat(), "start": 10.0, "end": 12.0, "room": "A"}
+    monkeypatch.setattr(BA, "load_env", lambda _path: {"ICAL_URL_HOURPLACE": "A"})
+    monkeypatch.setattr(BA, "compute_events", lambda _env, _today, _old: ([event], 1, 0))
+    monkeypatch.setattr(BA, "push_changes", lambda _repo, _count: False)
+
+    assert BA.main(argv=["build_availability.py", "--push"], repo=str(tmp_path)) is False
