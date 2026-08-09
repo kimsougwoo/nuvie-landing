@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>NUVIE 자사몰 전환 Phase 0 E2E 작업보고서</title>
+  <style>
+    :root{--bg:#f6f4f1;--panel:#fff;--ink:#1b1b1d;--dim:#626168;--line:#dedbd6;--accent:#8c5b43;--ok:#2e7657;--warn:#a05d24;--block:#9a443e}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",Arial,sans-serif;line-height:1.65}
+    .wrap{max-width:1080px;margin:0 auto;padding:48px 24px 80px}.eyebrow{color:var(--accent);font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:700}h1{font-size:clamp(30px,5vw,54px);line-height:1.12;letter-spacing:-.045em;margin:10px 0 14px}h2{font-size:22px;letter-spacing:-.025em;margin:0 0 16px}h3{font-size:16px;margin:0 0 8px}.sub{color:var(--dim);margin:0 0 32px}.hero,.section,.gate{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:28px 30px}.hero{border-top:4px solid var(--accent);margin-bottom:16px}.section{margin-top:16px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);border-radius:8px;padding:18px;background:#fcfbfa}.card strong{display:block;font-size:24px;line-height:1.2;margin:4px 0}.muted{color:var(--dim);font-size:13px}.status{display:inline-flex;align-items:center;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700}.done{background:#e5f2eb;color:var(--ok)}.pending{background:#fff0df;color:var(--warn)}.blocked{background:#f9e5e3;color:var(--block)}table{width:100%;border-collapse:collapse;font-size:13px}th,td{border-bottom:1px solid var(--line);padding:12px 10px;text-align:left;vertical-align:top}th{color:var(--dim);font-weight:600;background:#faf9f7}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;background:#f0eeeb;border-radius:4px;padding:2px 5px}a{color:var(--accent);text-decoration:underline}ul,ol{margin:8px 0 0;padding-left:22px}.callout{border-left:4px solid var(--block);background:#fff7f6;padding:15px 17px;border-radius:4px;margin-top:12px}.callout strong{color:var(--block)}.checklist li{margin:7px 0}.meta{display:flex;gap:16px;flex-wrap:wrap;color:var(--dim);font-size:12px;border-top:1px solid var(--line);margin-top:24px;padding-top:14px}.footer{color:var(--dim);font-size:12px;margin-top:24px}
+    @media(max-width:760px){.wrap{padding:28px 14px 56px}.hero,.section,.gate{padding:22px 18px}.grid{grid-template-columns:1fr}table{display:block;overflow-x:auto;white-space:normal;min-width:620px}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">NUVIE / Hybrid Booking CRM</div>
+    <h1>자사몰 전환<br>Phase 0 E2E 작업보고서</h1>
+    <p class="sub">작성일 2026-08-09 KST · 범위: 계측·UTM·관심접수·Notion CRM 연결 경계·PortOne 전환 게이트</p>
+    <div class="callout"><strong>현재 결론</strong><br>Phase 0 구현과 로컬 E2E 검증은 완료했습니다. 라이브 반영과 실제 리드 저장은 Vercel 환경변수 설정 전까지 활성화하지 않았습니다. 예약·결제는 계속 아워플레이스 경로를 유지합니다.</div>
+    <div class="meta"><span>구현 커밋: <code>c6fce68</code></span><span>배포: 미실행</span><span>자동 push: 미실행</span></div>
+  </section>
+
+  <section class="section">
+    <h2>1. 실행 상태</h2>
+    <div class="grid">
+      <div class="card"><span class="status done">완료</span><strong>Phase 0 구현</strong><span class="muted">계측·관심접수·동의 처리</span></div>
+      <div class="card"><span class="status done">검증완료</span><strong>로컬 E2E</strong><span class="muted">API·회귀·생성물 정합성</span></div>
+      <div class="card"><span class="status blocked">대기</span><strong>라이브 반영</strong><span class="muted">Vercel 환경변수 필요</span></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>2. 변경사항</h2>
+    <table>
+      <thead><tr><th>영역</th><th>반영 내용</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>유입 귀속</td><td><a href="attribution.js">attribution.js</a>에서 UTM first-touch/last-touch, 유입 시각, 외부 유입 도메인을 브라우저별 보존</td><td><span class="status done">완료</span></td></tr>
+        <tr><td>예약 계측</td><td>기존 <code>book_click</code>·<code>ad_capture</code>·Meta <code>Lead</code>는 유지하고 <code>landing_view</code>·<code>booking_intent</code>를 별도 추가</td><td><span class="status done">완료</span></td></tr>
+        <tr><td>관심 접수</td><td><a href="index.html#interest">관심 룸·이메일/전화번호·문의 내용</a> 접수 폼 추가. 개인정보 동의는 필수, 광고성 정보 동의는 선택</td><td><span class="status done">완료</span></td></tr>
+        <tr><td>서버 경계</td><td><a href="api/interest.js">/api/interest</a>에서 Origin·연락처·룸·honeypot·동의를 검증하고 동의한 데이터만 Notion에 전달</td><td><span class="status done">완료</span></td></tr>
+        <tr><td>개인정보 고지</td><td><a href="privacy.html">개인정보처리방침</a>에 자사몰 접수, UTM/click ID, Notion·Vercel, 분석 도구, 철회·권리 내용을 추가</td><td><span class="status done">완료</span></td></tr>
+        <tr><td>생성 페이지</td><td><code>room.template.html</code> 변경 후 <code>a.html</code>·<code>b.html</code> 재생성</td><td><span class="status done">완료</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="section">
+    <h2>3. Notion CRM 반영</h2>
+    <p><a href="https://app.notion.com/p/7b5e984acfd6470f8cef52276de9e587">자사몰 관심·동의 CRM</a> 데이터베이스와 스키마를 live fetch로 재확인했습니다.</p>
+    <table>
+      <thead><tr><th>확인 항목</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>Data source</td><td><code>collection://126a6be4-db22-4e2f-9f9a-7019cc035154</code></td></tr>
+        <tr><td>연락처</td><td>이메일·전화번호 필드 존재</td></tr>
+        <tr><td>동의</td><td>개인정보처리방침 동의·광고성 정보 동의·동의시각 존재</td></tr>
+        <tr><td>귀속</td><td>원본 UTM·첫 유입 소스·최초/최근 유입시각 존재</td></tr>
+        <tr><td>운영</td><td>룸 관심·상태·수신 채널·예약ID 존재</td></tr>
+      </tbody>
+    </table>
+    <p class="muted">API는 Notion의 <code>data_source_id</code> parent로 작성하도록 구성했습니다. 인증 토큰은 코드·HTML·로그에 포함하지 않았습니다.</p>
+  </section>
+
+  <section class="section">
+    <h2>4. 검증 결과</h2>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>Node API 테스트</td><td><span class="status done">5 passed</span></td><td>동의 누락·환경변수 누락·정상 payload·Method·Origin</td></tr>
+        <tr><td>Phase 0 + 기존 계측</td><td><span class="status done">23 passed</span></td><td>폼·UTM·기존 이벤트 정의 보존</td></tr>
+        <tr><td>기타 회귀군</td><td><span class="status done">89 passed</span></td><td>후기 관련 드리프트 테스트 제외</td></tr>
+        <tr><td>페이지 생성물</td><td><span class="status done">latest</span></td><td><code>python build_rooms.py --check</code></td></tr>
+        <tr><td>전체 pytest</td><td><span class="status pending">103 passed / 6 failed</span></td><td>기존 후기 원문 스냅샷 11건과 사이트 12건 불일치. 이번 변경 파일과 무관</td></tr>
+        <tr><td>라이브 랜딩·privacy</td><td><span class="status pending">이전 배포 상태</span></td><td>폼·attribution.js 미반영</td></tr>
+        <tr><td>예약·결제 경로</td><td><span class="status done">external 유지</span></td><td><code>/book/a</code>·<code>/checkout</code>·<code>/orders</code> 라이브 404 확인</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="gate">
+    <h2>5. 현재 차단 게이트</h2>
+    <ul>
+      <li>Vercel 프로젝트에 환경변수가 없습니다. <code>vercel env ls</code> 결과 0건입니다.</li>
+      <li>필요 값: <code>NOTION_TOKEN</code>(보안 입력), <code>NOTION_CRM_DATA_SOURCE_ID</code>, <code>NUVIE_SITE_ORIGIN</code>, <code>NOTION_VERSION</code>.</li>
+      <li>Notion integration에 CRM 데이터베이스 페이지 생성 권한을 부여해야 합니다.</li>
+      <li>PortOne V2 전환에 필요한 지속성 재고 잠금·서버 결제 검증·웹훅 멱등 처리·환불 경계는 아직 활성화하지 않았습니다.</li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>6. 후속 작업 순서</h2>
+    <ol class="checklist">
+      <li>Vercel Preview에 위 환경변수 설정 및 Notion integration 권한 연결</li>
+      <li>Preview에서 UTM 유입 → 동의한 관심접수 → Notion 한 행 생성 확인</li>
+      <li>동의 누락·연락처 누락·honeypot·외부 Origin·Notion 오류 케이스가 성공으로 표시되지 않는지 확인</li>
+      <li>GA4·Clarity·Meta 이벤트에 이메일·전화번호가 포함되지 않는지 확인</li>
+      <li>Preview 표면 재조회 후 Production 배포</li>
+      <li>그 다음에만 Phase 1 착수: PortOne V2 서버 검증, 시간대 잠금 저장소, 웹훅 멱등, 환불 처리, 아워플레이스·네이버예약 충돌 검증</li>
+    </ol>
+    <p class="muted"><a href="PHASE0-RUNBOOK.md">Phase 0 실행 런북 보기</a></p>
+  </section>
+
+  <p class="footer">본 보고서는 고객 개인정보와 인증 토큰을 포함하지 않습니다. 라이브 반영 여부는 배포 후 외부 표면 재조회로 별도 확정해야 합니다.</p>
+</main>
+</body>
+</html>
