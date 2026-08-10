@@ -2,5 +2,6 @@ node_modules/
 .vercel/
 .DS_Store
 *.log
+refresh_log.txt
 __pycache__/
 *.pyc
