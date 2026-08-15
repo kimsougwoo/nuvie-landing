@@ -1033,19 +1033,28 @@
 </div>
 <script>
 (function(){
-  // 🚦 제도 시작일. 공지 트윗을 «실제로 발행한 날»로 바꿔야 팝업이 열린다.
+  // 🚦 제도 시작일. 공지 트윗을 «실제로 발행한 날»(YYYY-MM-DD)을 넣어야 팝업이 열린다.
   //    (report.py 의 NUVIE_UGC_PROGRAM_START 와 같은 날짜를 쓴다 — 두 곳이 어긋나면
   //     랜딩은 홍보하는데 발급 감지는 안 되는 상태가 된다.)
-  var UGC_START = '2026-08-13';
+  //
+  // 🔴 2026-08-15 — **빈 문자열로 되돌렸다. 자리표시자 날짜를 두면 안 된다.**
+  //    종전엔 `'2026-08-13'` 이라는 «미래 날짜 자리표시자»를 넣어뒀는데, 공지 트윗은
+  //    아직 발행되지 않았는데 **그 날짜가 그냥 지나가면서 팝업이 저절로 열렸다.**
+  //    아직 받을 수 없는 혜택을 방문자에게 광고하고 있었다(대표 발견).
+  //    ⇒ 이제 **fail-closed** 다: 값이 비어 있으면 «시작 안 함»이고, 시간이 흘러도
+  //       절대 저절로 열리지 않는다. 여는 것은 오직 «사람이 날짜를 넣는 행위»뿐이다.
+  var UGC_START = '';   // ← 공지 트윗 발행일을 여기 넣으면 그때부터 열린다
   var KEY = 'nv_ugc_pop_seen';
 
   var pop = document.getElementById('ugcPop');
   var reviews = document.getElementById('reviews');
   if(!pop || !reviews) return;
 
-  // 시작일 전이면 아무것도 하지 않는다(마크업은 있어도 뜨지 않는다)
+  // 시작일이 «없거나» 아직 안 됐으면 아무것도 하지 않는다(마크업은 있어도 뜨지 않는다).
+  // ⚠️ `!UGC_START` 검사가 핵심이다 — 이게 없으면 빈 문자열일 때 `today < ''` 가
+  //    false 라서 오히려 항상 열린다(비교로 막으려다 정반대가 되는 자리다).
   var today = new Date().toISOString().slice(0,10);
-  if(today < UGC_START) return;
+  if(!UGC_START || today < UGC_START) return;
 
   // 한 번 닫으면 다시 띄우지 않는다. localStorage 차단 환경에서도 죽지 않게 감싼다
   try{ if(localStorage.getItem(KEY) === '1') return; }catch(e){}
