@@ -63,6 +63,43 @@ def _to_dt(s):
         return base
     return datetime.datetime.strptime(s[:8], "%Y%m%d")
 
+_MAX_SPAN_DAYS = 31   # 병적으로 긴 이벤트로 루프가 폭주하지 않게 하는 상한(호라이즌은 뒤에서 또 자른다)
+
+
+def _split_across_days(start, end, room, kind):
+    """자정을 넘기는 예약을 «날짜별 조각»으로 나눈다. 순수함수.
+
+    🔴 2026-08-16 재현→수정 (대표 질문 「22:00-08:00 은 캘린더에 어떻게 보이나요」).
+       종전엔 `end.date() != start.date()` 이면 **시작일 기준 24:00 으로 클립**하고 끝이었다
+       (주석: "자정 넘기는 예약은 드묾"). 그래서 `8/19 22:00 ~ 8/20 08:00` 예약이
+         · 8/19 22:00~24:00 만 남고
+         · 🔴 **8/20 00:00~08:00 이 통째로 사라져 그 아침이 「예약 가능」으로 보였다.**
+       조각이 안 이어지는 정도가 아니라 **막힌 시간이 없어지는** 결함 = 이중예약 위험이다.
+       (심야 예약은 실재한다 — 8/20 A룸 00:00~06:00 확정 건이 라이브에 있고,
+        `booking_watch.build_booking_alert` 에 00:00~08:59 시작 전용 도어락 선발송 분기가 있다.)
+
+    `cont` = 이 조각이 «더 긴 한 예약»의 일부라는 표시. 랜딩이 이걸 보고 한 예약으로 이어 보여준다.
+        "next"=다음 날로 이어짐 · "prev"=전날에서 이어짐 · "both"=하루를 통째로 차지하는 중간 날.
+    ⚠️ 정확히 자정에 끝나면(DTEND 00:00) 마지막 날 조각은 길이 0이라 **버린다** — 그러면 이어지는
+       것도 아니므로 앞 조각에 `cont` 를 붙이지 않는다(없는 연속을 그리지 않는다).
+    """
+    segs = []
+    d, last = start.date(), end.date()
+    if (last - d).days > _MAX_SPAN_DAYS:
+        last = d + datetime.timedelta(days=_MAX_SPAN_DAYS)
+    while d <= last:
+        s = (start.hour + start.minute / 60.0) if d == start.date() else 0.0
+        e = (end.hour + end.minute / 60.0) if d == last else 24.0
+        if e - s > 1e-9:                      # 길이 0 조각(자정 정각 종료)은 버린다
+            segs.append({"date": d.isoformat(), "start": round(s, 2), "end": round(e, 2),
+                         "room": room, "kind": kind})
+        d += datetime.timedelta(days=1)
+    if len(segs) > 1:
+        for i, seg in enumerate(segs):
+            seg["cont"] = "next" if i == 0 else ("prev" if i == len(segs) - 1 else "both")
+    return segs
+
+
 def parse_events(ics, room, kind="booking"):
     """VEVENT → [{date,start,end,room,kind}] (KST, 시각 hour 소수). 이름/UID/SUMMARY 무시.
 
@@ -87,14 +124,7 @@ def parse_events(ics, room, kind="booking"):
             continue
         timed = "T" in ds.group(1)
         if timed:
-            # 같은 날 시간슬롯 (자정 넘기는 예약은 드묾 → 시작일 기준 클립)
-            sh = start.hour + start.minute / 60.0
-            if end.date() == start.date():
-                eh = end.hour + end.minute / 60.0
-            else:
-                eh = 24.0
-            out.append({"date": start.date().isoformat(), "start": round(sh, 2),
-                        "end": round(eh, 2), "room": room, "kind": kind})
+            out += _split_across_days(start, end, room, kind)
         else:
             # 종일(날짜만) 예약 — 시각 없는 차단. start~end-1 각 날을 0~24 블록으로.
             d = start.date()
@@ -184,11 +214,16 @@ def merge_events(events):
         pending_free = []   # 앞에 붙은 무료 블록들 — 뒤에 올 ≥2h 를 기다린다
         for e in evs:
             dur = e["end"] - e["start"]
-            if cur is not None and e["start"] <= cur["end"] + EPS and dur < MIN_BOOK_H - EPS:
+            # 🔴 2026-08-16: 자정을 넘겨 «잘린 조각»(cont)은 무료연장이 아니다 — 더 긴 한 예약의
+            #   일부다. 예: 23:00~01:00 예약은 23-24 / 0-1 두 조각(각 1h)이 되는데, 이걸 <2h 라고
+            #   옆 예약에 흡수하면 «남의 예약»이 늘어난 것처럼 보인다. 흡수 판정에서 제외한다.
+            piece = bool(e.get("cont"))
+            if (cur is not None and not piece and e["start"] <= cur["end"] + EPS
+                    and dur < MIN_BOOK_H - EPS):
                 # <2h(무료연장) + 앞 구간과 맞닿음 → 뒤로 흡수(직전 예약 확장). 뒤흡수 우선.
                 cur["end"] = max(cur["end"], e["end"])
                 continue
-            if dur < MIN_BOOK_H - EPS:
+            if dur < MIN_BOOK_H - EPS and not piece:
                 # 앞에 붙일 구간이 없는 <2h → 바로 뒤 ≥2h 에 붙을 수 있으니 일단 보류
                 if pending_free and e["start"] > pending_free[-1]["end"] + EPS:
                     out.extend(pending_free)   # 체인이 끊겼다 = 앞 것들은 고립 확정
@@ -207,6 +242,8 @@ def merge_events(events):
                 pending_free = []
             cur = {"date": date, "start": start, "end": round(e["end"], 2),
                    "room": room, "kind": kind}
+            if e.get("cont"):
+                cur["cont"] = e["cont"]        # 연속 표시는 병합을 거쳐도 살아남아야 한다
             out.append(cur)
         out.extend(pending_free)               # 뒤에 ≥2h 가 끝내 안 온 무료 블록은 그대로 유지
     out.sort(key=lambda e: (e["date"], e["start"], e["room"], e.get("kind") or ""))

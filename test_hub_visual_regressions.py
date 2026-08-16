@@ -134,7 +134,13 @@ def test_칩에_룸_글자가_들어간다():
     ⚠️ 모바일은 칩 텍스트를 숨기므로(font-size:0) 라벨이 화면엔 안 보이지만,
        그 경우에도 title 속성·dayDetail 칩으로 룸을 확인할 수 있어야 한다."""
     assert "var label=(e.room||'A')+'룸';" in HTML, "renderCal 이 룸 라벨을 만들지 않는다"
-    assert "ev.textContent=label+' '+fmt(e.start)" in HTML, "칩 텍스트에 룸 라벨이 안 붙는다"
+    # 2026-08-16: 종전엔 `ev.textContent=label+' '+fmt(e.start)` 를 «글자 그대로» 찾았는데,
+    #   자정 넘김 표시(⇢)를 앞뒤에 붙이면서 깨졌다. **의도는 「칩 텍스트에 룸 라벨이 들어간다」**
+    #   이지 「그 표현식이 한 글자도 안 바뀐다」가 아니다 ⇒ 의도를 지키는 선에서 정확히 넓힌다.
+    m = re.search(r"ev\.textContent=([^;]+);", HTML)
+    assert m, "renderCal 이 칩 텍스트를 만들지 않는다"
+    assert "label" in m.group(1) and "fmt(e.start)" in m.group(1), \
+        f"칩 텍스트에 룸 라벨·시각이 안 붙는다: {m.group(1)[:80]}"
     assert "ev.title=label+" in HTML, "칩 title(hover 보완)이 사라졌다"
     # dayDetail(날짜 상세) 쪽 라벨은 원래 있었다 — 함께 사라지지 않게 박제.
     assert "chip.textContent=(e.room||'A')+'룸';" in HTML, "날짜 상세의 룸 칩이 사라졌다"
