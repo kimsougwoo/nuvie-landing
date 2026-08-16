@@ -66,6 +66,22 @@ def _to_dt(s):
 _MAX_SPAN_DAYS = 31   # 병적으로 긴 이벤트로 루프가 폭주하지 않게 하는 상한(호라이즌은 뒤에서 또 자른다)
 
 
+def _mark_continuation(segs):
+    """여러 날에 걸친 **한 일정**의 조각들에 이어짐 표시(`cont`)를 단다. 순수함수.
+
+    "next"=다음 날로 이어짐 · "prev"=전날에서 이어짐 · "both"=하루를 통째로 차지하는 중간 날.
+    조각이 하나뿐이면 아무것도 달지 않는다 — **없는 연속을 그리지 않는다.**
+
+    🔴 2026-08-16: 시각 있는 일정(`_split_across_days`)과 **종일 일정** 두 갈래가 모두 이 함수를
+       쓴다. 처음엔 시각 쪽에만 달았다가 종일 쪽을 빼먹어, 8/30~8/31 «한 건»의 할로윈 세팅 차단이
+       달력에 두 건처럼 떴다(대표 지적). 갈래가 둘이면 표시 규칙도 둘로 갈라지므로 함수를 합쳤다.
+    """
+    if len(segs) > 1:
+        for i, seg in enumerate(segs):
+            seg["cont"] = "next" if i == 0 else ("prev" if i == len(segs) - 1 else "both")
+    return segs
+
+
 def _split_across_days(start, end, room, kind):
     """자정을 넘기는 예약을 «날짜별 조각»으로 나눈다. 순수함수.
 
@@ -94,10 +110,7 @@ def _split_across_days(start, end, room, kind):
             segs.append({"date": d.isoformat(), "start": round(s, 2), "end": round(e, 2),
                          "room": room, "kind": kind})
         d += datetime.timedelta(days=1)
-    if len(segs) > 1:
-        for i, seg in enumerate(segs):
-            seg["cont"] = "next" if i == 0 else ("prev" if i == len(segs) - 1 else "both")
-    return segs
+    return _mark_continuation(segs)
 
 
 def parse_events(ics, room, kind="booking"):
@@ -133,10 +146,16 @@ def parse_events(ics, room, kind="booking"):
             #   (availability.json 무음 미갱신). end=start 방어와 정합하도록 de None 가드. 종일 exclusive-end만 -1일.
             if de and "T" not in de.group(1) and last > d:
                 last -= datetime.timedelta(days=1)
+            segs = []
             while d <= last:
-                out.append({"date": d.isoformat(), "start": 0, "end": 24,
-                            "room": room, "kind": kind})
+                segs.append({"date": d.isoformat(), "start": 0, "end": 24,
+                             "room": room, "kind": kind})
                 d += datetime.timedelta(days=1)
+            # 🔴 2026-08-16 대표 지적 「30-31일 하나의 블록으로 보여야 하지 않나요」 —
+            #   여러 날 짜리 종일 차단(8/30~8/31 할로윈 세팅)은 **한 건**인데 이어짐 표시가 없어
+            #   달력에 두 건처럼 보였다. 시각 있는 일정에만 cont 를 달고 여기를 빼먹은 것 =
+            #   같은 결함을 반쪽만 고친 것이라, 두 갈래가 «같은 함수»를 쓰도록 합쳤다.
+            out += _mark_continuation(segs)
     return out
 
 MIN_BOOK_H = 2.0  # 최소 대여 2시간(운영정책). 2h 미만 블록 = 실예약 불가 → 무료연장/호의시간.
