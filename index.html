@@ -836,7 +836,17 @@
         :'font-size:11.5px;color:var(--dim);padding-left:2px;font-family:var(--label-font);font-variant-numeric:tabular-nums;align-self:flex-start';
       cell.appendChild(num);
       var box=document.createElement('div');box.style.cssText='display:flex;flex-direction:column;gap:2px;min-width:0';
-      list.forEach(function(e){
+      // 2026-08-16: 여러 날에 걸친 일정은 **맨 윗줄**에 놓는다(달력 앱들의 관례).
+      //   옆 칸과 같은 높이에 와야 블록이 실제로 이어져 보이기 때문이다 — 시간순으로만 쌓으면
+      //   어제에서 넘어온 블록(00:00 시작)은 맨 위, 내일로 넘어가는 블록(24:00 끝)은 맨 아래라
+      //   두 칸의 높이가 어긋난다. ⚠️ 한 날에 «넘어옴+넘어감»이 동시에 있으면(드묾) 한쪽은
+      //   여전히 어긋난다 — 주 경계(토→일)에서 칸이 줄바꿈되는 경우와 함께, 그때는 이어짐이
+      //   글자(title·상세 목록)로만 전달된다.
+      var ordered=list.slice().sort(function(a,b){
+        var ac=a.cont?0:1, bc=b.cont?0:1;
+        return ac!==bc?ac-bc:a.start-b.start;
+      });
+      ordered.forEach(function(e){
         var dur=e.end-e.start, durStr=(dur%1===0?dur:dur.toFixed(1))+'H';
         var ev=document.createElement('div');
         ev.style.cssText='font-size:10px;line-height:1.45;border-radius:3px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums;'+(ROOM[e.room]||ROOM.A);
@@ -845,12 +855,13 @@
         // 2개였다(대표 지적). 색은 진짜로 갈랐고(--calA/--calB), 여기에 룸 글자를 넣어 색맹·
         // 흑백 인쇄에서도 읽히게 한다. 「예약됨」은 섹션 제목이 '예약 현황'이라 중복 → 자리를 양보.
         var label=(e.room||'A')+'룸';
-        // 2026-08-16: 자정을 넘긴 예약은 날짜 칸이 갈리므로 «두 건»처럼 보인다. 실제로는 한 예약이라
-        //   이어짐 화살표로 묶는다(cont: next=다음날로 · prev=전날부터 · both=하루 통째).
-        //   달력 칸은 폭이 좁아 화살표만, 자세한 문구는 아래 상세 목록과 title 이 맡는다.
-        var pre=(e.cont==='prev'||e.cont==='both')?'⇢ ':'';
-        var post=(e.cont==='next'||e.cont==='both')?' ⇢':'';
-        ev.textContent=pre+label+' '+fmt(e.start)+' - '+fmt(e.end)+' ('+durStr+')'+post;
+        // 2026-08-16: 여러 날에 걸친 «한 일정»(자정 넘긴 예약·여러 날 종일 차단)은 날짜 칸이 갈려
+        //   두 건처럼 보인다. 종전엔 화살표(⇢)를 붙였는데 대표 지시로 **블록 자체를 잇는다** —
+        //   칸의 안쪽 여백까지 늘리고 맞닿는 쪽 모서리를 각지게 해 한 덩어리로 읽히게 한다.
+        //   실제 늘리는 건 styles.css 의 [data-cont] 규칙(모바일 5px 바에도 같이 적용해야 해서
+        //   !important 가 필요하고, 그건 인라인으로는 못 준다).
+        if(e.cont)ev.setAttribute('data-cont',e.cont);
+        ev.textContent=label+' '+fmt(e.start)+' - '+fmt(e.end)+' ('+durStr+')';
         ev.title=label+' '+fmt(e.start)+' - '+fmt(e.end)+(e.kind==='block'?' 예약 불가':' 예약됨')
                  +(e.cont==='next'?' · 다음 날로 이어짐':e.cont==='prev'?' · 전날부터 이어짐'
                  :e.cont==='both'?' · 전날부터 다음 날까지 이어짐':'');   // 폭이 좁아 잘릴 때 hover 보완

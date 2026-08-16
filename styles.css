@@ -173,6 +173,24 @@ html{scroll-behavior:smooth}
   /* calendar */
   #calGrid .cell{min-height:96px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 7px 9px;display:flex;flex-direction:column;gap:3px;overflow:hidden;cursor:pointer}
   #calGrid .cell:hover{background:color-mix(in srgb, var(--accent) 12%, transparent)}
+  /* 여러 날에 걸친 «한 일정»을 실제로 이어 그린다 (2026-08-16 대표 지시 「화살표가 아님 블럭 자체가
+     이어지게」). 종전엔 칩 글자에 ⇢ 를 붙였는데, 8/30~8/31 처럼 한 건인 종일 차단이 두 덩어리로
+     보이는 건 그대로였다.
+     원리: 격자는 gap 이 0이고 칸 사이를 벌리는 건 **칸의 좌우 padding(7px)** 과 경계선 1px 뿐이다.
+     ⇒ 맞닿는 쪽 margin 을 -7px 줘 칩을 padding 안쪽 끝까지 늘리고 그쪽 모서리를 각지게 만든다.
+     칸의 overflow:hidden 은 padding box 에서 자르므로 정확히 그 지점까지는 안 잘린다.
+     남는 건 칸 경계선 1px 뿐이라 한 덩어리로 읽힌다.
+     ⚠️ 주 경계(토→일)에서 줄이 바뀌면 물리적으로 못 잇는다 — 그땐 title·상세 목록의 「이어짐」
+        문구가 그 역할을 한다(달력 앱들도 같은 한계).
+     ⚠️ 모서리에 !important 가 붙는 이유: 칩은 renderCal 이 인라인 style 로 border-radius:3px 를
+        박아 넣어서, !important 없는 스타일시트 선언은 인라인에 진다(마진은 인라인에 없어서 먹었는데
+        모서리만 안 먹어 처음에 «둥근 채로 맞닿은» 상태가 나왔다 — 2026-08-16 실측). */
+  #calGrid .cell>div:nth-child(2)>div[data-cont="next"],
+  #calGrid .cell>div:nth-child(2)>div[data-cont="both"]{
+    margin-right:-7px;border-top-right-radius:0!important;border-bottom-right-radius:0!important}
+  #calGrid .cell>div:nth-child(2)>div[data-cont="prev"],
+  #calGrid .cell>div:nth-child(2)>div[data-cont="both"]{
+    margin-left:-7px;border-top-left-radius:0!important;border-bottom-left-radius:0!important}
   @media(max-width:920px){
     /* 좁아지면 nav 링크는 접고 하단 chipbar 에 넘긴다(바 높이 유지). 나머지는 상단 바 기본값 그대로. */
     .side{gap:10px;padding:8px 18px}
@@ -288,6 +306,14 @@ html{scroll-behavior:smooth}
     #calGrid .cell{min-height:46px!important;padding:4px 3px 3px!important}
     #calGrid .cell>div:nth-child(2)>div{font-size:0!important;line-height:0!important;padding:0!important;margin:0!important;
       height:5px!important;min-height:5px!important;border-radius:3px!important;background:currentColor!important;opacity:1;white-space:nowrap;overflow:hidden}
+    /* 이어짐(2026-08-16)은 모바일 5px 바에서도 살려야 한다 — 위 규칙이 margin·radius 를 !important
+       로 못 박아서 데스크탑 규칙이 통째로 무력화되기 때문이다. 여기선 칸 padding 이 3px 이다. */
+    #calGrid .cell>div:nth-child(2)>div[data-cont="next"],
+    #calGrid .cell>div:nth-child(2)>div[data-cont="both"]{
+      margin-right:-3px!important;border-top-right-radius:0!important;border-bottom-right-radius:0!important}
+    #calGrid .cell>div:nth-child(2)>div[data-cont="prev"],
+    #calGrid .cell>div:nth-child(2)>div[data-cont="both"]{
+      margin-left:-3px!important;border-top-left-radius:0!important;border-bottom-left-radius:0!important}
     /* ⚠️2026-07-29: 종전 background:var(--accent)!important 가 renderCal() 의 룸별 인라인 색을 전부 덮어
        마커가 일색(rgb(169,140,145))이었다. 그런데 그 선언을 **제거만** 하면 인라인 배경
        color-mix(--calA 15%, transparent) 가 드러나는데, 5px 바에서 15% 틴트는 실측 대비 1.22~1.34:1 로

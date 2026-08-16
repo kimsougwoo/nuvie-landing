@@ -86,9 +86,19 @@ def test_block_feed_urls_come_from_env_only():
 
 
 def test_availability_json_has_no_text_fields():
-    """🔒 산출물 계약 — 시각·룸·종류만. 필드가 늘면 개인정보가 실릴 자리가 생긴다."""
+    """🔒 산출물 계약 — 시각·룸·종류·이어짐만. 필드가 늘면 개인정보가 실릴 자리가 생긴다.
+
+    ⚠️ 이 허용목록은 `tests/test_build_availability.py` 에도 **같은 내용이 있다**(레포가 달라
+    한 파일로 못 묶는다). 필드를 늘리면 «양쪽 다» 고칠 것 — 2026-08-16 에 `cont` 를 더하면서
+    홈 쪽만 고쳐 여기서 빨간불이 났다. 늘리는 필드는 **텍스트가 아닌 열거값**이어야 한다
+    (`cont` 는 next/prev/both 세 값뿐이라 개인정보가 실릴 자리가 없다).
+    """
     import json
     data = json.loads((ROOT / "availability.json").read_text(encoding="utf-8"))
-    allowed = {"date", "start", "end", "room", "kind"}
+    allowed = {"date", "start", "end", "room", "kind", "cont"}
     for e in data.get("events") or []:
         assert set(e) <= allowed, f"허용되지 않은 필드: {set(e) - allowed}"
+    # `cont` 는 열거값만 — 자유 문자열이 되면 그 자리로 뭐든 샐 수 있다.
+    for e in data.get("events") or []:
+        if "cont" in e:
+            assert e["cont"] in ("next", "prev", "both"), f"cont 가 열거값이 아니다: {e['cont']!r}"
