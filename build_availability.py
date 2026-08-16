@@ -339,6 +339,27 @@ def _alert_fetch_fail(msg):
         print(f"  (경보 전송 스킵 — refresh_log 폴백: {str(e)[:80]})")
 
 
+def _worktree_dirty_besides_availability(repo):
+    """워킹트리에 `availability.json` 말고 **작업 중인 변경**이 있으면 그 경로들. 없으면 빈 set.
+
+    🔴 2026-08-16 실사고 방어용. 이 스크립트는 30분마다 무인으로 도는데, 충돌 자가치유 분기가
+    `git reset --hard origin/main` 을 돌린다. 그게 «커밋 안 된 사람 작업»까지 지운다 —
+    실제로 편집 중이던 3파일이 그렇게 사라졌다. 그래서 리셋 전에 이걸 먼저 묻는다.
+    ⚠️ 추적 안 되는 파일(`??`)도 센다 — 새로 쓰던 파일이 제일 위험하다(git 에 사본이 없다).
+    ⚠️ 판정 불가(git 실패)면 **「더럽다」고 본다** — 모르면 파괴하지 않는 쪽으로 기운다.
+    """
+    st = subprocess.run(["git", "-C", repo, "status", "--porcelain"],
+                        capture_output=True, text=True, encoding="utf-8", errors="replace")
+    if st.returncode != 0:
+        return {"(git status 실패 — 안전을 위해 더럽다고 본다)"}
+    out = set()
+    for line in (st.stdout or "").splitlines():
+        path = line[3:].strip().strip('"')
+        if path and path != "availability.json":
+            out.add(path)
+    return out
+
+
 def push_changes(repo, n_events):
     """availability.json git add+commit+rebase+push (Vercel 자동 재배포). 반환 pushed:bool."""
     try:
@@ -361,7 +382,16 @@ def push_changes(repo, n_events):
             diff = subprocess.run(["git", "-C", repo, "diff", "--name-only", "origin/main..HEAD"],
                                   capture_output=True, text=True, encoding="utf-8", errors="replace")
             touched = {f.strip() for f in (diff.stdout or "").splitlines() if f.strip()}
-            if touched and touched <= {"availability.json"}:
+            dirty = _worktree_dirty_besides_availability(repo)
+            if dirty:
+                # 🔴 2026-08-16 실사고 — 여기서 곧장 `reset --hard` 를 돌려 **작업 중이던
+                #   미커밋 편집 3파일을 날렸다**(build_availability.py·index.html·테스트).
+                #   `touched` 는 «커밋된» 차이만 보므로 워킹트리는 검사 밖이었다.
+                #   스톨은 눈에 보이고 되돌릴 수 있지만 **지워진 작업은 되돌릴 수 없다** ⇒
+                #   작업 중인 게 있으면 자가치유를 «하지 않는다»(다음 런이 다시 시도한다).
+                print(f"  ⛔ 자가치유 보류 — 작업 중인 미커밋 변경이 있다 {sorted(dirty)[:5]}. "
+                      f"reset --hard 를 돌리면 그 작업이 사라진다(사람이 정리한 뒤 자동 회복).")
+            elif touched and touched <= {"availability.json"}:
                 subprocess.run(["git", "-C", repo, "reset", "--hard", "origin/main"], check=True)
                 print("  rebase 충돌 → availability 전용 로컬커밋이라 origin에 맞춤(다음 런 재생성). 스톨 자가치유.")
             else:
