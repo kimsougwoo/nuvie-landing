@@ -131,7 +131,14 @@ html{scroll-behavior:smooth}
   .roomcard-tags{display:flex;gap:6px;flex-wrap:wrap}
   .roomcard-tags span{font-family:var(--label-font);font-size:11px;color:var(--dim);
                       border:1px solid var(--line);padding:4px 10px;border-radius:999px}
+  .room-column{min-width:0}
+  .room-booking-info{margin-top:20px;padding:20px 20px 18px;border:1px solid var(--line);border-radius:6px;background:var(--panel)}
+  .room-booking-info h3{font-size:17px;font-weight:700;letter-spacing:-.02em;margin:0 0 14px}
+  .room-booking-info p{color:var(--dim);font-size:13px;line-height:1.7;margin:0 0 11px}
+  .room-booking-info p:last-of-type{margin-bottom:17px}
+  .room-booking-cta{width:100%;padding:12px 16px;font-size:13.5px}
   @media(max-width:760px){.roomcards{grid-template-columns:1fr;gap:32px}}
+  @media(max-width:760px){.room-booking-info{margin-top:16px;padding:18px 16px 16px}.room-booking-info p{line-height:1.65}}
 
   /* ── 히어로 높이 (2026-08-04) ──────────────────────────────────────
      ⚠️ `height:76vh/90vh` **고정**은 짧은 창에서 콘텐츠를 **위쪽부터** 잘라먹는다
