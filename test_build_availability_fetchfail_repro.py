@@ -49,8 +49,11 @@ def _ics_event(date_iso, start_h, end_h):
 ICS_EMPTY = "BEGIN:VCALENDAR\r\nEND:VCALENDAR\r\n"  # 정상 빈 캘린더(진짜 예약 0건)
 
 
-def _ev(date_iso, start, end, room):
-    return {"date": date_iso, "start": float(start), "end": float(end), "room": room}
+def _ev(date_iso, start, end, room, kind="booking"):
+    # 2026-08-16 `kind` 신설(예약 / 휴무·차단). 완전일치 비교는 «그대로 유지»한다 —
+    # 느슨하게 풀면 산출물 필드가 몰래 늘어나는 걸 못 잡고, 그 「필드가 늘지 않는 것」이
+    # 공개 레포로 개인정보가 새지 않는다는 보장의 근거다.
+    return {"date": date_iso, "start": float(start), "end": float(end), "room": room, "kind": kind}
 
 
 def _seed_repo(old_events):

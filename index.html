@@ -691,7 +691,10 @@
         chip.textContent=(e.room||'A')+'룸';
         var txt=document.createElement('span');
         txt.style.color='var(--ink)';
-        txt.textContent=fmt(e.start)+' - '+fmt(e.end)+' 예약됨';
+        // 2026-08-16: 「휴무·차단」(kind='block')은 예약이 아니다 — 청소·점검·답사로 «우리가»
+        //   막아둔 시간이라 「예약됨」이라고 쓰면 사실이 아니다. 막힌 건 같으므로 표시는 하되
+        //   문구만 가른다. kind 가 없는 구 데이터는 종전대로 예약으로 본다.
+        txt.textContent=fmt(e.start)+' - '+fmt(e.end)+(e.kind==='block'?' 예약 불가':' 예약됨');
         row.appendChild(chip);row.appendChild(txt);list.appendChild(row);
       });
       var hint=document.createElement('div');
@@ -838,7 +841,7 @@
         // 흑백 인쇄에서도 읽히게 한다. 「예약됨」은 섹션 제목이 '예약 현황'이라 중복 → 자리를 양보.
         var label=(e.room||'A')+'룸';
         ev.textContent=label+' '+fmt(e.start)+' - '+fmt(e.end)+' ('+durStr+')';
-        ev.title=label+' '+fmt(e.start)+' - '+fmt(e.end)+' 예약됨';   // 폭이 좁아 잘릴 때 hover 보완
+        ev.title=label+' '+fmt(e.start)+' - '+fmt(e.end)+(e.kind==='block'?' 예약 불가':' 예약됨');   // 폭이 좁아 잘릴 때 hover 보완
         box.appendChild(ev);
       });
       cell.appendChild(box);

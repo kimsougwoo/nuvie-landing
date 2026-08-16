@@ -1,102 +1,146 @@
 {
- "updated": "2026-08-16T14:38",
- "note": "free/busy (아워플레이스 iCal · 이름 비노출, 시간·룸만). 참고용 — 확정은 아워플레이스.",
+ "updated": "2026-08-16T17:02",
+ "note": "free/busy (아워플레이스 iCal + 휴무·차단 캘린더 · 이름 비노출, 시간·룸·종류만). kind=booking 예약 / kind=block 예약 불가(청소·점검·답사·휴무). 참고용 — 확정은 아워플레이스.",
  "events": [
   {
    "date": "2026-08-16",
    "start": 10.0,
    "end": 12.0,
-   "room": "A"
+   "room": "A",
+   "kind": "booking"
   },
   {
    "date": "2026-08-16",
    "start": 12.0,
    "end": 14.0,
-   "room": "A"
+   "room": "A",
+   "kind": "booking"
+  },
+  {
+   "date": "2026-08-17",
+   "start": 12.0,
+   "end": 13.0,
+   "room": "A",
+   "kind": "block"
   },
   {
    "date": "2026-08-17",
    "start": 15.0,
    "end": 17.0,
-   "room": "A"
+   "room": "A",
+   "kind": "booking"
   },
   {
    "date": "2026-08-17",
    "start": 17.0,
    "end": 21.0,
-   "room": "A"
+   "room": "A",
+   "kind": "booking"
   },
   {
    "date": "2026-08-18",
    "start": 15.0,
    "end": 19.0,
-   "room": "A"
+   "room": "A",
+   "kind": "booking"
   },
   {
    "date": "2026-08-19",
    "start": 14.0,
    "end": 17.0,
-   "room": "B"
+   "room": "B",
+   "kind": "booking"
   },
   {
    "date": "2026-08-20",
    "start": 0.0,
    "end": 6.0,
-   "room": "A"
+   "room": "A",
+   "kind": "booking"
   },
   {
    "date": "2026-08-20",
    "start": 14.0,
    "end": 16.0,
-   "room": "A"
+   "room": "A",
+   "kind": "booking"
   },
   {
    "date": "2026-08-22",
    "start": 14.0,
    "end": 17.0,
-   "room": "A"
+   "room": "A",
+   "kind": "booking"
   },
   {
    "date": "2026-08-22",
    "start": 17.0,
    "end": 20.0,
-   "room": "A"
+   "room": "A",
+   "kind": "booking"
   },
   {
    "date": "2026-08-23",
    "start": 14.0,
    "end": 18.0,
-   "room": "B"
+   "room": "B",
+   "kind": "booking"
   },
   {
    "date": "2026-08-26",
    "start": 17.0,
    "end": 19.0,
-   "room": "A"
+   "room": "A",
+   "kind": "booking"
   },
   {
    "date": "2026-08-28",
    "start": 11.0,
    "end": 15.0,
-   "room": "A"
+   "room": "A",
+   "kind": "booking"
   },
   {
    "date": "2026-08-29",
    "start": 10.0,
    "end": 12.0,
-   "room": "A"
+   "room": "A",
+   "kind": "booking"
+  },
+  {
+   "date": "2026-08-30",
+   "start": 0,
+   "end": 24,
+   "room": "A",
+   "kind": "block"
+  },
+  {
+   "date": "2026-08-31",
+   "start": 0,
+   "end": 24,
+   "room": "A",
+   "kind": "block"
   },
   {
    "date": "2026-09-06",
    "start": 13.0,
    "end": 15.0,
-   "room": "A"
+   "room": "A",
+   "kind": "booking"
+  },
+  {
+   "date": "2026-09-06",
+   "start": 15.0,
+   "end": 16.0,
+   "room": "A",
+   "kind": "block"
   },
   {
    "date": "2026-09-06",
    "start": 16.0,
    "end": 19.0,
-   "room": "A"
+   "room": "A",
+   "kind": "booking"
   }
  ],
  "busyDates": [
@@ -110,6 +154,8 @@
   "2026-08-26",
   "2026-08-28",
   "2026-08-29",
+  "2026-08-30",
+  "2026-08-31",
   "2026-09-06"
  ]
 }

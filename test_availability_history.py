@@ -27,7 +27,14 @@ def _iso(offset_days):
 
 
 def _ev(date_iso, start, end, room):
+    """히스토리 파일에 적히는 형태 — `kind` 는 **의도적으로 없다.**
+    히스토리는 과거 «예약» 기록이고 `_update_history` 가 4개 필드만 골라 쓴다."""
     return {"date": date_iso, "start": float(start), "end": float(end), "room": room}
+
+
+def _evk(date_iso, start, end, room, kind="booking"):
+    """availability.json 에 실리는 형태 — 2026-08-16 부터 `kind`(예약/휴무·차단)가 붙는다."""
+    return dict(_ev(date_iso, start, end, room), kind=kind)
 
 
 def _seed_repo(old_events):
@@ -127,7 +134,7 @@ def test_fetch_fail_does_not_corrupt_history(tmp_path, monkeypatch):
     # availability.json 쪽엔 A의 미래값(직전 유지)이 여전히 살아있어야 함(사라진 걸로 오판 안 됨)
     ev = _read_json(os.path.join(repo, "availability.json"))["events"]
     a_events = [e for e in ev if e["room"] == "A"]
-    assert _ev(_iso(10), 14, 16, "A") in a_events, a_events
+    assert _evk(_iso(10), 14, 16, "A") in a_events, a_events
 
 
 def test_both_fetch_fail_history_still_updates_from_dates_only(tmp_path, monkeypatch):
@@ -175,9 +182,9 @@ def test_availability_json_never_contains_past(tmp_path, monkeypatch):
     BA.main(argv=["--push"], repo=repo)
 
     ev = _read_json(os.path.join(repo, "availability.json"))["events"]
-    assert ev == [_ev(_iso(3), 13, 15, "A")], ev
+    assert ev == [_evk(_iso(3), 13, 15, "A")], ev
     assert all(e["date"] >= TODAY.isoformat() for e in ev), ev
-    assert _ev(_iso(-5), 9, 11, "A") not in ev
+    assert _evk(_iso(-5), 9, 11, "A") not in ev
 
 
 if __name__ == "__main__":

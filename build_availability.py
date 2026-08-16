@@ -63,8 +63,16 @@ def _to_dt(s):
         return base
     return datetime.datetime.strptime(s[:8], "%Y%m%d")
 
-def parse_events(ics, room):
-    """VEVENT → [{date,start,end,room}] (KST, 시각 hour 소수). 이름/UID/SUMMARY 무시."""
+def parse_events(ics, room, kind="booking"):
+    """VEVENT → [{date,start,end,room,kind}] (KST, 시각 hour 소수). 이름/UID/SUMMARY 무시.
+
+    🔒 **여기서 버리는 것이 개인정보 방어선이다.** 이 산출물은 공개 레포에 커밋된다.
+       특히 「휴무·차단」 구글캘린더(kind="block")의 SUMMARY·DESCRIPTION 에는 **고객명·핸들과
+       내부 메모가 들어 있다**(2026-08-16 원문 실측: 「단골 추가이용권 1h — 심재만(@…) 뒷타임」).
+       ⇒ 시각 세 개와 룸·종류만 남기고 **나머지는 전부 버린다.** 필드를 늘리지 말 것.
+
+    kind: "booking"(아워플레이스 예약) | "block"(우리가 막아둔 시간 — 청소·점검·답사·휴무).
+    """
     out = []
     ics = ics.replace("\r\n", "\n").replace("\n ", "").replace("\n\t", "")
     for ev in re.findall(r"BEGIN:VEVENT(.*?)END:VEVENT", ics, re.S):
@@ -86,7 +94,7 @@ def parse_events(ics, room):
             else:
                 eh = 24.0
             out.append({"date": start.date().isoformat(), "start": round(sh, 2),
-                        "end": round(eh, 2), "room": room})
+                        "end": round(eh, 2), "room": room, "kind": kind})
         else:
             # 종일(날짜만) 예약 — 시각 없는 차단. start~end-1 각 날을 0~24 블록으로.
             d = start.date()
@@ -96,7 +104,8 @@ def parse_events(ics, room):
             if de and "T" not in de.group(1) and last > d:
                 last -= datetime.timedelta(days=1)
             while d <= last:
-                out.append({"date": d.isoformat(), "start": 0, "end": 24, "room": room})
+                out.append({"date": d.isoformat(), "start": 0, "end": 24,
+                            "room": room, "kind": kind})
                 d += datetime.timedelta(days=1)
     return out
 
@@ -156,14 +165,19 @@ def merge_events(events):
     이렇게 하면 무료연장이 별도 "(1H) 예약됨"으로 뜨지 않아 "1시간만 예약되나요?" 오해가 사라지고,
     게스트는 자기 전체 이용시간(유료+무료)을 한 블록으로 확인한다. iCal에 이름이 없어도
     '2h 미만 = 무료연장'이 게스트 신원 프록시가 되어 이름 없이 정확히 동작한다.
+
+    🔴 **2026-08-16 — 종류(kind)가 다르면 서로 병합하지 않는다.** 「휴무·차단」(kind="block")은
+      예약이 아니다. 1시간짜리 차단(예: 답사)이 옆 예약에 흡수되면 **손님에게 「예약됨」으로
+      잘못 표시**되고, 그 예약의 이용시간까지 늘어난 것처럼 보인다. 그래서 묶음 키에 kind 를 넣어
+      각자 처리한다 — 차단끼리·예약끼리만 위 규칙이 적용된다.
     """
     from collections import defaultdict
     EPS = 1e-6
     groups = defaultdict(list)
     for e in events:
-        groups[(e["date"], e["room"])].append(e)
+        groups[(e["date"], e["room"], e.get("kind") or "booking")].append(e)
     out = []
-    for (date, room), evs in groups.items():
+    for (date, room, kind), evs in groups.items():
         evs = _drop_contained(evs)          # 겹쳐 들어온 중복 먼저 제거(막힌 시간 불변)
         evs.sort(key=lambda e: (e["start"], e["end"]))
         cur = None
@@ -179,7 +193,8 @@ def merge_events(events):
                 if pending_free and e["start"] > pending_free[-1]["end"] + EPS:
                     out.extend(pending_free)   # 체인이 끊겼다 = 앞 것들은 고립 확정
                     pending_free = []
-                pending_free.append({"date": date, "start": e["start"], "end": round(e["end"], 2), "room": room})
+                pending_free.append({"date": date, "start": e["start"], "end": round(e["end"], 2),
+                                     "room": room, "kind": kind})
                 continue
             # 여기부터 ≥2h 블록 — ≥2h 끼리는 병합 안 함
             start = e["start"]
@@ -190,10 +205,11 @@ def merge_events(events):
             elif pending_free:
                 out.extend(pending_free)       # 안 맞닿으면 고립 블록으로 확정
                 pending_free = []
-            cur = {"date": date, "start": start, "end": round(e["end"], 2), "room": room}
+            cur = {"date": date, "start": start, "end": round(e["end"], 2),
+                   "room": room, "kind": kind}
             out.append(cur)
         out.extend(pending_free)               # 뒤에 ≥2h 가 끝내 안 온 무료 블록은 그대로 유지
-    out.sort(key=lambda e: (e["date"], e["start"], e["room"]))
+    out.sort(key=lambda e: (e["date"], e["start"], e["room"], e.get("kind") or ""))
     return out
 
 
@@ -221,7 +237,10 @@ def _update_history(old_events, today, path=None):
     path = path or HISTORY_PATH
     old_events = old_events or []
     today_iso = today.isoformat()
-    past = [e for e in old_events if str(e.get("date", "")) < today_iso]
+    # 🆕 2026-08-16: 「휴무·차단」은 예약이 아니다 — 과거 «예약» 히스토리에 섞으면 나중에
+    #   가동률·매출 분석에서 없던 예약으로 세어진다. kind 가 없는 구 항목은 예약으로 본다.
+    past = [e for e in old_events
+            if str(e.get("date", "")) < today_iso and (e.get("kind") or "booking") == "booking"]
     if not past:
         return
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -258,31 +277,47 @@ def compute_events(env, today, old_events):
        덮지 않고 직전 availability.json의 그 룸 값을 그대로 유지**한다 — 안 그러면 A룸 순단만으로
        예약된 날이 사라져 공개 사이트가 '가능'으로 뒤집힌다(둘 다 실패면 120일 전체 '가능').
        두 룸 모두 실패(fetched_ok==0)면 호출부가 push를 스킵한다. 성공한 룸은 신선 반영.
-       (성공한 '빈 캘린더'=진짜 예약0은 정상 반영 → 예약 해제가 공개에 반영됨.)"""
+       (성공한 '빈 캘린더'=진짜 예약0은 정상 반영 → 예약 해제가 공개에 반영됨.)
+
+    🆕 2026-08-16 — **「휴무·차단」 구글캘린더 2개를 함께 읽는다**(대표 지시 「달력에 띄워주세요」).
+       그 시간은 아워플레이스에서 실제로 막히는데(구글캘린더 → 아워 iCal 구독 = 「연동」 배지),
+       **아워가 내보내는 iCal 에는 안 실려서** 랜딩 달력에만 비어 보였다(8/17 12~13 답사 실측).
+       ⇒ 원본 캘린더를 직접 읽어 kind="block" 으로 표시한다.
+       ⚠️ **fetched_ok 는 예약 피드만 센다.** 차단 피드가 성공했다고 「예약 피드 전멸」 경보가
+          꺼지면 안 된다 — 그 데드맨이 2026-07-17 에 만들어진 이유가 그것이다.
+       🔒 URL 은 .env 에서만 읽는다. 공개 URL 이긴 하나 **SUMMARY·DESCRIPTION 에 고객명이 있어**
+          공개 레포에 주소를 적으면 그게 곧 유출 경로가 된다(parse_events 는 시각만 남긴다)."""
     horizon = today + datetime.timedelta(days=120)
     old_events = old_events or []
     events = []
     fetched_ok = fetch_failed = 0
-    for key, room in (("ICAL_URL_HOURPLACE", "A"), ("ICAL_URL_HOURPLACE_B", "B")):
+    feeds = (("ICAL_URL_HOURPLACE", "A", "booking"), ("ICAL_URL_HOURPLACE_B", "B", "booking"),
+             ("ICAL_URL_BLOCK_A", "A", "block"), ("ICAL_URL_BLOCK_B", "B", "block"))
+    for key, room, kind in feeds:
         url = env.get(key)
-        prev = [e for e in old_events if e.get("room") == room]  # 그 룸 직전값(실패 시 유지)
+        label = f"{room}룸" + ("" if kind == "booking" else " 차단")
+        # 그 (룸·종류) 직전값(실패 시 유지). 구 산출물엔 kind 가 없어 booking 으로 본다.
+        prev = [e for e in old_events
+                if e.get("room") == room and (e.get("kind") or "booking") == kind]
         if not url:
-            print(f"{key} ({room}룸): 없음 — 미설정(직전 {len(prev)}건 유지)")
+            print(f"{key} ({label}): 없음 — 미설정(직전 {len(prev)}건 유지)")
             events += prev
             continue
         ics = fetch(url)
         if ics is None:
-            fetch_failed += 1
-            print(f"{key} ({room}룸): 있음 — ❌ FETCH FAIL, 직전 {len(prev)}건 유지(빈값 덮어쓰기 금지)")
+            if kind == "booking":
+                fetch_failed += 1
+            print(f"{key} ({label}): 있음 — ❌ FETCH FAIL, 직전 {len(prev)}건 유지(빈값 덮어쓰기 금지)")
             events += prev
         else:
-            fetched_ok += 1
-            print(f"{key} ({room}룸): 있음 — OK")
-            events += parse_events(ics, room)
+            if kind == "booking":
+                fetched_ok += 1
+            print(f"{key} ({label}): 있음 — OK")
+            events += parse_events(ics, room, kind)
     # 오늘~120일(미래)만 + 무료연장(2h 미만) 흡수 + 정렬
     events = [e for e in events if today.isoformat() <= e["date"] <= horizon.isoformat()]
     events = merge_events(events)
-    events.sort(key=lambda e: (e["date"], e["start"], e["room"]))
+    events.sort(key=lambda e: (e["date"], e["start"], e["room"], e.get("kind") or ""))
     return events, fetched_ok, fetch_failed
 
 
@@ -376,7 +411,9 @@ def main(argv=None, repo=None):
     if changed:
         out = {
             "updated": datetime.datetime.now().isoformat(timespec="minutes"),
-            "note": "free/busy (아워플레이스 iCal · 이름 비노출, 시간·룸만). 참고용 — 확정은 아워플레이스.",
+            "note": ("free/busy (아워플레이스 iCal + 휴무·차단 캘린더 · 이름 비노출, 시간·룸·종류만). "
+                     "kind=booking 예약 / kind=block 예약 불가(청소·점검·답사·휴무). "
+                     "참고용 — 확정은 아워플레이스."),
             "events": events,
             "busyDates": busy,
         }
