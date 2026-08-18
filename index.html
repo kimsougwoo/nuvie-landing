@@ -716,18 +716,34 @@
       try{ if(window.fbq) fbq('track','ViewContent',{content_type:'pricing_and_rooms'}); }catch(e){}
       clarityTag('event','ViewContent');
     }
+    // 🔴 2026-08-18 저녁 수정 — 「40%」 하나로는 «뷰포트보다 큰 요소»에서 영영 발화하지 않는다.
+    //   실사고: 배포 당일 GA4 도달 **0건**(같은 날 landing_view 33건·room_detail_click 7건이
+    //   들어오는 동안). #rooms 는 룸 카드 2장+가격 블록이라 뷰포트보다 크고, 그러면
+    //   보이는 최대 비율이 vh/height < 0.4 로 «천장에 막힌다» — 아무리 스크롤해도 못 넘는다.
+    //   모바일일수록 심하다(뷰포트는 짧고 섹션은 세로로 더 길어진다).
+    //   ⇒ 비율 OR 절대픽셀 두 갈래로 판정한다: 작은 요소는 「40% 보임」, 큰 요소는 「화면의 60%를 채움」.
+    //   ⚠️ 이 함수를 IO 와 폴백이 «함께» 쓴다 — 종전엔 둘 다 0.4 를 따로 들고 있어
+    //      두 겹이 «같은 결함을 공유»했다(폴백이 폴백 구실을 못 했다).
+    function seenEnough(r){
+      var vh = window.innerHeight || 0;
+      if(!vh || !r || r.height <= 0) return false;
+      var vis = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+      if(vis <= 0) return false;
+      return (vis / r.height >= 0.4) || (vis >= vh * 0.6);
+    }
+    // threshold 를 여러 단계로 준다 — 큰 요소는 0.4 에 절대 못 닿으므로 낮은 단계에서도 콜백을 받아야 한다.
     var io = new IntersectionObserver(function(entries){
-      entries.forEach(function(en){ if(en.isIntersecting) fire(); });
-    }, { threshold: 0.4 });
+      entries.forEach(function(en){
+        if(en.isIntersecting && seenEnough(en.boundingClientRect.height ? en.boundingClientRect : sec.getBoundingClientRect())) fire();
+      });
+    }, { threshold: [0, 0.05, 0.1, 0.2, 0.4] });
     io.observe(sec);
     // ⚠️ 폴백 — IntersectionObserver 콜백은 «렌더링 단계»에서만 전달된다. 탭이 백그라운드거나
     //   자동화 환경이면 영영 안 온다(2026-08-18 실측: document.hidden 인 탭에서 threshold 0 도 미발화).
     //   그런 데서 조용히 안 도는 배선은 「되는지 확인할 수 없는 배선」이라 같은 판정을 기하로 한 번 더 한다.
     function geoCheck(){
       if(fired) return;
-      var r = sec.getBoundingClientRect(), vh = window.innerHeight || 0;
-      var vis = Math.min(r.bottom, vh) - Math.max(r.top, 0);
-      if(r.height > 0 && vis / r.height >= 0.4) fire();
+      if(seenEnough(sec.getBoundingClientRect())) fire();
     }
     window.addEventListener('scroll', geoCheck, {passive:true});
     window.addEventListener('load', geoCheck);
