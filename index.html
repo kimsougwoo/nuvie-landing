@@ -624,6 +624,27 @@
       return m?decodeURIComponent(m[1]):'';
     }catch(e){return '';}
   }
+  // 🔴 2026-08-18 신설 — 아워 이동 «통일» 이벤트. (광고 추적 점검 ①②③ 집행)
+  //   문제였던 것: 아워로 나가는 버튼이 book_click / avail_click / booking_intent 세 갈래로
+  //   흩어져 **「아워로 나간 총량」을 한 지표로 셀 수 없었고**, 달력 CTA 는 Meta 에 아무것도
+  //   안 보내 리타겟팅 모수와 학습 신호가 샜다(브라우저 라이브 실측으로 확인).
+  //   ⛔ **book_click 은 이름도 파라미터도 안 건드린다** — 광고 파일럿 사전등록 판독 지표라
+  //      바꾸면 7월 파일럿과 9월 데이터를 비교할 수 없다. 그래서 «교체»가 아니라 «병행»이다.
+  //   ⚠️ UTM 은 attribution.js 가 clip() 으로 다듬은 값만 쓴다(쿼리스트링 원문 금지).
+  function hourplaceClick(room, dest, where){
+    var u = {utm_source:'direct',utm_medium:'none',utm_campaign:'none',utm_content:'none'};
+    try{ if(window.NUVIE_ATTRIBUTION && window.NUVIE_ATTRIBUTION.utmParams) u = window.NUVIE_ATTRIBUTION.utmParams(); }catch(e){}
+    try{
+      if(window.gtag) gtag('event','HourplaceClick',{
+        room:room, destination_url:dest, button_location:where,
+        utm_source:u.utm_source, utm_medium:u.utm_medium,
+        utm_campaign:u.utm_campaign, utm_content:u.utm_content,
+        transport_type:'beacon'
+      });
+    }catch(e){}
+    clarityTag('event','HourplaceClick'); clarityTag('button_location',where); clarityTag('utm_content',u.utm_content);
+  }
+
   // page 출처 파라미터(2026-08-04 감사 개선 #1): 허브·룸페이지가 같은 book_click 을 쏴서 이탈 출처가 안 갈렸다.
   // ⚠️ book_click 의 기존 파라미터(room·transport_type)·이벤트명은 절대 불변, page 는 "추가"만.
   function trackBook(room){return function(){
@@ -633,6 +654,7 @@
       var fbc=readCookie('_fbc'), fbp=readCookie('_fbp');
       if((fbc||fbp)&&window.gtag)gtag('event','ad_capture',{fbc:fbc,fbp:fbp,room:room,transport_type:'beacon'});
     }catch(e){}
+    hourplaceClick(room, (room==='a')?A_URL:B_URL, 'primary_cta');
   };}
   ['book-side','book-a','end-a','book-mobile'].forEach(function(id){var e=document.getElementById(id);if(e){e.href=A_URL;e.addEventListener('click',trackBook('a'));}});
   // book-mobile-b = 2분할 스티키바의 B룸 버튼(2026-07-29). 같은 trackBook('b')를 타므로
@@ -657,11 +679,46 @@
       try{ if(window.gtag) gtag('event','room_detail_click',{room:room,from:from,transport_type:'beacon'}); }catch(err){}
     });
   });
+  // 🔴 2026-08-18 신설 — ViewContent(가격·시설 조회). (광고 추적 점검 ④ 집행)
+  //   문제였던 것: 「가격까지 본 사람」을 가려낼 신호가 하나도 없어 **그 리타겟팅 모수를
+  //   만들 방법이 없었다.** #rooms 섹션에 가격(평일 40,000/주말 45,000)과 시설 설명이 함께 있다.
+  //   ⚠️ 스크롤 이벤트 연발이 아니라 IntersectionObserver 로 «한 번만» 쏜다 —
+  //      스크롤마다 발화하면 모수가 부풀고 메타 학습이 오염된다.
+  (function(){
+    var sec = document.getElementById('rooms');
+    if(!sec || !('IntersectionObserver' in window)) return;
+    var fired = false;
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(!en.isIntersecting || fired) return;
+        fired = true; io.disconnect();
+        var u = {utm_source:'direct',utm_medium:'none',utm_campaign:'none',utm_content:'none'};
+        try{ if(window.NUVIE_ATTRIBUTION && window.NUVIE_ATTRIBUTION.utmParams) u = window.NUVIE_ATTRIBUTION.utmParams(); }catch(e){}
+        try{ if(window.gtag) gtag('event','ViewContent',{
+          content_type:'pricing_and_rooms', section:'rooms',
+          utm_source:u.utm_source, utm_medium:u.utm_medium,
+          utm_campaign:u.utm_campaign, utm_content:u.utm_content,
+          transport_type:'beacon'}); }catch(e){}
+        try{ if(window.fbq) fbq('track','ViewContent',{content_type:'pricing_and_rooms'}); }catch(e){}
+        clarityTag('event','ViewContent');
+      });
+    }, { threshold: 0.4 });
+    io.observe(sec);
+  })();
+
   // 예약 현황 클릭 → 아워플레이스 (Clarity 실측: '예약됨' 칩 데드클릭 1·2위 — 클릭 의도를 예약으로 전환)
   // ⚠️ GA 이벤트는 avail_click 별도 사용 — book_click은 광고 파일럿 판독 지표라 정의 불변(계측 오염 금지)
   // ⚠️ book_click 은 여기서 절대 발화시키지 않는다 — 광고 파일럿의 사전 등록 판독 지표라
   //    파일럿 도중 정의를 넓히면 앞뒤 데이터가 비교 불가가 된다. room 파라미터만 추가한다.
-  function trackAvail(room){return function(){clarityTag('event','avail_click');clarityTag('room',room);try{if(window.gtag)gtag('event','avail_click',{room:room,transport_type:'beacon'});}catch(e){}};}
+  function trackAvail(room){return function(){
+    clarityTag('event','avail_click');clarityTag('room',room);
+    try{if(window.gtag)gtag('event','avail_click',{room:room,transport_type:'beacon'});}catch(e){}
+    // 🔴 2026-08-18 신설 — 달력 CTA 도 아워로 «나가는» 버튼인데 Meta 에 아무것도 안 보내고
+    //   있었다(라이브 실측). 예약 의사가 가장 굳은 자리라 학습 신호에서 빠지면 손해가 크다.
+    //   ⚠️ Lead 는 기존 예약 CTA 와 «같은» 표준 이벤트다 — 메타 쪽 정의를 새로 만들지 않는다.
+    try{if(window.fbq)fbq('track','Lead',{room:room});}catch(e){}
+    hourplaceClick(room, (room==='a')?A_URL:B_URL, 'availability_calendar');
+  };}
   // 달력 CTA 4개(섹션 CTA 2 + 날짜 상세 2) 일괄 배선 — href 도 A_URL/B_URL 로 다시 세워 정본을 한 곳에 모은다.
   [['availBookA','a'],['availBookB','b'],['dayDetailBookA','a'],['dayDetailBookB','b']].forEach(function(p){
     var e=document.getElementById(p[0]); if(!e)return;

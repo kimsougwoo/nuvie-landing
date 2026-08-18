@@ -91,10 +91,30 @@
     } catch (e) {}
   }
 
-  window.NUVIE_ATTRIBUTION = { get: snapshot, event: event, tag: clarityTag };
+  // 🔴 2026-08-18 신설 — UTM 을 «이벤트 파라미터»로 내놓는다.
+  //   종전엔 last_touch 를 localStorage 에 저장만 하고 이벤트엔 utm_source 만 실었다.
+  //   그래서 「훅 A 와 B 중 어느 쪽이 아워로 더 보냈나」를 이벤트 단위로 못 갈랐다
+  //   (GA4 세션 차원으로 조인하면 나오긴 하나 탐색을 매번 짜야 한다).
+  //   ⚠️ 값은 전부 clip() 을 거친다 — 쿼리스트링을 그대로 흘리지 않는다.
+  function utmParams() {
+    var t = state.last_touch || {};
+    return {
+      utm_source: clip(t.utm_source, 60) || 'direct',
+      utm_medium: clip(t.utm_medium, 60) || 'none',
+      utm_campaign: clip(t.utm_campaign, 60) || 'none',
+      utm_content: clip(t.utm_content, 60) || 'none'
+    };
+  }
+
+  window.NUVIE_ATTRIBUTION = { get: snapshot, event: event, tag: clarityTag, utmParams: utmParams };
+
+  var _u = utmParams();
   event('landing_view', {
     first_source: clip(state.first_touch && state.first_touch.utm_source, 60) || 'direct',
-    last_source: clip(state.last_touch && state.last_touch.utm_source, 60) || 'direct',
+    last_source: _u.utm_source,
+    utm_medium: _u.utm_medium,
+    utm_campaign: _u.utm_campaign,
+    utm_content: _u.utm_content,
     page: clip(window.location.pathname, 80),
     transport_type: 'beacon'
   });
