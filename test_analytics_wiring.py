@@ -144,9 +144,38 @@ def test_new_room_targeted_shortlinks_exist_and_follow_existing_utm_shape():
         assert r[source]["permanent"] is False
 
 
+def test_hook_ab_shortlinks_are_a_new_campaign_not_a_reused_path():
+    """🔴 2026-08 후킹멘트 A/B — 규약 §2 「캠페인이 바뀌면 경로 재사용 금지」.
+
+    7월 파일럿 경로(/pm·/pm1~3)에 새 캠페인을 얹으면, 소재에 이미 «박혀 나간» 링크의
+    사후 의미가 바뀐다(307이라 목적지만 갈아끼우면 되지만 그게 문제다 —
+    7월 소재를 지금 누른 사람이 8월 캠페인으로 집계된다).
+    """
+    r = _redirects()
+    expected = {
+        "/ha": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-hook-ab-2026-08&utm_content=hook_a",
+        "/hb": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-hook-ab-2026-08&utm_content=hook_b",
+        "/hc": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-hook-ab-2026-08&utm_content=hook_c",
+    }
+    for source, dest in expected.items():
+        assert source in r, f"후킹 A/B 숏링크 {source} 가 없다 — 광고 소재에 붙일 링크가 없다"
+        assert r[source]["destination"] == dest, f"{source} 목적지가 규약과 다르다: {r[source]['destination']}"
+        assert r[source]["permanent"] is False, "307 이어야 한다(목적지 사후 수정 가능성 유지)"
+
+    # utm_content 가 셋 다 달라야 훅을 가를 수 있다 — 하나라도 겹치면 A/B 자체가 무의미해진다
+    contents = [r[s]["destination"].split("utm_content=")[1] for s in expected]
+    assert len(set(contents)) == 3, f"utm_content 가 중복된다: {contents}"
+
+    # 7월 캠페인 이름이 섞이면 GA4 에서 두 실험이 한 덩어리로 집계된다
+    for s in expected:
+        assert "ad-meta-pilot-2026q3" not in r[s]["destination"], f"{s} 에 7월 캠페인 이름이 남아 있다"
+
+
 def test_redirect_count_grew_by_exactly_four():
     spec = json.loads(_read("vercel.json"))
-    assert len(spec["redirects"]) == 10, "기존 6개(x/ig/pm/pm1-3) + 신설 4개(ig-a/ig-b/x-a/x-b) = 10개여야 한다"
+    assert len(spec["redirects"]) == 13, (
+        "기존 6개(x/ig/pm/pm1-3) + 룸타겟 4개(ig-a/ig-b/x-a/x-b) + 후킹 A/B 3개(ha/hb/hc) = 13개여야 한다"
+    )
 
 
 if __name__ == "__main__":

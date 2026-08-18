@@ -71,6 +71,21 @@
       "source": "/x-b",
       "destination": "/b?utm_source=x&utm_medium=social&utm_campaign=bio",
       "permanent": false
+    },
+    {
+      "source": "/ha",
+      "destination": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-hook-ab-2026-08&utm_content=hook_a",
+      "permanent": false
+    },
+    {
+      "source": "/hb",
+      "destination": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-hook-ab-2026-08&utm_content=hook_b",
+      "permanent": false
+    },
+    {
+      "source": "/hc",
+      "destination": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-hook-ab-2026-08&utm_content=hook_c",
+      "permanent": false
     }
   ]
 }
