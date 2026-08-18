@@ -688,22 +688,36 @@
     var sec = document.getElementById('rooms');
     if(!sec || !('IntersectionObserver' in window)) return;
     var fired = false;
+    function fire(){
+      if(fired) return;
+      fired = true;
+      try{ io.disconnect(); }catch(e){}
+      var u = {utm_source:'direct',utm_medium:'none',utm_campaign:'none',utm_content:'none'};
+      try{ if(window.NUVIE_ATTRIBUTION && window.NUVIE_ATTRIBUTION.utmParams) u = window.NUVIE_ATTRIBUTION.utmParams(); }catch(e){}
+      try{ if(window.gtag) gtag('event','ViewContent',{
+        content_type:'pricing_and_rooms', section:'rooms',
+        utm_source:u.utm_source, utm_medium:u.utm_medium,
+        utm_campaign:u.utm_campaign, utm_content:u.utm_content,
+        transport_type:'beacon'}); }catch(e){}
+      try{ if(window.fbq) fbq('track','ViewContent',{content_type:'pricing_and_rooms'}); }catch(e){}
+      clarityTag('event','ViewContent');
+    }
     var io = new IntersectionObserver(function(entries){
-      entries.forEach(function(en){
-        if(!en.isIntersecting || fired) return;
-        fired = true; io.disconnect();
-        var u = {utm_source:'direct',utm_medium:'none',utm_campaign:'none',utm_content:'none'};
-        try{ if(window.NUVIE_ATTRIBUTION && window.NUVIE_ATTRIBUTION.utmParams) u = window.NUVIE_ATTRIBUTION.utmParams(); }catch(e){}
-        try{ if(window.gtag) gtag('event','ViewContent',{
-          content_type:'pricing_and_rooms', section:'rooms',
-          utm_source:u.utm_source, utm_medium:u.utm_medium,
-          utm_campaign:u.utm_campaign, utm_content:u.utm_content,
-          transport_type:'beacon'}); }catch(e){}
-        try{ if(window.fbq) fbq('track','ViewContent',{content_type:'pricing_and_rooms'}); }catch(e){}
-        clarityTag('event','ViewContent');
-      });
+      entries.forEach(function(en){ if(en.isIntersecting) fire(); });
     }, { threshold: 0.4 });
     io.observe(sec);
+    // ⚠️ 폴백 — IntersectionObserver 콜백은 «렌더링 단계»에서만 전달된다. 탭이 백그라운드거나
+    //   자동화 환경이면 영영 안 온다(2026-08-18 실측: document.hidden 인 탭에서 threshold 0 도 미발화).
+    //   그런 데서 조용히 안 도는 배선은 「되는지 확인할 수 없는 배선」이라 같은 판정을 기하로 한 번 더 한다.
+    function geoCheck(){
+      if(fired) return;
+      var r = sec.getBoundingClientRect(), vh = window.innerHeight || 0;
+      var vis = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+      if(r.height > 0 && vis / r.height >= 0.4) fire();
+    }
+    window.addEventListener('scroll', geoCheck, {passive:true});
+    window.addEventListener('load', geoCheck);
+    setTimeout(geoCheck, 1200);
   })();
 
   // 예약 현황 클릭 → 아워플레이스 (Clarity 실측: '예약됨' 칩 데드클릭 1·2위 — 클릭 의도를 예약으로 전환)
