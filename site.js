@@ -47,6 +47,31 @@
       if (window.clarity && safe) window.clarity("set", key, safe);
     } catch (e) {}
   }
+  /* ---------- 아워플레이스 이동 통일 계측 (2026-08-18 신설) ----------
+   * 허브(index.html)의 hourplaceClick 과 «같은 이벤트명·같은 파라미터»로 맞춘다.
+   * 왜 필요했나: 룸 페이지에서 나가는 클릭이 HourplaceClick 총량에서 통째로 빠져 있어,
+   *   광고 소재 A/B 를 볼 때 «룸 페이지를 거쳐 나간 손님»만큼 과소계상됐다.
+   *   소재별로 그 비율이 다르면 실제보다 나쁜 소재로 잘못 판정된다.
+   * ⚠️ book_click 은 이름도 파라미터도 안 건드린다(광고 파일럿 사전등록 판독 지표) — «추가»만 한다.
+   * 🔜 자사몰 전환(FF.mode='own') 후에는 아워 이동이 아니므로 발화하지 않는다. */
+  function hourplaceClick(room, dest, where) {
+    var u = { utm_source: 'direct', utm_medium: 'none', utm_campaign: 'none', utm_content: 'none' };
+    try {
+      if (window.NUVIE_ATTRIBUTION && window.NUVIE_ATTRIBUTION.utmParams) u = window.NUVIE_ATTRIBUTION.utmParams();
+    } catch (e) {}
+    try {
+      if (window.gtag) gtag('event', 'HourplaceClick', {
+        room: room, destination_url: dest, button_location: where,
+        utm_source: u.utm_source, utm_medium: u.utm_medium,
+        utm_campaign: u.utm_campaign, utm_content: u.utm_content,
+        transport_type: 'beacon'
+      });
+    } catch (e) {}
+    clarityTag('event', 'HourplaceClick');
+    clarityTag('button_location', where);
+    clarityTag('utm_content', u.utm_content);
+  }
+
   function trackBook(room) {
     return function () {
       clarityTag('event', 'book_click');
@@ -55,6 +80,9 @@
       try {
         if (window.gtag) gtag('event', 'book_click', { room: room, transport_type: 'beacon', page: PAGE_ORIGIN });
         if (window.fbq) fbq('track', 'Lead', { room: room });
+      } catch (e) {}
+      try {
+        if (NUVIE.isExternalBooking()) hourplaceClick(room, NUVIE.bookingUrl(room), 'room_page');
       } catch (e) {}
       try {
         var fbc = readCookie('_fbc'), fbp = readCookie('_fbp');

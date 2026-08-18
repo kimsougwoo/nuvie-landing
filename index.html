@@ -409,7 +409,7 @@
           });
           requestAnimationFrame(function(){ requestAnimationFrame(syncReviewHeight); }); // 레이아웃 확정 후 활성 카드 높이 반영(모바일만 실질 적용)
         }).catch(function(){
-          host.innerHTML='<p style="grid-column:1/-1;margin:0;font-size:13.5px;color:var(--dim);line-height:1.7">후기를 불러오지 못했어요 · <a href="https://www.hourplace.co.kr/place/61823" target="_blank" rel="noopener" style="color:var(--accent)">아워플레이스에서 후기 보기 →</a></p>';
+          host.innerHTML='<p style="grid-column:1/-1;margin:0;font-size:13.5px;color:var(--dim);line-height:1.7">후기를 불러오지 못했어요 · <a href="https://www.hourplace.co.kr/place/61823" target="_blank" rel="noopener" data-hp="a|reviews_fallback" style="color:var(--accent)">아워플레이스에서 후기 보기 →</a></p>';
         });
       })();
       </script>
@@ -438,7 +438,7 @@
         <div id="calDow" style="display:grid;grid-template-columns:repeat(7,1fr)"></div>
         <div id="calGrid" style="display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line);border-radius:0 0 5px 5px;overflow:hidden"><div class="nv-skel" aria-hidden="true" style="grid-column:1/-1;height:280px;border-radius:0 0 5px 5px"></div></div>
         <div id="calEmpty" role="status" aria-live="polite" style="display:none;margin-top:12px;padding:11px 14px;border:1px solid var(--line);border-radius:4px;background:var(--elev);font-size:12.5px;color:var(--dim);line-height:1.6">현재 확인되는 시간이 없습니다.</div>
-        <div id="calFetchWarn" role="alert" style="display:none;margin-top:12px;padding:11px 14px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:4px;background:var(--elev);font-size:12.5px;color:var(--dim);line-height:1.6">예약 현황을 불러오지 못했습니다. 아워플레이스에서 확인해 주세요: <a href="https://www.hourplace.co.kr/place/61823" target="_blank" rel="noopener" style="color:var(--accent)">A룸 예약</a> · <a href="https://www.hourplace.co.kr/place/62341" target="_blank" rel="noopener" style="color:var(--accent)">B룸 예약</a></div>
+        <div id="calFetchWarn" role="alert" style="display:none;margin-top:12px;padding:11px 14px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:4px;background:var(--elev);font-size:12.5px;color:var(--dim);line-height:1.6">예약 현황을 불러오지 못했습니다. 아워플레이스에서 확인해 주세요: <a href="https://www.hourplace.co.kr/place/61823" target="_blank" rel="noopener" data-hp="a|calendar_fallback" style="color:var(--accent)">A룸 예약</a> · <a href="https://www.hourplace.co.kr/place/62341" target="_blank" rel="noopener" data-hp="b|calendar_fallback" style="color:var(--accent)">B룸 예약</a></div>
         <div id="dayDetail" style="display:none;margin-top:14px;border:1px solid var(--line);border-radius:6px;padding:16px 18px;background:var(--elev)">
           <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap">
             <h4 id="dayDetailTitle" style="font-family:var(--label-font);font-size:15px;font-weight:700;margin:0;letter-spacing:.02em"></h4>
@@ -567,7 +567,7 @@
         <div style="font-size:15px;font-weight:600;color:var(--ink)">여기서 답을 못 찾으셨나요?</div>
         <p style="color:var(--dim);margin:8px 0 16px;font-size:14.5px;line-height:1.75">편하신 곳으로 물어봐 주세요. 확인하는 대로 답변드립니다.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <a class="btn line" href="https://www.hourplace.co.kr/place/61823" target="_blank" rel="noopener" style="padding:11px 18px;font-size:14px">아워플레이스 메시지 &rarr;</a>
+          <a class="btn line" href="https://www.hourplace.co.kr/place/61823" target="_blank" rel="noopener" data-hp="a|inquiry_link" style="padding:11px 18px;font-size:14px">아워플레이스 메시지 &rarr;</a>
           <a class="btn line" href="https://x.com/nuvie_studio" target="_blank" rel="noopener" style="padding:11px 18px;font-size:14px">X @nuvie_studio &rarr;</a>
           <a class="btn line" href="https://www.instagram.com/nuvie_studio" target="_blank" rel="noopener" style="padding:11px 18px;font-size:14px">Instagram @nuvie_studio &rarr;</a>
         </div>
@@ -644,6 +644,20 @@
     }catch(e){}
     clarityTag('event','HourplaceClick'); clarityTag('button_location',where); clarityTag('utm_content',u.utm_content);
   }
+
+  /* data-hp="<room>|<button_location>" 가 달린 아워플레이스 링크를 «위임»으로 계측한다 (2026-08-18).
+   * 위임인 이유 = 후기 폴백 링크는 innerHTML 로 나중에 삽입돼 로드 시점엔 DOM 에 없다.
+   * 명시적으로 표시한 링크에만 붙으므로 이미 계측된 CTA 와 이중 발화하지 않는다.
+   * 대상 3곳: 후기 로드 실패 폴백 · 달력 로드 실패 폴백(A·B — 진짜 예약 버튼) · 문의 메시지 링크. */
+  document.addEventListener('click', function(e){
+    try{
+      var t = e.target, a = null;
+      while(t && t !== document){ if(t.tagName === 'A' && t.getAttribute('data-hp')){ a = t; break; } t = t.parentNode; }
+      if(!a) return;
+      var d = String(a.getAttribute('data-hp')).split('|');
+      hourplaceClick(d[0] || '', a.href, d[1] || 'unknown');
+    }catch(err){}
+  }, true);
 
   // page 출처 파라미터(2026-08-04 감사 개선 #1): 허브·룸페이지가 같은 book_click 을 쏴서 이탈 출처가 안 갈렸다.
   // ⚠️ book_click 의 기존 파라미터(room·transport_type)·이벤트명은 절대 불변, page 는 "추가"만.
