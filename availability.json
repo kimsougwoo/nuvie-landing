@@ -1,7 +1,14 @@
 {
- "updated": "2026-08-20T00:45",
+ "updated": "2026-08-20T09:15",
  "note": "free/busy (아워플레이스 iCal + 휴무·차단 캘린더 · 이름 비노출, 시간·룸·종류만). kind=booking 예약 / kind=block 예약 불가(청소·점검·답사·휴무). 참고용 — 확정은 아워플레이스.",
  "events": [
+  {
+   "date": "2026-08-21",
+   "start": 13.0,
+   "end": 15.0,
+   "room": "A",
+   "kind": "booking"
+  },
   {
    "date": "2026-08-21",
    "start": 20.0,
