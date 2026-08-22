@@ -477,3 +477,31 @@ html{scroll-behavior:smooth}
     .nv-skel{animation:none!important}
     #calGrid .cell{animation:none!important}
   }
+
+  /* ═══ P1 (2026-08-22) 모바일 «사진 우선» 스와이프 갤러리 — Clarity 실측 기반 ═══════════
+     실측(2026-08-22 브라우저 다이브): 모바일 1위 클릭 = 후기/캘린더 캐러셀 «›» 41%(열지도) ·
+     소셜 유입 0.9초 이탈 · AI 세션 인사이트 2건이 「착지→›연타→19~36초 이탈」 동일 패턴.
+     시각 상품(코스프레 스튜디오)인데 룸 사진을 빨리 못 보여준 것 → 그 «넘겨보기» 에너지를
+     착지 직후 «룸 사진 스와이프»에 꽂는다.
+     ⚠️ 데스크탑 완전 불변 — .mgal 기본 display:none, ≤640px 에서만 켠다. 히어로도 안 건드린다
+        (min-height 하한만 낮춰 갤러리가 폴드 근처에 오게 — 콘텐츠 높이는 그대로). */
+  .mgal{display:none}
+  @media(max-width:640px){
+    .hero{min-height:52svh!important}
+    .mgal{display:block;border-bottom:1px solid var(--line);background:var(--bg)}
+    .mgal-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;padding:14px 16px 4px;
+      scrollbar-width:none;-ms-overflow-style:none;contain:layout}
+    .mgal-track::-webkit-scrollbar{display:none}
+    .mgal-slide{flex:0 0 84%;scroll-snap-align:center;scroll-snap-stop:always;min-width:0}
+    .mgal-slide img{width:100%;height:240px;object-fit:cover;border-radius:12px;display:block}
+    .mgal-cap{display:flex;justify-content:space-between;align-items:center;padding:8px 3px 0;font-size:11px;color:var(--dim)}
+    .mgal-cap b{color:var(--ink);font-weight:700;font-size:12px;letter-spacing:.02em}
+    .mgal-dots{display:flex;gap:6px;justify-content:center;padding:12px 0 2px}
+    .mgal-dots i{width:6px;height:6px;border-radius:50%;background:var(--line2);transition:all .2s;display:block}
+    .mgal-dots i.on{background:var(--ink);width:18px;border-radius:3px}
+    .mgal-hint{text-align:center;font-size:10.5px;letter-spacing:.08em;color:var(--dim);padding:0 0 10px}
+    .mgal-cta{display:flex;gap:8px;padding:2px 16px 16px}
+    .mgal-cta a{flex:1;text-align:center;padding:12px;border-radius:8px;font-size:13px;font-weight:700;
+      text-decoration:none;background:var(--panel);border:1px solid var(--line2);color:var(--ink)}
+    .mgal-cta a small{display:block;font-weight:400;color:var(--dim);font-size:10px;margin-top:2px}
+  }

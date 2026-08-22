@@ -207,6 +207,48 @@
       <div class="scrollind" style="position:absolute;right:40px;bottom:54px;z-index:3;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:var(--label-font);font-size:10px;letter-spacing:.3em;color:rgba(255,255,255,.6);animation:nvFloat 2.4s ease-in-out infinite">SCROLL<span style="font-size:14px">↓</span></div>
     </header>
 
+    <!-- 🖼️ P1 (2026-08-22) 모바일 «사진 우선» 스와이프 갤러리 — Clarity 실측 기반(브라우저 다이브).
+         실측: 모바일 1위 클릭 = 후기/캘린더 «›» 41%(열지도) · 소셜 0.9초 이탈 · AI 인사이트 2건 「착지→›연타→이탈」.
+         착지 직후 룸 사진을 스와이프로 보여줘 그 「넘겨보기」를 룸 사진에 꽂는다.
+         ⚠️ 데스크탑 완전 불변(.mgal display:none). 히어로/heroImg/HERO_BG 안 건드림.
+         ⚠️ 버튼은 내부 /a·/b 로만(아워플레이스 직링크 금지 — 계측 우회 방지). data-room-detail 로 room_detail_click 배선 재사용.
+         ⚠️ 첫 사진 외 lazy — 히어로(room-b.jpg fetchpriority=high)가 LCP 를 유지하도록. -->
+    <section class="mgal" aria-label="룸 사진 미리보기">
+      <div class="mgal-track" id="mgalTrack">
+        <div class="mgal-slide"><img loading="eager" decoding="async" src="/img/galA0.jpg" alt="A룸 동양풍 — 월동문·블랙 호리존"><div class="mgal-cap"><b>A룸 · 동양풍</b><span>월동문 · 블랙 호리존</span></div></div>
+        <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/galB0.jpg" alt="B룸 화이트 티타임 카페 — 통창 자연광"><div class="mgal-cap"><b>B룸 · 화이트</b><span>통창 자연광</span></div></div>
+        <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/galA2.jpg" alt="A룸 동양풍 — 격자문 세트"><div class="mgal-cap"><b>A룸 · 동양풍</b><span>격자문 세트</span></div></div>
+        <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/galB2.jpg" alt="B룸 화이트 — 티타임 카페 세팅"><div class="mgal-cap"><b>B룸 · 화이트</b><span>티타임 카페</span></div></div>
+        <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/galA4.jpg" alt="A룸 동양풍 — 월문 무드"><div class="mgal-cap"><b>A룸 · 동양풍</b><span>월문 무드</span></div></div>
+        <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/galB4.jpg" alt="B룸 화이트 — 노을 자연광"><div class="mgal-cap"><b>B룸 · 화이트</b><span>노을 자연광</span></div></div>
+      </div>
+      <div class="mgal-dots" id="mgalDots" aria-hidden="true"></div>
+      <div class="mgal-hint">← 밀어서 룸 사진 더 보기 · A·B 6장 →</div>
+      <div class="mgal-cta">
+        <a href="/a" data-room-detail="a" data-room-detail-from="mgal">A룸 보기<small>동양풍 · 블랙 호리존</small></a>
+        <a href="/b" data-room-detail="b" data-room-detail-from="mgal">B룸 보기<small>화이트 · 통창 자연광</small></a>
+      </div>
+    </section>
+    <script>
+    /* 모바일 갤러리 도트 — 스크롤 위치로 활성 슬라이드 표시(transform/opacity 계열, reduced-motion 무해). */
+    (function(){
+      var t=document.getElementById('mgalTrack'),d=document.getElementById('mgalDots');
+      if(!t||!d)return;
+      var n=t.children.length;
+      for(var i=0;i<n;i++){var s=document.createElement('i');if(i===0)s.className='on';d.appendChild(s);}
+      var raf=0;
+      t.addEventListener('scroll',function(){
+        if(raf)return;
+        raf=requestAnimationFrame(function(){
+          raf=0;
+          var idx=Math.round(t.scrollLeft/(t.scrollWidth/n));
+          if(idx<0)idx=0;if(idx>n-1)idx=n-1;
+          for(var i=0;i<d.children.length;i++)d.children[i].className=(i===idx?'on':'');
+        });
+      },{passive:true});
+    })();
+    </script>
+
     <nav class="nv-chipbar" aria-label="섹션 바로가기">
       <!-- 2026-07-29: ①가격·예약버튼이 있는 #rooms 로 가는 칩이 없었다 → 맨 앞에 신설.
            ②「예약」칩의 목적지 #availability 는 읽기 전용 달력이라 라벨-도착지가 불일치했다 → 「빈 시간」으로 정정(href 불변). -->
@@ -892,10 +934,10 @@
   window.addEventListener('load',heroMakeBack);
 
   // calendar
-  // 2026-07-29: 소스(iCal)에 미래 확정분만 담기므로 월말로 갈수록 이번 달이 구조적으로 비어 보인다
-  // (실측 7/29: 7월 35칸 중 마커 2개 vs 8월 11건). 20일 이후엔 다음 달로 열어 첫 화면을 채운다.
-  // 「이번 달」 버튼(#calToday)은 그대로 monthOffset=0 으로 되돌린다.
-  var monthOffset=(new Date().getDate()>=20)?1:0, EVENTS=null, BYDATE={}, SELECTED_KEY=null;
+  // 2026-08-21: 예약현황 첫 화면은 항상 현재 월에서 시작한다.
+  // 월말에 현재 월이 비어 보여도 다음 달로 자동 이동하면 아직 진행 중인 예약을 숨기므로,
+  // 다음 달은 사용자가 화살표로 직접 이동한다. 「이번 달」 버튼은 monthOffset=0 으로 되돌린다.
+  var monthOffset=0, EVENTS=null, BYDATE={}, SELECTED_KEY=null;
   function pad(n){return String(n).padStart(2,'0');}
   function keyOf(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
   function fmt(h){var hh=Math.floor(h),mm=Math.round((h-hh)*60);return pad(hh)+':'+pad(mm);}
