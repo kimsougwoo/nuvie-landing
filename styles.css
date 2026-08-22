@@ -505,3 +505,14 @@ html{scroll-behavior:smooth}
       text-decoration:none;background:var(--panel);border:1px solid var(--line2);color:var(--ink)}
     .mgal-cta a small{display:block;font-weight:400;color:var(--dim);font-size:10px;margin-top:2px}
   }
+
+  /* ═══ 2026-08-22 대표 지시: 후기 캐러셀 «높이 점프» 제거 ═══════════════════════════
+     종전 = syncReviewHeight(JS)가 스와이프마다 활성 카드 실측 높이로 #reviewCards 높이를
+     transition:height 로 애니메이션 → 넘길 때마다 프레임이 커졌다 작아졌다 해 불편(대표 지적).
+     이제 = JS 동기화를 껐고(항상 height 비움), 프레임을 «고정»한다. 긴 후기는 카드 내부 스크롤.
+     ⚠️ 이 규칙은 기존 ≤640px #reviewCards 선언보다 «뒤»에 와서 이겨야 한다(같은 셀렉터, 후순위 승).
+     ⚠️ 데스크탑(>640px)은 이 블록 밖이라 매이슨리 그대로. */
+  @media(max-width:640px){
+    #reviewCards{height:360px!important;min-height:360px!important;align-items:stretch!important;transition:none!important}
+    #reviewCards>div{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+  }
