@@ -21,8 +21,9 @@ _NODE = shutil.which("node")
 @pytest.mark.parametrize("js", JS_CONTRACT_TESTS)
 def test_js_contract_passes(js):
     path = HERE / js
-    if not path.exists():
-        pytest.skip(f"{js} 없음")
+    # 🔴 Codex 독립검토(2026-08-22) #5 반영: 파일 누락을 skip 하면 계약 파일이 지워져도 초록으로 위장된다.
+    #   node 부재(환경)만 skip 하고, 계약 파일 부재는 «회귀»이므로 fail 한다.
+    assert path.exists(), f"{js} 계약 파일이 사라졌다 — 삭제/이동됐는지 확인(회귀)"
     r = subprocess.run([_NODE, str(path)], cwd=str(HERE),
                        capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, f"{js} node 계약 테스트 실패:\n--- stdout ---\n{r.stdout}\n--- stderr ---\n{r.stderr}"

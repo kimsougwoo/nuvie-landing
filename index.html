@@ -215,7 +215,7 @@
          ⚠️ 첫 사진 외 lazy — 히어로(room-b.jpg fetchpriority=high)가 LCP 를 유지하도록. -->
     <section class="mgal" aria-label="룸 사진 미리보기">
       <div class="mgal-track" id="mgalTrack">
-        <div class="mgal-slide"><img loading="eager" decoding="async" src="/img/galA0.jpg" alt="A룸 동양풍 — 월동문·블랙 호리존"><div class="mgal-cap"><b>A룸 · 동양풍</b><span>월동문 · 블랙 호리존</span></div></div>
+        <div class="mgal-slide"><img loading="lazy" decoding="async" fetchpriority="low" src="/img/galA0.jpg" alt="A룸 동양풍 — 월동문·블랙 호리존"><div class="mgal-cap"><b>A룸 · 동양풍</b><span>월동문 · 블랙 호리존</span></div></div>
         <!-- 2026-08-22 대표 지시: 새로 배치된 B룸은 «전경»(galB4 전체 공간)이 먼저 나온다. 디테일컷은 뒤로. -->
         <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/room-b.jpg" alt="B룸 화이트 티타임 카페 — 전체 공간 전경(카운터·티테이블·통창)"><div class="mgal-cap"><b>B룸 · 화이트</b><span>티타임 카페 전경</span></div></div>
         <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/galA2.jpg" alt="A룸 동양풍 — 격자문 세트"><div class="mgal-cap"><b>A룸 · 동양풍</b><span>격자문 세트</span></div></div>
@@ -242,9 +242,14 @@
         if(raf)return;
         raf=requestAnimationFrame(function(){
           raf=0;
-          var idx=Math.round(t.scrollLeft/(t.scrollWidth/n));
-          if(idx<0)idx=0;if(idx>n-1)idx=n-1;
-          for(var i=0;i<d.children.length;i++)d.children[i].className=(i===idx?'on':'');
+          // 🔴 Codex 독립검토(2026-08-22) #4 반영: scrollWidth/n 은 84% 슬라이드+gap+padding 에선 스냅 간격이
+          //   아니라 활성 도트가 실제 슬라이드보다 수십px 뒤처졌다. 실제 자식 중심 ~ 뷰포트 중심 최근접으로 계산.
+          var center=t.scrollLeft+t.clientWidth/2, idx=0, best=Infinity;
+          for(var i=0;i<t.children.length;i++){
+            var c=t.children[i], cc=c.offsetLeft+c.offsetWidth/2, dd=Math.abs(cc-center);
+            if(dd<best){best=dd;idx=i;}
+          }
+          for(var j=0;j<d.children.length;j++)d.children[j].className=(j===idx?'on':'');
         });
       },{passive:true});
     })();

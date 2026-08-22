@@ -513,6 +513,9 @@ html{scroll-behavior:smooth}
      ⚠️ 이 규칙은 기존 ≤640px #reviewCards 선언보다 «뒤»에 와서 이겨야 한다(같은 셀렉터, 후순위 승).
      ⚠️ 데스크탑(>640px)은 이 블록 밖이라 매이슨리 그대로. */
   @media(max-width:640px){
-    #reviewCards{height:360px!important;min-height:360px!important;align-items:stretch!important;transition:none!important}
-    #reviewCards>div{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+    #reviewCards{height:320px!important;min-height:320px!important;align-items:stretch!important;transition:none!important}
+    /* 🔴 Codex 독립검토(2026-08-22) #1 반영: 카드 내부 세로스크롤이 가로 스와이프를 삼킬 수 있었다.
+       touch-action:pan-y 로 «가로 드래그는 캐러셀·세로만 카드»가 먹게 축을 분리(콘텐츠 보존 — 스크롤 제거 시
+       사진 후기가 잘린다). overscroll-behavior-y:contain 은 세로 체이닝만 막는다(가로엔 관여 안 함). */
+    #reviewCards>div{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;touch-action:pan-y}
   }
