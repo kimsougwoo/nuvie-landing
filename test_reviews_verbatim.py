@@ -18,6 +18,9 @@ import build_reviews as B
 ROOT = Path(__file__).parent
 DATA = json.loads((ROOT / "reviews.json").read_text(encoding="utf-8"))
 ORIG = json.loads((ROOT / "reviews_originals.json").read_text(encoding="utf-8"))
+# 2026-08-25: 후기 완전 자동화(sync_reviews.py) 로 B룸 후기 표면(reviews_b.json)이 생겼다.
+_B_PATH = ROOT / "reviews_b.json"
+DATA_B = json.loads(_B_PATH.read_text(encoding="utf-8")) if _B_PATH.exists() else {"reviews": []}
 
 
 def test_originals_snapshot_exists_and_matches_count():
@@ -72,20 +75,28 @@ def test_all_published_names_are_masked():
 
     ⚠️ 이 레포는 **공개**다 — reviews.json 이 GitHub 과 라이브 양쪽에 그대로 노출된다.
     """
-    for r in DATA["reviews"]:
+    for r in DATA["reviews"] + DATA_B["reviews"]:
         n = r.get("name", "")
         assert n.endswith("***"), f"마스킹 안 된 닉네임: {n}"
         assert len(n) - 3 <= 2, f"앞부분을 너무 많이 남겼다: {n}"
 
 
 def test_photo_filenames_do_not_leak_names():
-    """화면에서 가려도 **사진 URL 이 닉네임을 담고 있으면 새어나간다**(실제로 그랬다)."""
+    """화면에서 가려도 **사진 URL 이 닉네임을 담고 있으면 새어나간다**(실제로 그랬다).
+
+    허용 형식 2종 — 둘 다 구조적으로 닉네임을 담지 않는다:
+      ① 로컬 중립 파일  rv_YYYYMMDD_N.jpg   (구 수동 큐레이션 잔재)
+      ② 아워 CDN URL   img.hourplace.co.kr/feedback/user/{숫자 userid}/{날짜}/{uuid}
+         — 2026-08-25 후기 완전 자동화(대표 지시)로 이 형식이 됐다. userid=숫자·파일=uuid 라 닉네임 없음.
+    """
     import re as _re
-    for r in DATA["reviews"]:
+    local = _re.compile(r"rv_\d{8}_\d+\.jpg")
+    cdn = _re.compile(r"https://img\.hourplace\.co\.kr/feedback/user/\d+/[\d/]+/[0-9a-f\-]+(\.jpe?g)?$", _re.I)
+    for r in DATA["reviews"] + DATA_B["reviews"]:
         for path in r.get("photos") or []:
             base = path.rsplit("/", 1)[-1]
-            assert _re.fullmatch(r"rv_\d{8}_\d+\.jpg", base), \
-                f"사진 파일명이 중립 형식이 아니다(닉네임 유출 가능): {base}"
+            assert local.fullmatch(base) or cdn.fullmatch(path), \
+                f"사진 경로가 중립 형식(로컬 rv_ 또는 아워 CDN)이 아니다 — 닉네임 유출 가능: {path}"
 
 
 def test_originals_snapshot_has_no_names():

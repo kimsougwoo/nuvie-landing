@@ -385,26 +385,40 @@ def build_sitemap(rooms: list[dict]) -> str:
 # ---------------------------------------------------------------- main
 
 
+def _load_reviews_by_place() -> dict[int, dict]:
+    """룸별 후기 문서를 place_id 로 색인한다. reviews.json=A룸(61823)·reviews_b.json=B룸(62341).
+    2026-08-25: 종전엔 단일 reviews.json 이라 B룸 후기 표면이 없었다 → 룸별 파일로 분리(완전 자동 = sync_reviews.py)."""
+    by_place: dict[int, dict] = {}
+    for fname in ("reviews.json", "reviews_b.json"):
+        path = ROOT / fname
+        if not path.exists():
+            continue
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        pid = doc.get("place_id")
+        if pid is not None:
+            by_place[int(pid)] = doc
+    return by_place
+
+
 def generate() -> dict[str, str]:
     spec = json.loads((ROOT / "rooms.json").read_text(encoding="utf-8"))
     template = (ROOT / "room.template.html").read_text(encoding="utf-8")
-    reviews_doc = json.loads((ROOT / "reviews.json").read_text(encoding="utf-8"))
+    reviews_by_place = _load_reviews_by_place()
 
     catalog, rooms = spec["catalog"], spec["rooms"]
 
-    # 후기 정본 가드 — reviews.json 은 place 하나에서 긁어온 것이라
-    # 그 place 가 아닌 룸에 후기를 붙이면 거짓 사회적 증거가 된다.
-    rp = reviews_doc.get("place_id")
+    # 후기 정본 가드 — 룸엔 «그 룸 place 의» 후기만 붙인다(다른 place 후기 = 거짓 사회적 증거).
     for r in rooms:
-        if r.get("showReviews") and rp not in (None, r["external"]["placeId"]):
+        if r.get("showReviews") and int(r["external"]["placeId"]) not in reviews_by_place:
             raise SystemExit(
-                f"[build_rooms] {r['slug']}: showReviews=true 인데 reviews.json place_id={rp} "
-                f"가 이 룸({r['external']['placeId']})이 아니다"
+                f"[build_rooms] {r['slug']}: showReviews=true 인데 place {r['external']['placeId']} "
+                f"후기 문서(reviews*.json)가 없다"
             )
 
     out: dict[str, str] = {}
     for i, room in enumerate(rooms):
         other = rooms[(i + 1) % len(rooms)]
+        reviews_doc = reviews_by_place.get(int(room["external"]["placeId"]), {"reviews": []})
         out[f"{room['slug']}.html"] = build_page(room, other, catalog, reviews_doc, template)
     out["rooms.data.js"] = build_rooms_data(rooms, catalog)
     out["sitemap.xml"] = build_sitemap(rooms)
