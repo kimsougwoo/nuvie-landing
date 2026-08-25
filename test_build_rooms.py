@@ -44,6 +44,9 @@ def _prep_tmp_root(tmp_path, spec):
     실 rooms.json/room.template.html/reviews.json 은 절대 건드리지 않는다."""
     shutil.copy(os.path.join(HERE, "room.template.html"), tmp_path / "room.template.html")
     shutil.copy(os.path.join(HERE, "reviews.json"), tmp_path / "reviews.json")
+    # 2026-08-25: B룸 후기 표면 신설로 generate()가 룸별 후기 문서(reviews.json=A·reviews_b.json=B)를
+    #   place_id로 로드한다. B룸 showReviews=true라 reviews_b.json이 없으면 가드가 SystemExit → 픽스처에도 복사.
+    shutil.copy(os.path.join(HERE, "reviews_b.json"), tmp_path / "reviews_b.json")
     (tmp_path / "rooms.json").write_text(json.dumps(spec, ensure_ascii=False), encoding="utf-8")
     return tmp_path
 
@@ -310,8 +313,10 @@ def test_booking_destination_follows_fulfillment_mode(tmp_path):
 
     for slug in SLUGS:
         own_html = own_out[f"{slug}.html"]
-        assert "hourplace" not in own_html, (
-            f"{slug}.html(mode=own) 에 hourplace URL 이 남았다 — 전환 스위치가 새고 있다"
+        # 예약 목적지(place 리스팅 URL)만 검사한다. 후기 사진은 아워 CDN(img.hourplace.co.kr/feedback…)을
+        # 그대로 참조하므로(2026-08-25 후기 자동화), 「hourplace」 문자열 전부 금지는 이제 과잉 제약이다.
+        assert "hourplace.co.kr/place" not in own_html, (
+            f"{slug}.html(mode=own) 에 아워플레이스 예약 URL 이 남았다 — 전환 스위치가 새고 있다"
         )
         hrefs = _data_book_href_pairs(own_html, slug)
         assert set(hrefs) == {f"/book/{slug}"}, (
