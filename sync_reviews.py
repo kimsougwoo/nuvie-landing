@@ -126,6 +126,10 @@ def main(argv: list[str]) -> int:
 
     doc_a = _room_doc(room_a, "아워플레이스 A룸 후기 (자동)")
     doc_b = _room_doc(room_b, "아워플레이스 B룸 후기 (자동)")
+    # 🔴 거짓 0 가드 — A룸은 상시 후기가 있다(현재 15건). 0건이면 스크래이프 이상이므로
+    #    기존 데이터를 «빈 값으로 덮어쓰지» 않는다(빈렌더 SOP·아워 stats-sync 「거짓 0」 규율과 동일).
+    if doc_a["count"] == 0:
+        raise SystemExit("[sync_reviews] A룸 후기 0건 — 스크래이프 이상 의심, 덮어쓰기 중단(거짓 0 방지)")
     _dump(ROOT / "reviews.json", doc_a)
     _dump(ROOT / "reviews_b.json", doc_b)
     _dump(ROOT / "reviews_originals.json", _originals([room_a, room_b]))
