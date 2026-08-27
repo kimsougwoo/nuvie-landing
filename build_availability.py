@@ -404,6 +404,12 @@ def _worktree_dirty_besides_availability(repo):
     ⚠️ 추적 안 되는 파일(`??`)도 센다 — 새로 쓰던 파일이 제일 위험하다(git 에 사본이 없다).
     ⚠️ 판정 불가(git 실패)면 **「더럽다」고 본다** — 모르면 파괴하지 않는 쪽으로 기운다.
     """
+    top = subprocess.run(["git", "-C", repo, "rev-parse", "--show-toplevel"],
+                         capture_output=True, text=True, encoding="utf-8", errors="replace")
+    if top.returncode != 0:
+        return {"(git rev-parse 실패 — 안전을 위해 더럽다고 본다)"}
+    if os.path.realpath((top.stdout or "").strip()) != os.path.realpath(str(repo)):
+        return {"(git 저장소 루트 불일치 — 안전을 위해 더럽다고 본다)"}
     st = subprocess.run(["git", "-C", repo, "status", "--porcelain"],
                         capture_output=True, text=True, encoding="utf-8", errors="replace")
     if st.returncode != 0:
