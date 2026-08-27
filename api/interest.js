@@ -52,8 +52,8 @@ function cleanAttribution(value) {
 function sourceName(attribution) {
   const first = attribution.first || {};
   if (first.utm_source) return clip(first.utm_source, 80);
-  if (first.referrer_origin) {
-    try { return clip(new URL(first.referrer_origin).hostname, 80); } catch (e) {}
+  if (attribution.last_referrer_origin) {
+    try { return clip(new URL(attribution.last_referrer_origin).hostname, 80); } catch (e) {}
   }
   return 'direct';
 }
