@@ -41,6 +41,113 @@ const valid = {
   }
 };
 
+function restoreEnv(name, value) {
+  if (value === undefined) delete process.env[name];
+  else process.env[name] = value;
+}
+
+test('retries a failed Notion write three times, then sends a PII-free lead failure alert', async () => {
+  const previousFetch = global.fetch;
+  const previousSetTimeout = global.setTimeout;
+  const previousToken = process.env.NOTION_TOKEN;
+  const previousDataSource = process.env.NOTION_CRM_DATA_SOURCE_ID;
+  const previousWebhook = process.env.DISCORD_WEBHOOK_LEADS;
+  const calls = [];
+  const lead = {
+    ...valid,
+    name: '홍길동',
+    email: 'lead.owner@example.com',
+    phone: '010-1234-5678'
+  };
+
+  global.setTimeout = (callback) => { callback(); return 0; };
+  global.fetch = async (url, options) => {
+    calls.push({ url, options });
+    if (url === 'https://api.notion.com/v1/pages') return { ok: false, status: 500 };
+    return { ok: true, status: 204 };
+  };
+  process.env.NOTION_TOKEN = 'test-token';
+  process.env.NOTION_CRM_DATA_SOURCE_ID = 'test-source';
+  process.env.DISCORD_WEBHOOK_LEADS = 'https://discord.example/webhook/leads';
+
+  try {
+    const res = await call(lead);
+    const notionCalls = calls.filter(({ url }) => url === 'https://api.notion.com/v1/pages');
+    const alertCalls = calls.filter(({ url }) => url === process.env.DISCORD_WEBHOOK_LEADS);
+
+    assert.equal(res.statusCode, 502);
+    assert.deepEqual(res.body, { ok: false, error: 'submission failed' });
+    assert.equal(notionCalls.length, 3);
+    assert.equal(alertCalls.length, 1);
+    const alertPayload = JSON.stringify(JSON.parse(alertCalls[0].options.body));
+    for (const pii of ['홍길동', 'lead.owner@example.com', '01012345678', '010-1234-5678']) {
+      assert.doesNotMatch(alertPayload, new RegExp(pii.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    }
+  } finally {
+    global.fetch = previousFetch;
+    global.setTimeout = previousSetTimeout;
+    restoreEnv('NOTION_TOKEN', previousToken);
+    restoreEnv('NOTION_CRM_DATA_SOURCE_ID', previousDataSource);
+    restoreEnv('DISCORD_WEBHOOK_LEADS', previousWebhook);
+  }
+});
+
+test('does not retry or alert when the first Notion write succeeds', async () => {
+  const previousFetch = global.fetch;
+  const previousToken = process.env.NOTION_TOKEN;
+  const previousDataSource = process.env.NOTION_CRM_DATA_SOURCE_ID;
+  const previousWebhook = process.env.DISCORD_WEBHOOK_LEADS;
+  const calls = [];
+  global.fetch = async (url, options) => {
+    calls.push({ url, options });
+    return { ok: true, status: 200 };
+  };
+  process.env.NOTION_TOKEN = 'test-token';
+  process.env.NOTION_CRM_DATA_SOURCE_ID = 'test-source';
+  process.env.DISCORD_WEBHOOK_LEADS = 'https://discord.example/webhook/leads';
+
+  try {
+    const res = await call(valid);
+    assert.equal(res.statusCode, 200);
+    assert.equal(calls.filter(({ url }) => url === 'https://api.notion.com/v1/pages').length, 1);
+    assert.equal(calls.filter(({ url }) => url === process.env.DISCORD_WEBHOOK_LEADS).length, 0);
+  } finally {
+    global.fetch = previousFetch;
+    restoreEnv('NOTION_TOKEN', previousToken);
+    restoreEnv('NOTION_CRM_DATA_SOURCE_ID', previousDataSource);
+    restoreEnv('DISCORD_WEBHOOK_LEADS', previousWebhook);
+  }
+});
+
+test('does not crash or attempt an alert when the lead webhook is not configured', async () => {
+  const previousFetch = global.fetch;
+  const previousSetTimeout = global.setTimeout;
+  const previousToken = process.env.NOTION_TOKEN;
+  const previousDataSource = process.env.NOTION_CRM_DATA_SOURCE_ID;
+  const previousWebhook = process.env.DISCORD_WEBHOOK_LEADS;
+  let calls = 0;
+  global.setTimeout = (callback) => { callback(); return 0; };
+  global.fetch = async () => {
+    calls += 1;
+    throw new Error('temporary Notion failure');
+  };
+  process.env.NOTION_TOKEN = 'test-token';
+  process.env.NOTION_CRM_DATA_SOURCE_ID = 'test-source';
+  delete process.env.DISCORD_WEBHOOK_LEADS;
+
+  try {
+    const res = await call(valid);
+    assert.equal(res.statusCode, 502);
+    assert.equal(calls, 3);
+  } finally {
+    global.fetch = previousFetch;
+    global.setTimeout = previousSetTimeout;
+    restoreEnv('NOTION_TOKEN', previousToken);
+    restoreEnv('NOTION_CRM_DATA_SOURCE_ID', previousDataSource);
+    restoreEnv('DISCORD_WEBHOOK_LEADS', previousWebhook);
+  }
+});
+
 test('rejects a lead without required privacy consent before persistence', async () => {
   const previousFetch = global.fetch;
   let called = false;

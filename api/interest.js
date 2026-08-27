@@ -10,6 +10,8 @@ const TOUCH_KEYS = [
   'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
   'gclid', 'fbclid', 'landing_path', 'referrer_origin', 'captured_at'
 ];
+const NOTION_WRITE_ATTEMPTS = 3;
+const NOTION_RETRY_DELAYS_MS = [300, 900];
 
 function clip(value, limit) {
   return String(value == null ? '' : value).trim().slice(0, limit);
@@ -117,6 +119,67 @@ function allowedOrigin(origin) {
   return !origin || origin === configured || runtimeOrigins.includes(origin) || origin === 'http://localhost:3000' || origin === 'http://127.0.0.1:3000';
 }
 
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function createNotionLead(notionBody, token) {
+  let lastError;
+  for (let attempt = 0; attempt < NOTION_WRITE_ATTEMPTS; attempt += 1) {
+    try {
+      const response = await fetch('https://api.notion.com/v1/pages', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Notion-Version': process.env.NOTION_VERSION || DEFAULT_NOTION_VERSION
+        },
+        body: JSON.stringify(notionBody)
+      });
+      if (response.ok) return;
+      lastError = new Error(`Notion write failed with status ${response.status || 'unknown'}`);
+    } catch (error) {
+      lastError = error;
+    }
+
+    if (attempt < NOTION_WRITE_ATTEMPTS - 1) await delay(NOTION_RETRY_DELAYS_MS[attempt]);
+  }
+  throw lastError || new Error('Notion write failed');
+}
+
+function safeUtmValue(value) {
+  const clean = clip(value, 120);
+  if (!clean) return '';
+  if (/[^\s@]+@[^\s@]+\.[^\s@]+/.test(clean)) return '';
+  if (/\+?\d[\d\s().-]{8,}\d/.test(clean)) return '';
+  return clean;
+}
+
+async function leadFailureAlert(attribution, now) {
+  const webhook = process.env.DISCORD_WEBHOOK_LEADS;
+  if (!webhook) return;
+
+  const touch = attribution.last || attribution.first || {};
+  const utm = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']
+    .map((key) => {
+      const value = safeUtmValue(touch[key]);
+      return value ? `${key}=${value}` : '';
+    })
+    .filter(Boolean)
+    .join(', ') || 'none';
+  const content = `웹 리드 폼 제출이 Notion 저장에 실패했습니다 — 수동 확인 필요. 시각: ${now}; UTM: ${utm}`;
+
+  try {
+    await fetch(webhook, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content })
+    });
+  } catch (e) {
+    // The notification path must not change the 502 response or expose lead data.
+  }
+}
+
 module.exports = async function interestHandler(req, res) {
   const origin = originOf(req);
   if (!allowedOrigin(origin)) return reply(res, 403, { ok: false, error: 'forbidden origin' });
@@ -159,18 +222,10 @@ module.exports = async function interestHandler(req, res) {
   };
 
   try {
-    const response = await fetch('https://api.notion.com/v1/pages', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Notion-Version': process.env.NOTION_VERSION || DEFAULT_NOTION_VERSION
-      },
-      body: JSON.stringify(notionBody)
-    });
-    if (!response.ok) throw new Error('notion write failed');
+    await createNotionLead(notionBody, token);
   } catch (e) {
     // Never log the request body: it contains contact information.
+    await leadFailureAlert(cleanAttribution(input.attribution), now);
     return reply(res, 502, { ok: false, error: 'submission failed' });
   }
 
