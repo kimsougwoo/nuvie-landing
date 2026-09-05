@@ -3,6 +3,12 @@
   "_source": "api2.hourplace.co.kr /place/{id}/feedback",
   "reviews": [
     {
+      "feedback_id": 202438,
+      "date": "2026-09-03",
+      "rating": 5.0,
+      "text": "사장님이 정말 친절하시고 깨끗하고 좋았어요"
+    },
+    {
       "feedback_id": 201991,
       "date": "2026-08-28",
       "rating": 5.0,

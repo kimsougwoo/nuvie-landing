@@ -1,11 +1,18 @@
 {
-  "updated": "2026-08-28",
+  "updated": "2026-09-03",
   "source": "아워플레이스 A룸 후기 (자동)",
   "place_id": 61823,
   "rating": 5.0,
-  "count": 16,
+  "count": 17,
   "auto": "hourplace_reviews_scrape (2026-08-25 대표 지시로 완전 자동·수동 큐레이션 폐기)",
   "reviews": [
+    {
+      "name": "wo***",
+      "date": "2026-09-03",
+      "rating": 5,
+      "text": "사장님이 정말 친절하시고 깨끗하고 좋았어요",
+      "photos": []
+    },
     {
       "name": "th***",
       "date": "2026-08-28",
