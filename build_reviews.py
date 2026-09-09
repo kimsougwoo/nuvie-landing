@@ -5,7 +5,7 @@ G2 후기 전파 제너레이터 — reviews.json(SSOT) → index.html JSON-LD +
 
 문제(D2/G2): 후기가 reviews.json·JSON-LD·llms.txt 세 곳에 따로 적혀 "후기 5 vs 7" 드리프트 발생.
 해결: reviews.json 하나만 수정 → 이 스크립트가 나머지 표면(count·rating)을 파생시켜 정합.
-      사진은 reviews.json에 수기 큐레이션(G4 공간컷·인물0)한 그대로 — 이 스크립트는 count/rating만 전파(초상권 무관).
+      사진은 reviews.json에 수기 큐레이션한 그대로 — 이 스크립트는 count/rating만 전파.
 
 사용: python build_reviews.py [--check]
   기본  = reviews.json 읽어 index.html·llms.txt 갱신(멱등).
