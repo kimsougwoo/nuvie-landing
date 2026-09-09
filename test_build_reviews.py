@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """G2 후기 전파 재현·정합 테스트. 순수함수만 검증(파일 I/O 없음)."""
-import json, os
+import json, os, re
 import build_reviews as B
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -52,6 +52,12 @@ def test_real_reviews_json_all_surfaces_consistent():
     # sync 후 변화가 없어야 정합(=이미 전파됨). 이 테스트가 실패하면 build_reviews.py 재실행 필요.
     assert B.sync_index_html(html, count, rating) == html, "index.html 미정합 — build_reviews.py 실행 필요"
     assert B.sync_llms_text(llms, count, rating) == llms, "llms.txt 미정합 — build_reviews.py 실행 필요"
+    scripts = re.findall(
+        r'<script type="application/ld\+json">\s*(.*?)\s*</script>', html, re.S
+    )
+    local = next(json.loads(block) for block in scripts if json.loads(block).get("@type") == "LocalBusiness")
+    assert local["dateModified"] == data["updated"]
+    assert all(review.get("datePublished") for review in local["review"])
 
 
 def test_every_review_rating_is_a_number_not_a_string():

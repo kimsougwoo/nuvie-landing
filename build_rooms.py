@@ -16,10 +16,12 @@ from __future__ import annotations
 import html
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 SITE = "https://www.nuviestudio.com"
+BUSINESS_ID = f"{SITE}/#business"
 
 
 def esc(s: str) -> str:
@@ -213,6 +215,7 @@ def render_jsonld(room: dict, other: dict, catalog: dict, reviews_doc: dict) -> 
     offer = {
         "@type": "AggregateOffer",
         "url": url,
+        "seller": {"@id": BUSINESS_ID},
         "lowPrice": p["weekday"],
         "highPrice": p["weekend"],
         "priceCurrency": p["currency"],
@@ -232,6 +235,8 @@ def render_jsonld(room: dict, other: dict, catalog: dict, reviews_doc: dict) -> 
         "category": "코스프레 스튜디오 대관",
         "offers": offer,
     }
+    if reviews_doc.get("updated"):
+        product["dateModified"] = reviews_doc["updated"]
     if room.get("showReviews") and reviews_doc.get("reviews"):
         product["aggregateRating"] = {
             "@type": "AggregateRating",
@@ -364,15 +369,30 @@ def build_rooms_data(rooms: list[dict], catalog: dict) -> str:
     )
 
 
+def _source_lastmod(*paths: Path) -> str:
+    """소스 파일의 최신 mtime을 sitemap용 ISO 날짜로 변환한다.
+
+    build_rooms.generate()는 테스트에서 임시 ROOT를 사용하기도 하므로, 존재하는
+    소스만 취한다. 실제 저장소에서는 index.html/rooms.json/템플릿이 모두 존재한다.
+    """
+    existing = [path for path in paths if path.exists()]
+    if not existing:
+        raise FileNotFoundError("sitemap lastmod source is missing")
+    timestamp = max(path.stat().st_mtime for path in existing)
+    return datetime.fromtimestamp(timestamp, tz=timezone.utc).date().isoformat()
+
+
 def build_sitemap(rooms: list[dict]) -> str:
-    urls = [("/", "weekly", "1.0")]
-    urls += [(f"/{r['slug']}", "weekly", "0.9") for r in rooms]
-    # ⚠️ cleanUrls:true 라 /privacy.html 은 /privacy 로 308 된다 —
-    #    사이트맵에 리다이렉트 URL 을 넣지 않는다(2026-08-04 검수 지적).
-    urls += [("/privacy", "yearly", "0.3")]
+    root_lastmod = _source_lastmod(ROOT / "index.html", ROOT / "rooms.json")
+    room_lastmod = _source_lastmod(
+        ROOT / "rooms.json", ROOT / "room.template.html", ROOT / "build_rooms.py"
+    )
+    urls = [("/", "weekly", "1.0", root_lastmod)]
+    urls += [(f"/{r['slug']}", "weekly", "0.9", room_lastmod) for r in rooms]
     body = "\n".join(
-        f"  <url><loc>{SITE}{loc}</loc><changefreq>{cf}</changefreq><priority>{pr}</priority></url>"
-        for loc, cf, pr in urls
+        f"  <url><loc>{SITE}{loc}</loc><lastmod>{lastmod}</lastmod>"
+        f"<changefreq>{cf}</changefreq><priority>{pr}</priority></url>"
+        for loc, cf, pr, lastmod in urls
     )
     return (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
