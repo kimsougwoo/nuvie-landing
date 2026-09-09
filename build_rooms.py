@@ -293,7 +293,7 @@ def build_page(room: dict, other: dict, catalog: dict, reviews_doc: dict, templa
     # ⚠️ 룸 간 가격 비교 금지(대표 2026-07-26): 이 페이지엔 이 룸 값만 적는다.
     #    다른 룸 카드(OTHER_*)에 가격을 넣지 않는 것도 같은 이유다.
     booking_note = (
-        "예약·결제는 아워플레이스에서 진행돼요. 1~4인 단독 대관이라 다른 팀과 겹치지 않아요."
+        "예약·결제는 아워플레이스에서 진행돼요. 예약한 룸은 그 팀만 단독으로 사용해요."
         if catalog["fulfillment"]["mode"] == "external"
         else "예약·결제를 이 페이지에서 바로 진행하실 수 있어요."
     )
