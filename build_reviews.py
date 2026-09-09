@@ -54,6 +54,25 @@ def sync_index_html(html, count, rating):
     return html
 
 
+def sync_localbusiness_date_modified(html, updated):
+    """reviews.json.updated를 허브 LocalBusiness JSON-LD의 dateModified로 전파한다."""
+    if not updated:
+        return html
+    for match in re.finditer(
+        r'<script type="application/ld\+json">\s*(.*?)\s*</script>', html, re.S
+    ):
+        try:
+            data = json.loads(match.group(1))
+        except json.JSONDecodeError:
+            continue
+        if data.get("@type") != "LocalBusiness":
+            continue
+        data["dateModified"] = updated
+        replacement = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+        return html[:match.start(1)] + replacement + html[match.end(1):]
+    return html
+
+
 STATIC_START = "<!-- REVIEWS:STATIC:START -->"
 STATIC_END = "<!-- REVIEWS:STATIC:END -->"
 STATIC_N = 3          # 크롤러가 읽을 대표 후기 수(최신순). 늘리면 HTML 만 무거워진다.
@@ -220,6 +239,7 @@ def sync_jsonld_reviews(html, data):
         obj = {
             "@type": "Review",
             "author": {"@type": "Person", "name": r.get("name", "")},
+            "datePublished": r.get("date", ""),
             "reviewRating": {"@type": "Rating",
                              "ratingValue": str(int(float(r.get("rating", 5)))),
                              "bestRating": "5"},
@@ -245,7 +265,13 @@ def main(check_only=False):
     html = open(INDEX, encoding="utf-8").read()
     llms = open(LLMS, encoding="utf-8").read()
 
-    new_html = sync_jsonld_reviews(sync_static_reviews(sync_index_html(html, count, rating), data), data)
+    new_html = sync_jsonld_reviews(
+        sync_static_reviews(
+            sync_localbusiness_date_modified(sync_index_html(html, count, rating), data.get("updated")),
+            data,
+        ),
+        data,
+    )
     new_llms = sync_llms_text(llms, count, rating)
     new_raw = sync_reviews_json_text(raw, count, rating)
     drift = (new_html != html) or (new_llms != llms) or (new_raw != raw)
