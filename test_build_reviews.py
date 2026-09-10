@@ -5,6 +5,7 @@ import json, os, re
 import build_reviews as B
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+MAIN_REVIEWS = os.path.join(HERE, "reviews_all.json")
 
 
 def test_reproduce_llms_drift():
@@ -44,8 +45,8 @@ def test_load_facts_counts_actual_reviews():
 
 
 def test_real_reviews_json_all_surfaces_consistent():
-    """실제 파일: build_reviews.py 실행 후 세 표면이 reviews.json과 정합해야(멱등 idempotent check)."""
-    data = json.load(open(os.path.join(HERE, "reviews.json"), encoding="utf-8"))
+    """실제 파일: build_reviews.py 실행 후 메인 통합본과 세 표면이 정합해야 한다."""
+    data = json.load(open(MAIN_REVIEWS, encoding="utf-8"))
     count, rating = B.load_facts(data)
     html = open(os.path.join(HERE, "index.html"), encoding="utf-8").read()
     llms = open(os.path.join(HERE, "llms.txt"), encoding="utf-8").read()
@@ -60,10 +61,24 @@ def test_real_reviews_json_all_surfaces_consistent():
     assert all(review.get("datePublished") for review in local["review"])
 
 
+def test_main_reviews_are_a_b_integrated():
+    data = json.load(open(MAIN_REVIEWS, encoding="utf-8"))
+    html = open(os.path.join(HERE, "index.html"), encoding="utf-8").read()
+
+    assert B.REVIEWS.endswith("reviews_all.json")
+    assert data["count"] == len(data["reviews"]) == 20
+    assert data["source"] == "A+B 통합(메인 집계)"
+    assert "fetch('reviews_all.json',{cache:'no-store'})" in html
+    assert "fetch('reviews.json'" not in html
+    assert "정말 예쁜사진" in html
+    assert "조명 많고 스탠드" in html
+    assert '"ratingValue":"5.0","reviewCount":"20"' in html
+
+
 def test_every_review_rating_is_a_number_not_a_string():
     """🔥 2026-07-26 라이브 사고의 재현 — 히어로 배지에 **6944444.4** 가 찍혔다.
 
-    원인은 JS 타입 강제 변환이다. `reviews.json` 의 후기 8건 중 **한 건만** rating 이
+    원인은 JS 타입 강제 변환이다. `reviews_all.json` 의 후기 중 **한 건만** rating 이
     숫자 5 가 아니라 문자열 "5" 였는데, `sum += v.rating` 이 문자열을 만나는 순간
     덧셈이 **이어붙이기**로 바뀐다:  0 + "5" → "05" → "055" → … → "05555555"
     그리고 "05555555" / 8 = 6944444.375 → toFixed(1) = 6944444.4.
@@ -72,7 +87,7 @@ def test_every_review_rating_is_a_number_not_a_string():
     표면 정합 테스트도 전부 통과했다** — 깨진 건 브라우저에서만 보이는 JS 경로뿐이었다.
     그래서 데이터 타입 자체를 여기서 못박는다.
     """
-    data = json.load(open(os.path.join(HERE, "reviews.json"), encoding="utf-8"))
+    data = json.load(open(MAIN_REVIEWS, encoding="utf-8"))
     bad = [(i, r.get("rating")) for i, r in enumerate(data.get("reviews", []))
            if not isinstance(r.get("rating"), (int, float)) or isinstance(r.get("rating"), bool)]
     assert not bad, (
@@ -112,25 +127,25 @@ if __name__ == "__main__":
 # ══════════════════════════════════════════════════════════════════════════
 # 정적 후기 폴백 — 크롤러가 읽는 유일한 후기 본문
 #
-# 후기 카드는 fetch(reviews.json) 로 브라우저에서만 그려진다. 상당수 AI 크롤러는
+# 후기 카드는 fetch(reviews_all.json) 로 브라우저에서만 그려진다. 상당수 AI 크롤러는
 # JS 를 실행하지 않으므로, 정적 폴백이 없으면 **실제 게스트 후기가 크롤러에게
 # 존재하지 않는다**(AEO 목표와 정면 충돌 — 2026-07-26).
 #
 # 그런데 이 블록은 손으로 박으면 정본이 하나 더 늘어난다. build_reviews.py 가
-# reviews.json 에서 재생성하고, 아래 테스트가 어긋남을 잡는다.
+# reviews_all.json 에서 재생성하고, 아래 테스트가 어긋남을 잡는다.
 # ══════════════════════════════════════════════════════════════════════════
 def test_static_review_block_is_in_sync():
-    """reviews.json 을 고치고 build_reviews.py 를 안 돌리면 여기서 걸린다."""
-    data = json.load(open(os.path.join(HERE, "reviews.json"), encoding="utf-8"))
+    """reviews_all.json 을 고치고 build_reviews.py 를 안 돌리면 여기서 걸린다."""
+    data = json.load(open(MAIN_REVIEWS, encoding="utf-8"))
     html = open(os.path.join(HERE, "index.html"), encoding="utf-8").read()
     assert B.STATIC_START in html and B.STATIC_END in html, "정적 후기 마커가 사라졌다"
     assert B.sync_static_reviews(html, data) == html, (
-        "정적 후기 블록이 reviews.json 과 어긋났다 — build_reviews.py 를 실행할 것")
+        "정적 후기 블록이 reviews_all.json 과 어긋났다 — build_reviews.py 를 실행할 것")
 
 
 def test_static_block_carries_verbatim_text():
     """수치(9건·5.0)만 있고 근거 문장이 없으면 크롤러가 인용할 게 없다."""
-    data = json.load(open(os.path.join(HERE, "reviews.json"), encoding="utf-8"))
+    data = json.load(open(MAIN_REVIEWS, encoding="utf-8"))
     html = open(os.path.join(HERE, "index.html"), encoding="utf-8").read()
     blk = html[html.index(B.STATIC_START):html.index(B.STATIC_END)]
     newest = sorted(data["reviews"], key=lambda v: v.get("date") or "", reverse=True)[0]

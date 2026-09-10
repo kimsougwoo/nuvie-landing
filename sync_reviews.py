@@ -12,6 +12,7 @@
 출력(멱등):
   reviews.json          A룸(61823) 후기 — index.html(허브)·a.html(룸 페이지)가 읽음
   reviews_b.json        B룸(62341) 후기 — b.html(룸 페이지)가 읽음
+  reviews_all.json      A+B 통합 후기 — index.html(메인 집계)가 읽음
   reviews_originals.json 양 룸 원문 스냅샷(feedback_id 기준) — build_reviews verbatim 대조 정합용
 
 사진: 아워 CDN URL 을 그대로 참조한다(다운로드·커밋 없음). 렌더러는 src 를 그대로 쓴다.
@@ -19,9 +20,10 @@
 blind 처리된 후기는 제외(아워에서 숨긴 것).
 
 사용:
-  python sync_reviews.py            # 스크래이프→3파일 재생성→build_reviews→build_rooms
+  python sync_reviews.py            # 스크래이프→4파일 재생성→build_reviews→build_rooms
   python sync_reviews.py --no-build # 데이터 파일만 재생성(HTML 빌드는 생략)
   python sync_reviews.py --from FILE # 스크래이프 대신 기존 스크래이프 JSON 파일에서 생성(테스트/오프라인)
+  python sync_reviews.py --offline   # 기존 reviews.json+reviews_b.json 만 병합→메인만 재빌드
 """
 from __future__ import annotations
 import json
@@ -34,6 +36,7 @@ sys.path.insert(0, str(ROOT))
 from build_reviews import mask_name  # 이름 마스킹 규칙 재사용(정본 1개)
 
 PLACE_A, PLACE_B = 61823, 62341
+REVIEWS_ALL = ROOT / "reviews_all.json"
 
 
 def _iso_date(s: str) -> str:
@@ -65,6 +68,22 @@ def _room_doc(room: dict, source_label: str) -> dict:
         "updated": max((v["date"] for v in reviews), default=""),
         "source": source_label,
         "place_id": room.get("place_id"),
+        "rating": float(rating),
+        "count": count,
+        "auto": "hourplace_reviews_scrape (2026-08-25 대표 지시로 완전 자동·수동 큐레이션 폐기)",
+        "reviews": reviews,
+    }
+
+
+def _all_doc(room_docs: list[dict]) -> dict:
+    """룸별 공개 후기 문서를 합쳐 메인 페이지용 통합 문서를 만든다."""
+    reviews = [review for doc in room_docs for review in (doc.get("reviews") or [])]
+    reviews.sort(key=lambda v: v.get("date") or "0000-00-00", reverse=True)
+    count = len(reviews)
+    rating = round(sum(float(review.get("rating") or 5) for review in reviews) / count, 1) if count else 5.0
+    return {
+        "updated": max((review.get("date") or "" for review in reviews), default=""),
+        "source": "A+B 통합(메인 집계)",
         "rating": float(rating),
         "count": count,
         "auto": "hourplace_reviews_scrape (2026-08-25 대표 지시로 완전 자동·수동 큐레이션 폐기)",
@@ -111,7 +130,47 @@ def scrape_live() -> dict:
     return json.loads(proc.stdout)
 
 
+def _load_existing_docs() -> tuple[dict, dict]:
+    """기존 룸별 SSOT를 읽어 메인 통합본만 재생성한다(네트워크 없음)."""
+    docs = []
+    for path in (ROOT / "reviews.json", ROOT / "reviews_b.json"):
+        if not path.exists():
+            raise SystemExit(f"[sync_reviews] 오프라인 병합 입력 없음: {path.name}")
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise SystemExit(f"[sync_reviews] 오프라인 병합 입력 읽기 실패: {path.name}: {exc}") from exc
+        if not isinstance(doc.get("reviews"), list):
+            raise SystemExit(f"[sync_reviews] 오프라인 병합 입력 형식 오류: {path.name}")
+        docs.append(doc)
+    return docs[0], docs[1]
+
+
+def _run_build(module: str) -> None:
+    r = subprocess.run([sys.executable, str(ROOT / f"{module}.py")],
+                       capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(ROOT))
+    summary = (r.stdout or "").strip()[-160:]
+    safe_summary = summary.encode("ascii", "backslashreplace").decode("ascii")
+    print(f"[sync_reviews] {module}: rc={r.returncode} {safe_summary}")
+    if r.returncode != 0:
+        error = (r.stderr or "")[:300].encode("ascii", "backslashreplace").decode("ascii")
+        raise SystemExit(f"[sync_reviews] {module} 실패: {error}")
+
+
 def main(argv: list[str]) -> int:
+    if "--offline" in argv:
+        if "--from" in argv:
+            raise SystemExit("[sync_reviews] --offline 와 --from 은 함께 쓸 수 없습니다")
+        doc_a, doc_b = _load_existing_docs()
+        if not doc_a["reviews"]:
+            raise SystemExit("[sync_reviews] 오프라인 병합 A룸 후기 0건 — 기존 데이터 확인 필요(거짓 0 방지)")
+        all_doc = _all_doc([doc_a, doc_b])
+        _dump(REVIEWS_ALL, all_doc)
+        print(f"[sync_reviews] 오프라인 병합 완료: A룸 {len(doc_a['reviews'])}건 · B룸 {len(doc_b['reviews'])}건 → 메인 {all_doc['count']}건")
+        if "--no-build" not in argv:
+            _run_build("build_reviews")
+        return 0
+
     from_file = None
     if "--from" in argv:
         from_file = argv[argv.index("--from") + 1]
@@ -133,15 +192,13 @@ def main(argv: list[str]) -> int:
     _dump(ROOT / "reviews.json", doc_a)
     _dump(ROOT / "reviews_b.json", doc_b)
     _dump(ROOT / "reviews_originals.json", _originals([room_a, room_b]))
-    print(f"[sync_reviews] A룸 {doc_a['count']}건 · B룸 {doc_b['count']}건 재생성 완료")
+    all_doc = _all_doc([doc_a, doc_b])
+    _dump(REVIEWS_ALL, all_doc)
+    print(f"[sync_reviews] A룸 {doc_a['count']}건 · B룸 {doc_b['count']}건 · 메인 {all_doc['count']}건 재생성 완료")
 
     if "--no-build" not in argv:
         for mod in ("build_reviews", "build_rooms"):
-            r = subprocess.run([sys.executable, str(ROOT / f"{mod}.py")],
-                               capture_output=True, text=True, encoding="utf-8", cwd=str(ROOT))
-            print(f"[sync_reviews] {mod}: rc={r.returncode} {(r.stdout or '').strip()[-160:]}")
-            if r.returncode != 0:
-                raise SystemExit(f"[sync_reviews] {mod} 실패: {(r.stderr or '')[:300]}")
+            _run_build(mod)
     return 0
 
 

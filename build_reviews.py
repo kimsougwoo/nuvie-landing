@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-G2 후기 전파 제너레이터 — reviews.json(SSOT) → index.html JSON-LD + 정적 스팬 + llms.txt.
+G2 후기 전파 제너레이터 — reviews_all.json(메인 SSOT) → index.html JSON-LD + 정적 스팬 + llms.txt.
 
-문제(D2/G2): 후기가 reviews.json·JSON-LD·llms.txt 세 곳에 따로 적혀 "후기 5 vs 7" 드리프트 발생.
-해결: reviews.json 하나만 수정 → 이 스크립트가 나머지 표면(count·rating)을 파생시켜 정합.
-      사진은 reviews.json에 수기 큐레이션한 그대로 — 이 스크립트는 count/rating만 전파.
+문제(D2/G2): 후기가 reviews_all.json·JSON-LD·llms.txt 세 곳에 따로 적혀 "후기 5 vs 7" 드리프트 발생.
+해결: reviews_all.json 하나만 수정 → 이 스크립트가 나머지 표면(count·rating)을 파생시켜 정합.
+      사진은 reviews_all.json에 수기 큐레이션한 그대로 — 이 스크립트는 count/rating만 전파.
 
 사용: python build_reviews.py [--check]
-  기본  = reviews.json 읽어 index.html·llms.txt 갱신(멱등).
+  기본  = reviews_all.json 읽어 index.html·llms.txt 갱신(멱등).
   --check = 갱신 없이 드리프트만 보고(비정합이면 exit 1). CI/surface_lint 훅용.
 순수함수(sync_*)는 파일 I/O 없이 문자열만 변환 → 재현 테스트에서 그대로 검증.
 """
 import sys, os, json, re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-REVIEWS = os.path.join(HERE, "reviews.json")
+REVIEWS = os.path.join(HERE, "reviews_all.json")
 INDEX = os.path.join(HERE, "index.html")
 LLMS = os.path.join(HERE, "llms.txt")
 
 
 def load_facts(reviews_json):
-    """reviews.json dict → (count, rating_str). count=실제 리뷰 수(권위), rating=평균 1자리."""
+    """reviews_all.json dict → (count, rating_str). count=실제 리뷰 수(권위), rating=평균 1자리."""
     rv = reviews_json.get("reviews") or []
     count = len(rv)
     if rv:
@@ -34,6 +34,7 @@ def load_facts(reviews_json):
 
 def sync_llms_text(text, count, rating):
     """llms.txt의 '후기 N개·평점 X★' 문구를 SSOT값으로. 문구 없으면 원본 유지."""
+    text = text.replace("A룸은 아워플레이스 후기", "A룸·B룸은 아워플레이스 후기")
     return re.sub(r"후기\s*\d+\s*개·평점\s*[\d.]+★",
                   f"후기 {count}개·평점 {rating}★", text)
 
@@ -55,7 +56,7 @@ def sync_index_html(html, count, rating):
 
 
 def sync_localbusiness_date_modified(html, updated):
-    """reviews.json.updated를 허브 LocalBusiness JSON-LD의 dateModified로 전파한다."""
+    """reviews_all.json.updated를 허브 LocalBusiness JSON-LD의 dateModified로 전파한다."""
     if not updated:
         return html
     for match in re.finditer(
@@ -86,12 +87,12 @@ def _esc(s):
 def render_static_reviews(data, n=STATIC_N):
     """크롤러용 정적 후기 카드 HTML 을 만든다(최신순 n건).
 
-    왜 필요한가 — 후기 카드는 `fetch('reviews.json')` 으로 **브라우저에서만** 그려진다.
+    왜 필요한가 — 후기 카드는 `fetch('reviews_all.json')` 으로 **브라우저에서만** 그려진다.
     GPTBot·ClaudeBot·PerplexityBot 등 상당수 AI 크롤러는 JS 를 실행하지 않으므로,
     우리가 가진 가장 설득력 있는 자산(실제 게스트 후기)이 그들에게는 **존재하지 않았다.**
     AEO 가 목표인데 근거 문장이 크롤러에게 없는 상태였다(2026-07-26).
 
-    ⚠️ 사람이 손으로 박지 않는다 — `reviews.json` 이 바뀔 때마다 이 함수가 다시 만든다.
+    ⚠️ 사람이 손으로 박지 않는다 — `reviews_all.json` 이 바뀔 때마다 이 함수가 다시 만든다.
        손으로 박으면 정본이 또 하나 늘고, 그게 오늘 내내 고친 결함들의 원인이다.
     ⚠️ 마크업은 JS 카드와 같은 모양을 쓰되 사진은 넣지 않는다 — 크롤러가 읽는 건 텍스트이고,
        클릭 확대는 어차피 JS 가 붙여야 동작한다. JS 가 뜨면 이 블록은 통째로 교체된다.
@@ -137,7 +138,7 @@ def mask_name(name):
       · 별표를 **고정 3개**로 두는 건 의도다 — 길이에 맞춰 늘리면 원래 닉네임 길이가 새어나간다.
       · 아워플레이스에 공개된 닉네임이긴 하지만, 우리 사이트가 이름과 후기를 한 줄로 묶어
         재게시하는 표면이라 노출을 줄인다.
-    ⚠️ 이 레포는 **공개(public)** 다 — reviews.json 이 그대로 GitHub 에 노출된다.
+    ⚠️ 이 레포는 **공개(public)** 다 — reviews_all.json 이 그대로 GitHub 에 노출된다.
        그래서 마스킹을 «렌더 시점»이 아니라 **저장 시점(SSOT)** 에 건다. 렌더러가 하나라도
        마스킹을 빠뜨리면 새기 때문이다.
     """
@@ -153,7 +154,7 @@ def _flat(s):
 
 
 def verify_verbatim(data, originals):
-    """reviews.json 의 인용이 원문에서 벗어나지 않았는지 판정. 위반 목록을 돌려준다.
+    """reviews_all.json 의 인용이 원문에서 벗어나지 않았는지 판정. 위반 목록을 돌려준다.
 
     🔴 2026-08-05 신설 — 이 검사가 없어서 **개작·스플라이스 6건이 라이브에 떠 있었다**:
        · "빠방하구" → "빵빵하고" (게스트 말투 개작)
@@ -191,7 +192,7 @@ def jsonld_snippet(text, limit=80):
     ⚠️ 이 함수가 생긴 이유(2026-08-05): reviewBody 가 손으로 적혀 있어 원문과 어긋나 있었다 —
        "기존 동양풍 스튜디오**와 다르게**"(원문: "**와는 또 다른** 분위기를"). JSON-LD 는 구글
        리치결과로 나가는 **외부 표면**이라, 개작된 인용이 우리 이름으로 검색결과에 실린다.
-       ⇒ 손으로 적지 말고 reviews.json(SSOT)에서 파생시킨다.
+       ⇒ 손으로 적지 말고 reviews_all.json(메인 SSOT)에서 파생시킨다.
     """
     one = re.sub(r"\s+", " ", (text or "")).strip().rstrip("…").strip()
     if len(one) <= limit:
@@ -206,7 +207,7 @@ def _jsonld_esc(s):
 
 
 def sync_jsonld_reviews(html, data):
-    """JSON-LD 의 `"review":[...]` 배열을 reviews.json 에서 통째로 파생한다.
+    """JSON-LD 의 `"review":[...]` 배열을 reviews_all.json 에서 통째로 파생한다.
 
     ⚠️ 종전엔 «작성자 이름으로 매칭해 본문만» 갈아끼웠는데, 닉네임 마스킹(2026-08-05)이 들어가면서
        매칭 키 자체가 바뀌어 그 방식이 성립하지 않는다. 이름·본문 둘 다 SSOT 에서 나오게 재작성한다.
@@ -251,7 +252,7 @@ def sync_jsonld_reviews(html, data):
 
 
 def sync_reviews_json_text(text, count, rating):
-    """reviews.json 원문의 최상위 count/rating 필드만 targeted 치환(수기 포맷·photos 배열 보존).
+    """reviews_all.json 원문의 최상위 count/rating 필드만 targeted 치환(수기 포맷·photos 배열 보존).
     ⚠️ 개별 review의 'rating': 5는 건드리지 않는다(최상위 필드만 — 앞 들여쓰기 2칸 기준)."""
     text = re.sub(r'(\n  "count":\s*)\d+', lambda m: f'{m.group(1)}{count}', text)
     text = re.sub(r'(\n  "rating":\s*)[\d.]+', lambda m: f'{m.group(1)}{float(rating)}', text)
@@ -293,7 +294,7 @@ def main(check_only=False):
             print(f"[reviews][DRIFT] SSOT count={count} rating={rating} — 표면 불일치 발견")
             if new_html != html: print("  · index.html 불일치")
             if new_llms != llms: print("  · llms.txt 불일치")
-            if new_raw != raw: print("  · reviews.json count/rating 불일치")
+            if new_raw != raw: print("  · reviews_all.json count/rating 불일치")
             return 1
         print(f"[reviews][OK] 전 표면 정합 (count={count} rating={rating})")
         return 0
@@ -301,7 +302,7 @@ def main(check_only=False):
     if new_raw != raw: open(REVIEWS, "w", encoding="utf-8").write(new_raw)
     if new_html != html: open(INDEX, "w", encoding="utf-8").write(new_html)
     if new_llms != llms: open(LLMS, "w", encoding="utf-8").write(new_llms)
-    print(f"[reviews] 전파 완료 → count={count} rating={rating} (index.html·llms.txt·reviews.json 정합)")
+    print(f"[reviews] 전파 완료 → count={count} rating={rating} (index.html·llms.txt·reviews_all.json 정합)")
     return 0
 
 

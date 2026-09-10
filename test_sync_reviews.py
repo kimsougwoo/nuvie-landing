@@ -53,3 +53,21 @@ def test_originals_have_no_names():
     assert orig["reviews"][0]["feedback_id"] == 9
     assert "name" not in orig["reviews"][0] and "작성자" not in orig["reviews"][0]
     assert orig["reviews"][0]["text"] == "본문"
+
+
+def test_all_doc_merges_rooms_and_aggregates_from_reviews():
+    data = S._all_doc([
+        {"reviews": [{"date": "2026-09-03", "rating": 5, "text": "A 후기"}]},
+        {"reviews": [
+            {"date": "2026-09-10", "rating": 4, "text": "B 최신 후기"},
+            {"date": "2026-08-23", "rating": 5, "text": "B 이전 후기"},
+        ]},
+    ])
+
+    assert data["source"] == "A+B 통합(메인 집계)"
+    assert data["count"] == 3
+    assert data["rating"] == 4.7
+    assert data["updated"] == "2026-09-10"
+    assert [review["text"] for review in data["reviews"]] == [
+        "B 최신 후기", "A 후기", "B 이전 후기"
+    ]

@@ -8,7 +8,7 @@
        (스모그머신 요청 · 쇼파가 딱딱해 아팠다)을 **흔적 없이 삭제**
   같은 결함이 발행함 캡션·Figma 카드·JSON-LD·정본 md 까지 **4개 표면에 복제**돼 있었다.
 
-⇒ 인스턴스가 아니라 **클래스**를 막는다: reviews.json 이 바뀔 때마다 원문 스냅샷과 대조한다.
+⇒ 인스턴스가 아니라 **클래스**를 막는다: reviews_all.json 이 바뀔 때마다 원문 스냅샷과 대조한다.
 """
 import json
 from pathlib import Path
@@ -16,7 +16,7 @@ from pathlib import Path
 import build_reviews as B
 
 ROOT = Path(__file__).parent
-DATA = json.loads((ROOT / "reviews.json").read_text(encoding="utf-8"))
+DATA = json.loads((ROOT / "reviews_all.json").read_text(encoding="utf-8"))
 ORIG = json.loads((ROOT / "reviews_originals.json").read_text(encoding="utf-8"))
 # 2026-08-25: 후기 완전 자동화(sync_reviews.py) 로 B룸 후기 표면(reviews_b.json)이 생겼다.
 _B_PATH = ROOT / "reviews_b.json"
@@ -109,4 +109,4 @@ def test_jsonld_bodies_are_derived_not_handwritten():
     """JSON-LD reviewBody 는 구글 리치결과로 나가는 외부 표면이라 손으로 적으면 드리프트한다."""
     html = (ROOT / "index.html").read_text(encoding="utf-8")
     synced = B.sync_jsonld_reviews(html, DATA)
-    assert synced == html, "JSON-LD reviewBody 가 reviews.json 과 어긋난다 — build_reviews.py 를 돌릴 것"
+    assert synced == html, "JSON-LD reviewBody 가 reviews_all.json 과 어긋난다 — build_reviews.py 를 돌릴 것"
