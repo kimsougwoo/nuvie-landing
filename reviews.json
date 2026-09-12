@@ -1,11 +1,20 @@
 {
-  "updated": "2026-09-03",
+  "updated": "2026-09-12",
   "source": "아워플레이스 A룸 후기 (자동)",
   "place_id": 61823,
   "rating": 5.0,
-  "count": 17,
+  "count": 18,
   "auto": "hourplace_reviews_scrape (2026-08-25 대표 지시로 완전 자동·수동 큐레이션 폐기)",
   "reviews": [
+    {
+      "name": "xx***",
+      "date": "2026-09-12",
+      "rating": 5,
+      "text": "처음 스튜촬 해봤는데 되게 잘챙겨주시고 분위기도 최고입니다",
+      "photos": [
+        "https://img.hourplace.co.kr/feedback/user/243627/2026/09/12/b0c420ac-c2b7-4996-b89d-46f0b5b0a598"
+      ]
+    },
     {
       "name": "wo***",
       "date": "2026-09-03",

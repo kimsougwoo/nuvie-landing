@@ -3,6 +3,12 @@
   "_source": "api2.hourplace.co.kr /place/{id}/feedback",
   "reviews": [
     {
+      "feedback_id": 203160,
+      "date": "2026-09-12",
+      "rating": 5.0,
+      "text": "처음 스튜촬 해봤는데 되게 잘챙겨주시고 분위기도 최고입니다"
+    },
+    {
       "feedback_id": 202951,
       "date": "2026-09-10",
       "rating": 5.0,
