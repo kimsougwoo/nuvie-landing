@@ -1,10 +1,19 @@
 {
-  "updated": "2026-09-10",
+  "updated": "2026-09-12",
   "source": "A+B 통합(메인 집계)",
   "rating": 5.0,
-  "count": 20,
+  "count": 21,
   "auto": "hourplace_reviews_scrape (2026-08-25 대표 지시로 완전 자동·수동 큐레이션 폐기)",
   "reviews": [
+    {
+      "name": "xx***",
+      "date": "2026-09-12",
+      "rating": 5,
+      "text": "처음 스튜촬 해봤는데 되게 잘챙겨주시고 분위기도 최고입니다",
+      "photos": [
+        "https://img.hourplace.co.kr/feedback/user/243627/2026/09/12/b0c420ac-c2b7-4996-b89d-46f0b5b0a598"
+      ]
+    },
     {
       "name": "di***",
       "date": "2026-09-10",
