@@ -5,3 +5,21 @@ node_modules/
 refresh_log.txt
 __pycache__/
 *.pyc
+
+# 🔴 촬영 소품 카탈로그 — 실물 «입고» 전까지 배포 금지 (대표 2026-09-15 지시).
+#   랜딩은 커밋=자동배포(Vercel)라, 소품이 실제로 들어오기 전 페이지가 라이브로 나가면 안 된다.
+#   ⇒ 여기서 «보류»(로컬 보존·비배포·드리프트 알람 억제). 입고 완료 시 이 블록을 지우고 커밋→배포.
+build_props.py
+prop_build_design.md
+props.data.js
+props.html
+props.json
+props_config.json
+props_filter.js
+props_lib.py
+props_source.json
+props_text.txt
+img/props/
+test_build_props.py
+test_props_filter.js
+test_props_page.py
