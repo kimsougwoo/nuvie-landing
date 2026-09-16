@@ -121,6 +121,11 @@
   clarityTag('page', window.location.pathname);
   clarityTag('utm_source', state.last_touch && state.last_touch.utm_source || 'direct');
   clarityTag('utm_medium', state.last_touch && state.last_touch.utm_medium || 'none');
+  // 🔴 2026-09-16 — 소재별(utm_content) Clarity 세그먼트를 «모든 세션»에서 가능하게 로드 시 태그.
+  //   종전엔 utm_content 가 HourplaceClick 때만 태그돼, 아워 버튼을 안 누른 세션은 소재 구분 불가였다.
+  //   (GA4 utm_content 커스텀 디멘션 등록과 짝 — 광고 URL 에 utm_content 가 붙으면 양쪽서 소재 분해.)
+  clarityTag('utm_content', _u.utm_content);
+  clarityTag('utm_campaign', _u.utm_campaign);
 
   function roomFor(el) {
     var room = el.getAttribute('data-room') || el.getAttribute('data-book');
