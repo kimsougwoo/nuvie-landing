@@ -87,6 +87,9 @@
      전량 2.24MB보다 컸다) → dynamic-subset 로 교체. 같은 호스트(cdn.jsdelivr.net)라 위 preconnect 불변.
      @font-face 는 weight 100~900 전부 유지되고 각 weight 가 unicode-range 92개 조각으로 쪼개져
      실제 쓰는 글자 조각만 내려받는다(400/500/600/700 4종 모두 포함 확인). -->
+<!-- 2026-09-17 P0: 히어로 LCP 프리로드(srcset 반영·모바일 800w) + 룸 상세 선수신(quick_back 완화·인앱 Chromium만·스크립트 실행 없음). -->
+<link rel="preload" as="image" href="/img/room-b.jpg" imagesrcset="/img/room-b-800.jpg 800w, /img/room-b.jpg 1600w" imagesizes="100vw" fetchpriority="high">
+<link rel="prefetch" href="/a" as="document"><link rel="prefetch" href="/b" as="document">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"LocalBusiness","@id":"https://www.nuviestudio.com/#business","name":"누비 스튜디오 NUVIE STUDIO","alternateName":["누비스튜디오","NUVIE STUDIO"],"description":"코스프레 촬영을 위한 컨셉 렌탈 스튜디오. 동양풍 블랙 호리존 A룸, 화이트 티타임 카페 B룸. 무인 운영.","url":"https://www.nuviestudio.com/","image":"https://www.nuviestudio.com/og.jpg","areaServed":"서울","address":{"@type":"PostalAddress","streetAddress":"곰달래로 184, 4층 (화곡동 874-12 남양빌딩)","addressLocality":"서울 강서구","addressRegion":"서울","addressCountry":"KR"},"openingHours":"Mo-Su 00:00-24:00","hasMap":["https://naver.me/GM334mVo","https://place.map.kakao.com/918861206"],"sameAs":["https://x.com/nuvie_studio","https://www.instagram.com/nuvie_studio","https://naver.me/GM334mVo","https://place.map.kakao.com/918861206","https://www.hourplace.co.kr/place/61823","https://www.hourplace.co.kr/place/62341"],"keywords":"코스프레 스튜디오, 코스프레 렌탈, 컨셉 스튜디오, 까치산역 스튜디오, 강서구 코스프레, 동양풍 스튜디오, 자연광 스튜디오, 화이트 티타임 카페, 티타임 스튜디오, 동양풍 코스프레 스튜디오, 동양풍 코스프레 촬영","knowsAbout":["코스프레 촬영","동양풍 코스프레","블랙 호리존(BLACK CYC, 4M × 2.5M × 2.3M) 촬영","자연광 룩북·프로필 촬영"],"priceRange":"₩₩","aggregateRating":{"@type":"AggregateRating","ratingValue":"5.0","reviewCount":"21","bestRating":"5"},"review":[{"@type":"Review","author":{"@type":"Person","name":"xx***"},"datePublished":"2026-09-12","reviewRating":{"@type":"Rating","ratingValue":"5","bestRating":"5"},"reviewBody":"처음 스튜촬 해봤는데 되게 잘챙겨주시고 분위기도 최고입니다","publisher":{"@type":"Organization","name":"아워플레이스"}},{"@type":"Review","author":{"@type":"Person","name":"di***"},"datePublished":"2026-09-10","reviewRating":{"@type":"Rating","ratingValue":"5","bestRating":"5"},"reviewBody":"정말 예쁜사진들 많이 남겼습니다 감사합니다! 소품 하나하나 공들인 티가 나고 배치또한 마음에들더라고요! 자연광도 잘들어와서 촬영하는데 눈이…","publisher":{"@type":"Organization","name":"아워플레이스"}},{"@type":"Review","author":{"@type":"Person","name":"챠***"},"datePublished":"2026-09-07","reviewRating":{"@type":"Rating","ratingValue":"5","bestRating":"5"},"reviewBody":"조명 많고 스탠드가 많아서 따로 들고올 필요가 없어서 편했습니다~ 탈의실 공간도 2인이 탈의랑 화장하기에 넉넉했고 캐리어 2개 + 가발가방등…","publisher":{"@type":"Organization","name":"아워플레이스"}},{"@type":"Review","author":{"@type":"Person","name":"wo***"},"datePublished":"2026-09-03","reviewRating":{"@type":"Rating","ratingValue":"5","bestRating":"5"},"reviewBody":"사장님이 정말 친절하시고 깨끗하고 좋았어요","publisher":{"@type":"Organization","name":"아워플레이스"}}],"makesOffer":[{"@type":"Offer","name":"A룸 — 동양풍 & 블랙 호리존(BLACK CYC)","url":"https://www.hourplace.co.kr/place/61823","category":"코스프레 스튜디오 대관"},{"@type":"Offer","name":"B룸 — 화이트 티타임 카페","url":"https://www.hourplace.co.kr/place/62341","availability":"https://schema.org/InStock","category":"촬영 스튜디오 대관"}],"dateModified":"2026-09-12"}
@@ -149,7 +152,7 @@
            ⚠️ 초기 src 는 **기본 테마(라이트) = B룸**이어야 LCP 이미지가 헛되지 않는다.
            ⚠️ 밝기는 룸마다 다르다 — A룸 원본이 이미 매우 어두워 .76 을 먹이면 검정 덩어리가 된다
               (그게 「최상단이 까맣다」의 원인이었다). 교체는 setTheme() 이 맡는다(아래 HERO_BG). -->
-      <div class="heroImgWrap" style="position:absolute;inset:0"><img id="heroImg" data-fallback="1" data-ken decoding="async" fetchpriority="high" src="/img/room-b.jpg" alt="누비 스튜디오 B룸 화이트 티타임 카페 — 통창 자연광이 드는 화이트 톤 공간" style="display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.62) saturate(.95);transform:scale(1.05);opacity:1;transition:opacity .55s ease"></div>
+      <div class="heroImgWrap" style="position:absolute;inset:0"><img id="heroImg" data-fallback="1" data-ken decoding="async" fetchpriority="high" src="/img/room-b.jpg" srcset="/img/room-b-800.jpg 800w, /img/room-b.jpg 1600w" sizes="100vw" alt="누비 스튜디오 B룸 화이트 티타임 카페 — 통창 자연광이 드는 화이트 톤 공간" style="display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.62) saturate(.95);transform:scale(1.05);opacity:1;transition:opacity .55s ease"></div>
       <!-- 2026-08-05: class 신설. 모바일에서 이 스크림을 덮어써야 하는데 선택할 이름이 없었다(styles.css 참조). -->
       <div class="heroScrim" style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,6,7,.30) 0%,rgba(6,6,7,.06) 26%,rgba(6,6,7,.60) 62%,rgba(6,6,7,.92) 100%)"></div>
       <div class="herotop" style="position:absolute;top:0;left:0;right:0;z-index:3;padding:26px 40px;display:flex;justify-content:space-between;align-items:center;gap:14px;font-family:var(--label-font);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.8)">
@@ -215,13 +218,13 @@
          ⚠️ 첫 사진 외 lazy — 히어로(room-b.jpg fetchpriority=high)가 LCP 를 유지하도록. -->
     <section class="mgal" aria-label="룸 사진 미리보기">
       <div class="mgal-track" id="mgalTrack">
-        <div class="mgal-slide"><img loading="lazy" decoding="async" fetchpriority="low" src="/img/galA0.jpg" alt="A룸 동양풍 — 월동문·블랙 호리존"><div class="mgal-cap"><b>A룸 · 동양풍</b><span>월동문 · 블랙 호리존</span></div></div>
+        <div class="mgal-slide"><img loading="eager" decoding="async" src="/img/galA0.jpg" srcset="/img/galA0-800.jpg 800w, /img/galA0.jpg 1200w" sizes="84vw" alt="A룸 동양풍 — 월동문·블랙 호리존"><div class="mgal-cap"><b>A룸 · 동양풍</b><span>월동문 · 블랙 호리존</span></div></div>
         <!-- 2026-08-22 대표 지시: 새로 배치된 B룸은 «전경»(galB4 전체 공간)이 먼저 나온다. 디테일컷은 뒤로. -->
-        <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/room-b.jpg" alt="B룸 화이트 티타임 카페 — 전체 공간 전경(카운터·티테이블·통창)"><div class="mgal-cap"><b>B룸 · 화이트</b><span>티타임 카페 전경</span></div></div>
-        <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/galA2.jpg" alt="A룸 동양풍 — 격자문 세트"><div class="mgal-cap"><b>A룸 · 동양풍</b><span>격자문 세트</span></div></div>
-        <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/galB1.jpg" alt="B룸 화이트 — 통창 자연광과 티테이블"><div class="mgal-cap"><b>B룸 · 화이트</b><span>통창 자연광</span></div></div>
-        <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/galA4.jpg" alt="A룸 동양풍 — 월문 무드"><div class="mgal-cap"><b>A룸 · 동양풍</b><span>월문 무드</span></div></div>
-        <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/galB2.jpg" alt="B룸 화이트 — 티세트 디테일"><div class="mgal-cap"><b>B룸 · 화이트</b><span>티세트 디테일</span></div></div>
+        <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/room-b.jpg" srcset="/img/room-b-800.jpg 800w, /img/room-b.jpg 1600w" sizes="84vw" alt="B룸 화이트 티타임 카페 — 전체 공간 전경(카운터·티테이블·통창)"><div class="mgal-cap"><b>B룸 · 화이트</b><span>티타임 카페 전경</span></div></div>
+        <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/galA2.jpg" srcset="/img/galA2-800.jpg 800w, /img/galA2.jpg 1100w" sizes="84vw" alt="A룸 동양풍 — 격자문 세트"><div class="mgal-cap"><b>A룸 · 동양풍</b><span>격자문 세트</span></div></div>
+        <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/galB1.jpg" srcset="/img/galB1-800.jpg 800w, /img/galB1.jpg 825w" sizes="84vw" alt="B룸 화이트 — 통창 자연광과 티테이블"><div class="mgal-cap"><b>B룸 · 화이트</b><span>통창 자연광</span></div></div>
+        <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/galA4.jpg" srcset="/img/galA4-800.jpg 800w, /img/galA4.jpg 1200w" sizes="84vw" alt="A룸 동양풍 — 월문 무드"><div class="mgal-cap"><b>A룸 · 동양풍</b><span>월문 무드</span></div></div>
+        <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/galB2.jpg" srcset="/img/galB2-800.jpg 800w, /img/galB2.jpg 825w" sizes="84vw" alt="B룸 화이트 — 티세트 디테일"><div class="mgal-cap"><b>B룸 · 화이트</b><span>티세트 디테일</span></div></div>
       </div>
       <div class="mgal-dots" id="mgalDots" aria-hidden="true"></div>
       <div class="mgal-hint">← 밀어서 룸 사진 더 보기 · A·B 6장 →</div>
@@ -252,6 +255,15 @@
           for(var j=0;j<d.children.length;j++)d.children[j].className=(j===idx?'on':'');
         });
       },{passive:true});
+      // 2026-09-17 P0 (Clarity dead_click 6.89%·23건, 룸 사진 탭 무반응): 후기 라이트박스(NUVIE_LB) 재사용.
+      //   NUVIE_LB 는 클릭 시점에만 참조하므로 mgal 스크립트가 먼저 실행돼도 순서 무관.
+      Array.prototype.forEach.call(t.querySelectorAll('img'),function(img){
+        img.tabIndex=0; img.setAttribute('role','button'); img.setAttribute('aria-label',(img.alt||'룸 사진')+' 확대 보기'); img.style.cursor='zoom-in';
+        function open(){ if(!window.NUVIE_LB) return; window.NUVIE_LB.open(img.currentSrc||img.src,img,img.alt);
+          try{ if(window.gtag) gtag('event','gallery_zoom',{src:(img.getAttribute('src')||'').slice(0,60),transport_type:'beacon'}); if(window.clarity) clarity('set','event','gallery_zoom'); }catch(e){} }
+        img.addEventListener('click',open);
+        img.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } });
+      });
     })();
     </script>
 
@@ -357,7 +369,7 @@
         <p style="margin:14px 0 0;font-size:11.5px;color:var(--dim)">출처: 아워플레이스 A룸·B룸 후기 · 전체 <span id="reviewTotal">21</span>건 ★5.0</p>
       </div>
       <!-- 후기 사진 확대 라이트박스(썸네일 클릭 시) -->
-      <div id="reviewLightbox" role="dialog" aria-modal="true" aria-label="후기 사진 확대" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.86);align-items:center;justify-content:center;padding:24px">
+      <div id="reviewLightbox" role="dialog" aria-modal="true" aria-label="사진 확대" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.86);align-items:center;justify-content:center;padding:24px">
         <img id="reviewLightboxImg" alt="누비 스튜디오 후기 사진 확대" style="max-width:min(900px,92vw);max-height:86vh;object-fit:contain;border-radius:6px;display:block">
         <button id="reviewLightboxClose" aria-label="닫기" style="position:absolute;top:18px;right:22px;width:40px;height:40px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:22px;line-height:1;cursor:pointer">×</button>
       </div>
@@ -373,7 +385,7 @@
         // 배경 스크롤 락(2026-07-29) — 라이트박스가 열린 채로 뒷배경이 스크롤돼 닫으면 엉뚱한 위치였다.
         // 복원은 closeLb() 한 곳에서만 하고 모든 닫기 경로(× 버튼·배경 클릭·ESC)가 이 함수를 거치게 둔다.
         var lbPrevOverflow='';
-        function openLb(src,trigger){ lbTrigger=trigger||null; lbImg.src=src; lb.style.display='flex';
+        function openLb(src,trigger,alt){ lbTrigger=trigger||null; lbImg.src=src; lbImg.alt=alt||'누비 스튜디오 후기 사진 확대'; lb.style.display='flex';
           lbPrevOverflow=document.body.style.overflow; document.body.style.overflow='hidden';
           try{document.getElementById('reviewLightboxClose').focus();}catch(e){} }
         function closeLb(){ lb.style.display='none'; lbImg.src='';
@@ -382,6 +394,8 @@
         lb.addEventListener('click',function(e){ if(e.target===lb) closeLb(); });
         document.getElementById('reviewLightboxClose').addEventListener('click',closeLb);
         document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&lb.style.display==='flex') closeLb(); });
+        // 2026-09-17 P0: 모바일 룸 갤러리(.mgal)가 같은 라이트박스를 쓴다 — open/close 만 클로저 밖으로.
+        window.NUVIE_LB={open:openLb,close:closeLb};
 
         // 모바일 가로 캐러셀(설계안 A) — 가운데(스냅) 활성 카드의 실측 높이를 #reviewCards height에 반영.
         // ≤640px에서만 실질 적용(mq.matches 가드), 641px+에서는 항상 height 리셋 → 데스크탑 매이슨리 불변.
@@ -895,7 +909,7 @@
   function heroMakeBack(){
     if(heroBack||!heroFront)return;
     heroBack=heroFront.cloneNode(false);
-    heroBack.id='heroImg2'; heroBack.removeAttribute('fetchpriority');
+    heroBack.id='heroImg2'; heroBack.removeAttribute('fetchpriority'); heroBack.removeAttribute('srcset'); heroBack.removeAttribute('sizes');
     heroBack.setAttribute('aria-hidden','true'); heroBack.alt='';
     heroBack.style.opacity='0';
     heroBack.addEventListener('error',function(){heroBack.style.display='none';});
@@ -929,7 +943,7 @@
     if(!heroFront)return;
     if(heroFront.getAttribute('src')===c.src){heroFront.style.filter=c.filter;return;}
     if(!heroBack){                                 // 아직 레이어가 없으면(load 전 토글) 즉시 교체
-      heroFront.setAttribute('src',c.src); heroFront.style.filter=c.filter; heroFront.alt=c.alt; return;
+      heroFront.removeAttribute('srcset'); heroFront.removeAttribute('sizes'); heroFront.setAttribute('src',c.src); heroFront.style.filter=c.filter; heroFront.alt=c.alt; return;
     }
     heroSwap(c);
   }

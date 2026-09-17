@@ -66,13 +66,13 @@ def test_main_reviews_are_a_b_integrated():
     html = open(os.path.join(HERE, "index.html"), encoding="utf-8").read()
 
     assert B.REVIEWS.endswith("reviews_all.json")
-    assert data["count"] == len(data["reviews"]) == 20
+    assert data["count"] == len(data["reviews"]) == 21
     assert data["source"] == "A+B 통합(메인 집계)"
     assert "fetch('reviews_all.json',{cache:'no-store'})" in html
     assert "fetch('reviews.json'" not in html
     assert "정말 예쁜사진" in html
     assert "조명 많고 스탠드" in html
-    assert '"ratingValue":"5.0","reviewCount":"20"' in html
+    assert '"ratingValue":"5.0","reviewCount":"21"' in html
 
 
 def test_every_review_rating_is_a_number_not_a_string():

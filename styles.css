@@ -488,6 +488,13 @@ html{scroll-behavior:smooth}
   .mgal{display:none}
   @media(max-width:640px){
     .hero{min-height:52svh!important}
+    /* 2026-09-17 P0 — 히어로 텍스트 659px 이 첫화면(790px) 잠식, 룸사진(.mgal-track top720) 70px만 노출.
+       hero-gallery 는 「룸·요금 보기」와 같은 #rooms 앵커(중복)라 모바일서 접고 여백·좌우패딩 축소. 카피·id·계측 불변. */
+    #hero-gallery{display:none!important}
+    .heroin{padding-left:22px!important;padding-right:22px!important;padding-bottom:20px!important}
+    .heroin>p[data-reveal]{margin-top:14px!important}
+    .herobadges{margin-top:16px!important}
+    .herocta{margin-top:16px!important}
     .mgal{display:block;border-bottom:1px solid var(--line);background:var(--bg)}
     .mgal-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;padding:14px 16px 4px;
       scrollbar-width:none;-ms-overflow-style:none;contain:layout}
@@ -504,6 +511,7 @@ html{scroll-behavior:smooth}
     .mgal-cta a{flex:1;text-align:center;padding:12px;border-radius:8px;font-size:13px;font-weight:700;
       text-decoration:none;background:var(--panel);border:1px solid var(--line2);color:var(--ink)}
     .mgal-cta a small{display:block;font-weight:400;color:var(--dim);font-size:10px;margin-top:2px}
+    #reviewLightboxClose{width:44px!important;height:44px!important}
   }
 
   /* ═══ 2026-08-22 대표 지시: 후기 캐러셀 «높이 점프» 제거 ═══════════════════════════

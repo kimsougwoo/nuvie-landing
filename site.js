@@ -145,6 +145,22 @@
     if (ken && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
       ken.style.animation = 'nvKen 18s ease-out forwards';
     }
+    // 2026-09-17 P0: 룸 갤러리 사진 확대 라이트박스(모바일 dead_click) — 템플릿에 #reviewLightbox 있으면 배선.
+    var lb=document.getElementById('reviewLightbox'), lbImg=document.getElementById('reviewLightboxImg'), lbClose=document.getElementById('reviewLightboxClose');
+    if (lb && lbImg && lbClose) {
+      var trig=null, prevOv='';
+      function openLb(src,el,alt){ trig=el||null; lbImg.src=src; lbImg.alt=alt||'사진 확대'; lb.style.display='flex'; prevOv=document.body.style.overflow; document.body.style.overflow='hidden'; try{lbClose.focus();}catch(e){} }
+      function closeLb(){ lb.style.display='none'; lbImg.src=''; document.body.style.overflow=prevOv; try{ if(trig) trig.focus(); }catch(e){} trig=null; }
+      lb.addEventListener('click',function(e){ if(e.target===lb) closeLb(); });
+      lbClose.addEventListener('click',closeLb);
+      document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&lb.style.display==='flex') closeLb(); });
+      root.querySelectorAll('.gal img').forEach(function(img){
+        img.tabIndex=0; img.setAttribute('role','button'); img.setAttribute('aria-label',(img.alt||'사진')+' 확대 보기'); img.style.cursor='zoom-in';
+        function open(){ openLb(img.currentSrc||img.src,img,img.alt); try{ if(window.gtag) gtag('event','gallery_zoom',{src:(img.getAttribute('src')||'').slice(0,60),transport_type:'beacon'}); }catch(e){} }
+        img.addEventListener('click',open);
+        img.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } });
+      });
+    }
     var canHover = !window.matchMedia || window.matchMedia('(hover:hover)').matches;
     if (!canHover) return;
     root.querySelectorAll('img[data-zoom]').forEach(function (img) {
