@@ -196,6 +196,7 @@
           <a href="#rooms" id="heroReviewBadge" style="display:none;align-items:center;gap:5px;font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;white-space:nowrap;text-decoration:none"><span style="color:rgba(255,255,255,.72)" aria-hidden="true">★</span><span id="heroReviewText"></span></a>
         </div>
         <div class="herocta" data-reveal style="display:flex;gap:11px;flex-wrap:wrap;margin-top:30px">
+          <a href="#availability" id="hero-book" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);color:#FFFFFF;border:1px solid rgba(255,255,255,.5);font-weight:600;flex:none;white-space:nowrap;padding:15px 32px;border-radius:3px;font-size:15px;text-decoration:none;backdrop-filter:blur(4px)">예약 가능 시간 →</a>
           <!-- 2026-07-29 P0: 라벨이 「예약하기」인데 목적지는 #rooms 앵커라 book_click·Meta Lead 어느 쪽도
                발화하지 않았다(라벨과 실동작 불일치). 대표 판단 = 라벨을 실동작에 맞춘다.
                가격을 노출하는 섹션으로 보내므로 「룸 · 요금 보기」가 정직하다.
@@ -741,7 +742,7 @@
   ['book-b','end-b','book-mobile-b'].forEach(function(id){var e=document.getElementById(id);if(e){e.href=B_URL;e.addEventListener('click',trackBook('b'));}});
   // 히어로 CTA 2개 계측 신설 — 종전엔 id도 핸들러도 없어 클릭이 전부 소멸했다.
   // ⚠️ 별도 이벤트명(hero_cta_click). book_click 은 광고 파일럿 사전등록 지표라 여기서 발화 금지.
-  ['hero-rooms','hero-gallery'].forEach(function(id){
+  ['hero-rooms','hero-gallery','hero-book'].forEach(function(id){
     var e=document.getElementById(id); if(!e) return;
     e.addEventListener('click',function(){
       clarityTag('event','hero_cta_click'); clarityTag('placement',id);
