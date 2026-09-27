@@ -1,0 +1,21 @@
+# 사이트가 쓰지 않는 저장소 파일을 배포에서 뺀다(2026-09-27 공개 노출 점검 — 35개가 200 으로 읽혔다).
+# 사이트가 실제로 쓰는 것: *.html(아래 예외 제외)·*.css·*.js(테스트 제외)·img/·reviews/·api/
+#   availability.json·reviews_all.json·rooms.json·robots.txt·sitemap.xml·llms.txt·og.jpg
+# 빌드·검사 스크립트와 테스트
+*.py
+test_*
+__pycache__/
+.pytest_cache/
+# 운영 문서·내부 보고서
+*.md
+followup-audit-report-*.html
+phase0-e2e-report-*.html
+room.template.html
+refresh_log.txt
+props_text.txt
+# 빌드 입력 데이터(사이트는 reviews_all.json 만 읽는다)
+reviews.json
+reviews_b.json
+reviews_originals.json
+props_source.json
+props_config.json
