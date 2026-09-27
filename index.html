@@ -1053,7 +1053,7 @@
   function setLastChecked(value,fallback){
     var text=formatLastChecked(value)||formatLastChecked(fallback);
     if(!calLastUpdatedEl)return;
-    calLastUpdatedEl.textContent=text?'최종 확인 '+text:'';
+    calLastUpdatedEl.textContent=text?'마지막 변경 '+text:'';
     calLastUpdatedEl.style.display=text?'block':'none';
   }
   function loadAvailability(){
