@@ -211,12 +211,45 @@ def test_sitemap_contains_all_required_paths():
 
 
 # ── 7. JSON-LD 유효성 ───────────────────────────────────────────────
-def _extract_jsonld(html_text):
-    m = re.search(
+def _jsonld_blocks(html_text):
+    bodies = re.findall(
         r'<script type="application/ld\+json">\s*(.*?)\s*</script>', html_text, re.S
     )
-    assert m, "ld+json 스크립트 블록을 찾지 못했다"
-    return json.loads(m.group(1))
+    assert bodies, "ld+json 스크립트 블록을 찾지 못했다"
+    return [json.loads(b) for b in bodies]
+
+
+def _extract_jsonld(html_text):
+    """페이지의 모든 ld+json 노드를 한 목록으로 모은다(블록 수·모양과 무관)."""
+    nodes = []
+    for block in _jsonld_blocks(html_text):
+        nodes.extend(block if isinstance(block, list) else [block])
+    return nodes
+
+
+def test_jsonld_every_block_is_object_with_context():
+    """Clarity 09월 «undefined is not an object (evaluating 'r["@context"].tolowercase')»
+    재현 가드. Safari(데스크톱) 쪽 주입 스크립트가 ld+json 블록마다 r["@context"].toLowerCase()
+    를 부르는데, 룸 페이지가 [Product, BreadcrumbList] «배열» 한 블록을 내보내 r["@context"]
+    가 undefined 가 됐다(/a 에서 Safari 2세션). 블록 하나 = @context 를 가진 객체 하나여야 한다.
+    """
+    for slug in SLUGS:
+        for block in _jsonld_blocks(_read(f"{slug}.html")):
+            assert isinstance(block, dict), f"/{slug}: ld+json 블록이 객체가 아니다({type(block).__name__})"
+            assert isinstance(block.get("@context"), str), f"/{slug}: ld+json 블록에 문자열 @context 가 없다"
+
+
+def test_jsonld_render_emits_one_object_per_script():
+    """생성기 단위: render_jsonld 가 빌드 결과와 무관하게 객체-블록만 만든다."""
+    spec = _load_spec()
+    rooms = {r["slug"]: r for r in spec["rooms"]}
+    catalog = spec["catalog"]
+    reviews_doc = json.loads(_read("reviews.json"))
+    out = B.render_jsonld(rooms["a"], rooms["b"], catalog, reviews_doc)
+    blocks = _jsonld_blocks(out)
+    assert len(blocks) == 2
+    assert all(isinstance(b, dict) and b.get("@context") == "https://schema.org" for b in blocks)
+    assert {b["@type"] for b in blocks} == {"Product", "BreadcrumbList"}
 
 
 def test_jsonld_parses_and_product_in_stock():

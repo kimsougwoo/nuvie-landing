@@ -267,9 +267,15 @@ def render_jsonld(room: dict, other: dict, catalog: dict, reviews_doc: dict) -> 
             {"@type": "ListItem", "position": 2, "name": f"{room['label']} {room['name']}", "item": url},
         ],
     }
-    out = json.dumps([product, breadcrumb], ensure_ascii=False, indent=2)
-    # 카피에 "</script>" 가 들어오면 문서를 이탈한다. JSON 문자열 안에서 \/ 는 / 와 동치라 안전.
-    return out.replace("</", "<\\/")
+    # 노드마다 <script> 한 개(= @context 를 가진 객체 한 개). [Product, Breadcrumb] 배열 한 블록은
+    # Safari 쪽 주입 스크립트가 r["@context"].toLowerCase() 로 읽다 TypeError 를 냈다
+    # (Clarity 2026-09, /a Safari 2세션). index.html 도 이미 객체-블록 두 개 방식이다.
+    blocks = []
+    for node in (product, breadcrumb):
+        # 카피에 "</script>" 가 들어오면 문서를 이탈한다. JSON 문자열 안에서 \/ 는 / 와 동치라 안전.
+        body = json.dumps(node, ensure_ascii=False, indent=2).replace("</", "<\\/")
+        blocks.append(f'<script type="application/ld+json">\n{body}\n</script>')
+    return "\n".join(blocks)
 
 
 # ---------------------------------------------------------------- 페이지 조립
