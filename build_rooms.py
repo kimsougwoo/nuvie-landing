@@ -378,8 +378,26 @@ def _source_lastmod(*paths: Path) -> str:
     existing = [path for path in paths if path.exists()]
     if not existing:
         raise FileNotFoundError("sitemap lastmod source is missing")
-    timestamp = max(path.stat().st_mtime for path in existing)
-    return datetime.fromtimestamp(timestamp, tz=timezone.utc).date().isoformat()
+    # 2026-09-27: 커밋된 채 안 바뀐 파일은 git 마지막 커밋 날짜 — mtime 은 체크아웃마다 달라
+    #   `--check` 가 워크트리에선 통과·본체에선 실패했다. 수정 중이거나 git 밖이면 mtime(종전 방식).
+    return max(_file_lastmod(path) for path in existing)
+
+
+def _file_lastmod(path: Path) -> str:
+    import subprocess
+    try:
+        cwd = str(path.parent)
+        dirty = subprocess.run(["git", "status", "--porcelain", "--", path.name], cwd=cwd,
+                               capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=20)
+        if dirty.returncode == 0 and not dirty.stdout.strip():
+            log = subprocess.run(["git", "log", "-1", "--format=%cs", "--", path.name], cwd=cwd,
+                                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=20)
+            day = log.stdout.strip()
+            if log.returncode == 0 and len(day) == 10:
+                return day
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc).date().isoformat()
 
 
 def build_sitemap(rooms: list[dict]) -> str:
