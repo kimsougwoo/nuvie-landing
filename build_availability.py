@@ -422,8 +422,33 @@ def _worktree_dirty_besides_availability(repo):
     return out
 
 
+# 0.88 P2-11 — 랜딩 자동 수정 세션 잠금 검사(엔진 nuvie_morning.landing_session_lock, 2026-09-27).
+#   라우터 세션 동안(또는 세션 뒤 main 이동으로 잠금이 고정된 동안) push 를 보류한다.
+#   이 스크립트는 `python <이 파일>` 로 돌아 sys.path[0] 이 랜딩 폴더다 — 엔진 홈을 직접 넣는다.
+#   엔진 import 가 깨져도 잠금 파일이 있으면 보류(닫힌 쪽).
+#   (이 파일은 사이트에서 공개로 읽히므로 로컬 경로를 적지 않고 홈 폴더에서 얻는다.)
+_ENGINE_HOME = os.environ.get("NUVIE_ENGINE_HOME") or os.path.expanduser("~")
+_SESSION_LOCK = os.path.join(_ENGINE_HOME, "nuvie_morning", "data", "landing_agent_session.lock")
+
+
+def _landing_session_hold():
+    try:
+        if _ENGINE_HOME not in sys.path:
+            sys.path.insert(0, _ENGINE_HOME)
+        from nuvie_morning import landing_session_lock as LSL
+        return LSL.hold_reason()
+    except Exception as e:
+        if os.path.exists(_SESSION_LOCK):
+            return f"랜딩 세션 잠금 파일이 있음(엔진 판정 실패 {type(e).__name__}) — push 보류"
+        return None
+
+
 def push_changes(repo, n_events):
     """availability.json git add+commit+rebase+push (Vercel 자동 재배포). 반환 pushed:bool."""
+    held = _landing_session_hold()
+    if held:
+        print(f"  ⏸ {held}")
+        return False
     try:
         subprocess.run(["git", "-C", repo, "add", "availability.json"], check=True)
         subprocess.run(["git", "-C", repo,
