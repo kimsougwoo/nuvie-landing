@@ -115,14 +115,16 @@ def _redirects():
 
 
 def test_existing_five_redirects_untouched():
+    # 2026-09-28 UTM 정본 통일(대표 결정): Meta 유료 숏링크의 source/medium 만
+    # instagram/cpc → meta/paid_social 로 바꿨다. campaign·content 는 과거 집계와 잇는 키라 그대로.
     r = _redirects()
     expected = {
         "/x": "/?utm_source=x&utm_medium=social&utm_campaign=bio",
         "/ig": "/?utm_source=instagram&utm_medium=social&utm_campaign=bio",
-        "/pm": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-meta-pilot-2026q3",
-        "/pm1": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-meta-pilot-2026q3&utm_content=cosplay_niche",
-        "/pm2": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-meta-pilot-2026q3&utm_content=ab_cosplaycard",
-        "/pm3": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-meta-pilot-2026q3&utm_content=reels",
+        "/pm": "/?utm_source=meta&utm_medium=paid_social&utm_campaign=ad-meta-pilot-2026q3",
+        "/pm1": "/?utm_source=meta&utm_medium=paid_social&utm_campaign=ad-meta-pilot-2026q3&utm_content=cosplay_niche",
+        "/pm2": "/?utm_source=meta&utm_medium=paid_social&utm_campaign=ad-meta-pilot-2026q3&utm_content=ab_cosplaycard",
+        "/pm3": "/?utm_source=meta&utm_medium=paid_social&utm_campaign=ad-meta-pilot-2026q3&utm_content=reels",
     }
     for source, dest in expected.items():
         assert source in r, f"기존 리다이렉트 {source} 가 사라졌다"
@@ -153,9 +155,9 @@ def test_hook_ab_shortlinks_are_a_new_campaign_not_a_reused_path():
     """
     r = _redirects()
     expected = {
-        "/ha": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-hook-ab-2026-08&utm_content=hook_a",
-        "/hb": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-hook-ab-2026-08&utm_content=hook_b",
-        "/hc": "/?utm_source=instagram&utm_medium=cpc&utm_campaign=ad-hook-ab-2026-08&utm_content=hook_c",
+        "/ha": "/?utm_source=meta&utm_medium=paid_social&utm_campaign=ad-hook-ab-2026-08&utm_content=hook_a",
+        "/hb": "/?utm_source=meta&utm_medium=paid_social&utm_campaign=ad-hook-ab-2026-08&utm_content=hook_b",
+        "/hc": "/?utm_source=meta&utm_medium=paid_social&utm_campaign=ad-hook-ab-2026-08&utm_content=hook_c",
     }
     for source, dest in expected.items():
         assert source in r, f"후킹 A/B 숏링크 {source} 가 없다 — 광고 소재에 붙일 링크가 없다"
@@ -169,6 +171,19 @@ def test_hook_ab_shortlinks_are_a_new_campaign_not_a_reused_path():
     # 7월 캠페인 이름이 섞이면 GA4 에서 두 실험이 한 덩어리로 집계된다
     for s in expected:
         assert "ad-meta-pilot-2026q3" not in r[s]["destination"], f"{s} 에 7월 캠페인 이름이 남아 있다"
+
+
+def test_paid_shortlinks_follow_single_utm_canon():
+    """2026-09-28 UTM 정본 하나로 — 유료 광고(campaign 이 ad- 로 시작) 숏링크는 전부
+    utm_source=meta · utm_medium=paid_social. 9월에 Meta 트래픽이 cpc 와 paid_social 두 medium 으로
+    갈렸던 원인이 이 숏링크들(07-07 파일럿 때 instagram/cpc)과 09-16 생성기의 불일치였다.
+    오가닉 bio 링크(medium=social)는 이 규약 대상이 아니다."""
+    r = _redirects()
+    paid = {s: x["destination"] for s, x in r.items() if "utm_campaign=ad-" in x["destination"]}
+    assert paid, "유료 숏링크를 하나도 못 찾았다"
+    for s, dest in paid.items():
+        assert "utm_source=meta&utm_medium=paid_social&" in dest, f"{s} 가 UTM 정본(meta/paid_social)과 다르다: {dest}"
+        assert "utm_medium=cpc" not in dest and "utm_source=instagram" not in dest, f"{s} 에 옛 꼬리표가 남았다"
 
 
 def test_redirect_count_grew_by_exactly_four():
