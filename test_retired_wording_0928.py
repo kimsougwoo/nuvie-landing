@@ -8,7 +8,6 @@
 """
 import os
 
-import build_availability as BA
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OLD_H1 = "남과 " + "겹치지 않는"   # 이 파일 자신이 걸리지 않게 나눠 적는다
