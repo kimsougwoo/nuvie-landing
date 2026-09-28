@@ -288,7 +288,7 @@ def build_page(room: dict, other: dict, catalog: dict, reviews_doc: dict, templa
     if len(hero["h1"]) != 2:
         raise SystemExit(f"[build_rooms] {room['slug']}: hero.h1 은 2줄이어야 한다")
     # h1 첫 줄 상한. 공백은 한글 글자보다 훨씬 좁으므로 폭 기준에서 제외한다
-    # (라이브 정본 "남과 겹치지 않는" = 공백 2 + 글자 7 로 안 깨진다 — 공백까지 세면 이 값이 걸린다).
+    # (현행 허브 h1 첫 줄 "내 의도대로 찍는" = 공백 2 + 글자 7 로 안 깨진다 — 공백까지 세면 이 값이 걸린다).
     glyphs = len(hero["h1"][0].replace(" ", ""))
     if glyphs > 8:
         raise SystemExit(

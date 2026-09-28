@@ -528,8 +528,9 @@ def main(argv=None, repo=None):
     if changed:
         out = {
             "updated": datetime.datetime.now().isoformat(timespec="minutes"),
-            "note": ("free/busy (아워플레이스 iCal + 휴무·차단 캘린더 · 이름 비노출, 시간·룸·종류만). "
-                     "kind=booking 예약 / kind=block 예약 불가(청소·점검·답사·휴무). "
+            # 2026-09-28 대표 «휴무는 없습니다. 24시간 365일 운영» — 공개 파일이라 «휴무» 단어를 쓰지 않는다.
+            "note": ("free/busy (아워플레이스 iCal + 차단 캘린더 · 이름 비노출, 시간·룸·종류만). "
+                     "kind=booking 예약 / kind=block 예약 불가(청소·점검·답사·본인 사용). "
                      "참고용 — 확정은 아워플레이스."),
             "events": events,
             "busyDates": busy,
