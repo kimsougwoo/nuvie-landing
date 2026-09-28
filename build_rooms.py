@@ -16,7 +16,7 @@ from __future__ import annotations
 import html
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -370,6 +370,11 @@ def _source_lastmod(*paths: Path) -> str:
     return max(_file_lastmod(path) for path in existing)
 
 
+# 날짜는 한 시간대(KST)로만 센다. 종전엔 커밋 날짜(%cs = 커밋한 사람 시간대)와 mtime(UTC)이 달라
+# KST 00:00~08:59 에 고친 파일은 수정 중엔 하루 전, 커밋하면 하루 뒤 날짜가 됐다(2026-09-28).
+_LASTMOD_TZ = timezone(timedelta(hours=9))
+
+
 def _file_lastmod(path: Path) -> str:
     import subprocess
     try:
@@ -377,14 +382,14 @@ def _file_lastmod(path: Path) -> str:
         dirty = subprocess.run(["git", "status", "--porcelain", "--", path.name], cwd=cwd,
                                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=20)
         if dirty.returncode == 0 and not dirty.stdout.strip():
-            log = subprocess.run(["git", "log", "-1", "--format=%cs", "--", path.name], cwd=cwd,
+            log = subprocess.run(["git", "log", "-1", "--format=%ct", "--", path.name], cwd=cwd,
                                  capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=20)
-            day = log.stdout.strip()
-            if log.returncode == 0 and len(day) == 10:
-                return day
+            stamp = log.stdout.strip()
+            if log.returncode == 0 and stamp.isdigit():
+                return datetime.fromtimestamp(int(stamp), tz=_LASTMOD_TZ).date().isoformat()
     except (OSError, subprocess.SubprocessError):
         pass
-    return datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc).date().isoformat()
+    return datetime.fromtimestamp(path.stat().st_mtime, tz=_LASTMOD_TZ).date().isoformat()
 
 
 def build_sitemap(rooms: list[dict]) -> str:
