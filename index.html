@@ -182,8 +182,14 @@
                 ③"차별화됐다"는 주장이라 증명 부담이 생긴다(«겹치지 않는다»는 사진이 증명한다)
                 ④브랜드 축이 「손님 센스로 독창적인 사진」이라 차별화 주체가 손님인데, 주체가 우리로 돌아간다.
                 ⇒ 같은 제안이 다시 오면 이 4가지로 판단할 것. 문구를 바꾸려면
-                  index.html · a.html · rooms.json **세 곳을 함께** 고쳐야 한다. -->
-        <h1 data-reveal style="font-weight:700;font-size:clamp(42px,7vw,92px);line-height:.98;letter-spacing:-.035em;margin:16px 0 0;color:#FFFFFF">남과 겹치지 않는<br><span style="color:rgba(255,255,255,.68)">코스프레 스튜디오</span></h1>
+                  index.html · a.html · rooms.json **세 곳을 함께** 고쳐야 한다.
+             🔄 2026-09-28 교체 — «남과 겹치지 않는» → «내 의도대로 찍는»(대표 «알아서» · 후보 4개 중 권고안).
+                사유: 마케팅 몸 사림 점검에서 «겹치지 않는»이 «다른 팀과 안 마주친다»(완전격리 약속,
+                메모리 feedback_no_privacy_claims 금지 축)로 읽힐 여지가 지적됐다. 새 문구는 위 4가지를 그대로 지킨다 —
+                ①주어 = 손님(내 의도) ②경쟁사 비교 없음 ③증명 부담 없음(자유 배치는 사진이 증명)
+                ④차별화 주체 = 손님. 근거 원문 = 리뷰 06-19 «촬영자의 의도에 따라 다양한 분위기를».
+                a.html·rooms.json 에는 이 문구가 없다(09-28 grep) — 허브 h1 만 바뀐다. OG(og.jpg)는 build_og.py 가 이 h1 을 읽어 다시 만든다. -->
+        <h1 data-reveal style="font-weight:700;font-size:clamp(42px,7vw,92px);line-height:.98;letter-spacing:-.035em;margin:16px 0 0;color:#FFFFFF">내 의도대로 찍는<br><span style="color:rgba(255,255,255,.68)">코스프레 스튜디오</span></h1>
         <p data-reveal style="margin:22px 0 0;color:#D8D8DA;max-width:480px;font-size:16px;line-height:1.7">소품과 천을 직접 옮겨 배치하고, 천장 레일에 드레이핑까지.<br>동양풍 A룸, 자연광 B룸 두 컨셉.<br>까치산역 10분, 무인 단독 대관.</p>
         <div class="herobadges" data-reveal style="display:flex;gap:8px;flex-wrap:wrap;margin-top:24px">
           <!-- 2026-07-29 P0: 뱃지 3개가 링크도 핸들러도 없는 죽은 <span>이었다(A룸 뱃지에만 15클릭이 그대로 소멸).

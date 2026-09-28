@@ -66,13 +66,16 @@ def test_main_reviews_are_a_b_integrated():
     html = open(os.path.join(HERE, "index.html"), encoding="utf-8").read()
 
     assert B.REVIEWS.endswith("reviews_all.json")
-    assert data["count"] == len(data["reviews"]) == 21
+    # 건수는 박아 두지 않는다(09-28 후기 배포로 21→23 이 되자 이 줄이 깨졌다). 규칙 = 메인은 A·B 합계, 파일 안에서 정합.
+    assert data["count"] == len(data["reviews"]) >= 21
     assert data["source"] == "A+B 통합(메인 집계)"
     assert "fetch('reviews_all.json',{cache:'no-store'})" in html
     assert "fetch('reviews.json'" not in html
-    assert "정말 예쁜사진" in html
-    assert "조명 많고 스탠드" in html
-    assert '"ratingValue":"5.0","reviewCount":"21"' in html
+    # 특정 후기 문장을 박아 두지 않는다(09-28 새 후기 2건이 들어오자 옛 문장이 정적 목록에서 밀려 깨졌다).
+    # 규칙 = 정적 HTML 에 최신 후기(파일 맨 앞)가 들어 있다.
+    newest = data["reviews"][0]["text"].strip().split("\n")[0][:12]
+    assert newest and newest in html
+    assert f'"ratingValue":"5.0","reviewCount":"{data["count"]}"' in html
 
 
 def test_every_review_rating_is_a_number_not_a_string():
