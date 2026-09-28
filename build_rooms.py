@@ -237,28 +237,9 @@ def render_jsonld(room: dict, other: dict, catalog: dict, reviews_doc: dict) -> 
     }
     if reviews_doc.get("updated"):
         product["dateModified"] = reviews_doc["updated"]
-    if room.get("showReviews") and reviews_doc.get("reviews"):
-        product["aggregateRating"] = {
-            "@type": "AggregateRating",
-            "ratingValue": str(reviews_doc.get("rating")),
-            "reviewCount": str(reviews_doc.get("count", len(reviews_doc["reviews"]))),
-            "bestRating": "5",
-        }
-        product["review"] = [
-            {
-                "@type": "Review",
-                "author": {"@type": "Person", "name": r.get("name", "")},
-                "datePublished": r.get("date", ""),
-                "reviewRating": {
-                    "@type": "Rating",
-                    "ratingValue": str(r.get("rating", 5)),
-                    "bestRating": "5",
-                },
-                "reviewBody": r.get("text", ""),
-                "publisher": {"@type": "Organization", "name": "아워플레이스"},
-            }
-            for r in sorted(reviews_doc["reviews"], key=lambda x: x.get("date", ""), reverse=True)[:6]
-        ]
+    # 2026-09-28: aggregateRating·review[] 를 내보내지 않는다. 후기는 전부 아워플레이스 것이라
+    #   구글 리뷰 스니펫 규칙 «Don't aggregate reviews or ratings from other websites» 위반이다.
+    #   화면의 후기 목록(render_reviews, 출처 표기)은 그대로 둔다. 테스트 = test_jsonld_no_thirdparty_reviews.py
     breadcrumb = {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",

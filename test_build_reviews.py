@@ -58,7 +58,10 @@ def test_real_reviews_json_all_surfaces_consistent():
     )
     local = next(json.loads(block) for block in scripts if json.loads(block).get("@type") == "LocalBusiness")
     assert local["dateModified"] == data["updated"]
-    assert all(review.get("datePublished") for review in local["review"])
+    # 2026-09-28: 다른 사이트(아워플레이스) 후기는 JSON-LD 에 싣지 않는다(test_jsonld_no_thirdparty_reviews.py).
+    assert "review" not in local and "aggregateRating" not in local
+    # build_reviews.py 를 다시 돌려도 되살아나지 않아야 한다(키가 없으면 sync 는 아무것도 넣지 않는다).
+    assert B.sync_jsonld_reviews(html, data) == html
 
 
 def test_main_reviews_are_a_b_integrated():
@@ -75,7 +78,19 @@ def test_main_reviews_are_a_b_integrated():
     # 규칙 = 정적 HTML 에 최신 후기(파일 맨 앞)가 들어 있다.
     newest = data["reviews"][0]["text"].strip().split("\n")[0][:12]
     assert newest and newest in html
-    assert f'"ratingValue":"5.0","reviewCount":"{data["count"]}"' in html
+    # 2026-09-28: 별점 JSON-LD 는 뺐다(구글 규칙). 화면 배지 숫자가 A·B 합계인지로 대신 검사한다.
+    assert f'id="reviewCount">{data["count"]}</span>' in html
+    assert f'id="reviewTotal">{data["count"]}</span>' in html
+
+
+def test_main_badge_count_is_a_plus_b():
+    """대표 결정 8(09-28): 메인 후기 = A·B 합계(«많아보이게»), 룸별 후기는 /a·/b 상세에만."""
+    a = json.load(open(os.path.join(HERE, "reviews.json"), encoding="utf-8"))
+    b = json.load(open(os.path.join(HERE, "reviews_b.json"), encoding="utf-8"))
+    main = json.load(open(MAIN_REVIEWS, encoding="utf-8"))
+    assert main["count"] == a["count"] + b["count"] == len(a["reviews"]) + len(b["reviews"])
+    html = open(os.path.join(HERE, "index.html"), encoding="utf-8").read()
+    assert "출처: 아워플레이스 A룸·B룸 후기" in html
 
 
 def test_every_review_rating_is_a_number_not_a_string():
