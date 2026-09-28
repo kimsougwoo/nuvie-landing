@@ -269,6 +269,23 @@ def merge_events(events):
     return out
 
 
+# 공개 availability.json 의 note. 2026-09-28 대표 «휴무는 없습니다. 24시간 365일 운영» —
+#   공개 파일이라 «휴무» 단어를 쓰지 않는다(test_retired_wording_0928.py 가 잠근다).
+NOTE = ("free/busy (아워플레이스 iCal + 차단 캘린더 · 이름 비노출, 시간·룸·종류만). "
+        "kind=booking 예약 / kind=block 예약 불가(청소·점검·답사·본인 사용). "
+        "참고용 — 확정은 아워플레이스.")
+
+
+def _load_old_note(dst):
+    """직전 availability.json 의 note(없거나 손상이면 None)."""
+    if os.path.exists(dst):
+        try:
+            return json.load(open(dst, encoding="utf-8")).get("note")
+        except Exception:
+            pass
+    return None
+
+
 def _load_old_events(dst):
     """직전 availability.json의 events 리스트(없거나 손상이면 None)."""
     if os.path.exists(dst):
@@ -521,17 +538,16 @@ def main(argv=None, repo=None):
         return False
 
     busy = sorted({e["date"] for e in events})
-    changed = ((old_events or []) != events)
+    # 2026-09-28: note 문구를 고쳐도 이벤트가 같으면 옛 note 가 배포본에 계속 남았다(«휴무» 잔류).
+    #   note 가 다르면 한 번 새로 쓴다. 같아지면 다시 no-op 이라 07-23 스톨 대책은 그대로다.
+    changed = ((old_events or []) != events) or (_load_old_note(dst) != NOTE)
     # 🔧 2026-07-23: 변경이 있을 때만 파일을 쓴다. 종전엔 매 런 `updated` 타임스탬프를 무조건
     #   재기록 → 이벤트 변화가 없어도 워킹트리가 dirty → 다음 런의 `git pull --rebase`가 dirty로
     #   막혀 크론이 스톨했다(라이브 예약현황 8일 고착 사고, 2026-07-23). 변경 시에만 기록.
     if changed:
         out = {
             "updated": datetime.datetime.now().isoformat(timespec="minutes"),
-            # 2026-09-28 대표 «휴무는 없습니다. 24시간 365일 운영» — 공개 파일이라 «휴무» 단어를 쓰지 않는다.
-            "note": ("free/busy (아워플레이스 iCal + 차단 캘린더 · 이름 비노출, 시간·룸·종류만). "
-                     "kind=booking 예약 / kind=block 예약 불가(청소·점검·답사·본인 사용). "
-                     "참고용 — 확정은 아워플레이스."),
+            "note": NOTE,
             "events": events,
             "busyDates": busy,
         }

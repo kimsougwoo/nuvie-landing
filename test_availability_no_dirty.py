@@ -25,7 +25,8 @@ def _init_repo(repo, events):
     _git(repo, "config", "user.email", "t@t.t")
     _git(repo, "config", "user.name", "t")
     dst = os.path.join(repo, "availability.json")
-    json.dump({"updated": "2026-07-01T00:00", "note": "n", "events": events,
+    # note 는 실제 NOTE 와 같아야 «변화 없음»이다(09-28부터 note 가 달라도 한 번 새로 쓴다).
+    json.dump({"updated": "2026-07-01T00:00", "note": B.NOTE, "events": events,
                "busyDates": sorted({e["date"] for e in events})},
               open(dst, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     _git(repo, "add", "availability.json")

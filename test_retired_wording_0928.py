@@ -35,7 +35,8 @@ def test_old_hub_h1_wording_is_gone():
 
 def test_availability_note_has_no_holiday_word():
     src = open(os.path.join(HERE, "build_availability.py"), encoding="utf-8").read()
-    start = src.index('"note": (')
-    note_src = src[start:src.index('"events": events', start)]
+    start = src.index("NOTE = (")
+    note_src = src[start:src.index("\n\n", start)]
     assert "휴무" not in note_src, note_src
+    assert '"note": NOTE' in src, "availability.json note 는 NOTE 상수 하나에서 나와야 한다"
     assert "(청소·점검·답사·본인 사용)" in note_src
