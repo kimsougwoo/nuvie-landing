@@ -30,5 +30,5 @@ def test_faq_details_text_matches_faqpage_ld():
             re.S,
         )
     ]
-    assert len(details_text) == len(ld_text) == 10
+    assert len(details_text) == len(ld_text) == 11  # 09-28 올데이권 FAQ 추가
     assert details_text == ld_text
