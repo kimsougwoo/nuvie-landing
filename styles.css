@@ -402,6 +402,7 @@ html{scroll-behavior:smooth}
   /* 3) 버튼/CTA 피드백 — :active 미세 축소, :focus-visible 접근성 아웃라인(키보드만 노출→마우스 외관 불변) */
   .btn:active,.book a:active,.btn.line:active,.nv-chip:active{transform:scale(.98)}
   .sticky-book a:active{transform:scale(.97)}
+  .sticky-book a.wk{font-size:13px;letter-spacing:-.02em}
   a:focus-visible,button:focus-visible,[role="button"][tabindex]:focus-visible,summary:focus-visible,.fv-h:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
 
   /* 4) 캐러셀 화살표 호버(A룸 기존 + 신설 공통) — hover 시 배경 진해짐 */
