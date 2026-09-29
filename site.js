@@ -150,7 +150,8 @@
     if (lb && lbImg && lbClose) {
       var trig=null, prevOv='', lbTok=0;
       function openLb(src,el,alt){ trig=el||null; lbImg.src=src; lbImg.alt=alt||'사진 확대'; lb.style.display='flex'; prevOv=document.body.style.overflow; document.body.style.overflow='hidden'; try{lbClose.focus();}catch(e){} }
-      function closeLb(){ lbTok++; lb.style.display='none'; lbImg.src=''; lbImg.style.filter=''; document.body.style.overflow=prevOv; try{ if(trig) trig.focus(); }catch(e){} trig=null; }
+      // width/height 는 A룸 후기 확대(openReview)만 넣는다 — 닫을 때 지워 갤러리 확대에 남지 않게(/b 는 넣은 적이 없어 동작 동일)
+      function closeLb(){ lbTok++; lb.style.display='none'; lbImg.src=''; lbImg.style.filter=''; lbImg.removeAttribute('width'); lbImg.removeAttribute('height'); document.body.style.overflow=prevOv; try{ if(trig) trig.focus(); }catch(e){} trig=null; }
       lb.addEventListener('click',function(e){ if(e.target===lb) closeLb(); });
       lbClose.addEventListener('click',closeLb);
       document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&lb.style.display==='flex') closeLb(); });
@@ -169,6 +170,8 @@
           var href = a.getAttribute('href'), ent = rvMap[href] || {}, im = a.querySelector('img');
           var full = ent.full || href, thumb = ent.thumb || '';
           openLb(thumb || full, a, (im && im.alt) || '후기 사진 확대');
+          // 2026-09-29: 흐린 미리보기가 확대본보다 작게 떴다가 커지며 튀던 것 — 원본 비율로 상자를 처음부터 최종 크기로
+          if (ent.w && ent.h) { lbImg.width = ent.w; lbImg.height = ent.h; }
           rvOpenedAt = Date.now();
           if (thumb) {
             lbImg.style.filter = 'blur(6px)';

@@ -408,8 +408,10 @@
         //   확대본이 load+decode 되면 교체한다. 열린 직후 300ms 는 배경 클릭을 무시(로딩 중 «반응 없는 클릭»→즉시 닫힘 방지).
         //   × 버튼·ESC 는 항상 즉시 닫는다.
         var lbLoading=document.getElementById('reviewLightboxLoading'), lbOpenedAt=0, lbToken=0;
-        function openLb(src,trigger,alt,placeholder){ lbTrigger=trigger||null; var tok=++lbToken; lbOpenedAt=Date.now();
+        function openLb(src,trigger,alt,placeholder,dims){ lbTrigger=trigger||null; var tok=++lbToken; lbOpenedAt=Date.now();
           lbImg.alt=alt||'누비 스튜디오 후기 사진 확대';
+          // 2026-09-29: 흐린 미리보기(640px)가 확대본보다 작게 떴다가 커지며 튀었다 — 원본 비율(map.json w·h)로 상자를 처음부터 최종 크기로
+          if(dims&&dims.w&&dims.h){ lbImg.width=dims.w; lbImg.height=dims.h; } else { lbImg.removeAttribute('width'); lbImg.removeAttribute('height'); }
           if(placeholder){ lbImg.src=placeholder; lbImg.style.filter='blur(6px)'; lbImg.style.display='block'; }
           else { lbImg.removeAttribute('src'); lbImg.style.display='none'; }
           if(lbLoading) lbLoading.style.display='block';
@@ -421,7 +423,7 @@
           probe.onload=function(){ if(probe.decode){ probe.decode().then(show,show); } else { show(); } };
           probe.onerror=show;
           probe.src=src; }
-        function closeLb(){ lbToken++; lb.style.display='none'; lbImg.removeAttribute('src'); lbImg.style.filter=''; if(lbLoading) lbLoading.style.display='none';
+        function closeLb(){ lbToken++; lb.style.display='none'; lbImg.removeAttribute('src'); lbImg.removeAttribute('width'); lbImg.removeAttribute('height'); lbImg.style.filter=''; if(lbLoading) lbLoading.style.display='none';
           document.body.style.overflow=lbPrevOverflow; lbPrevOverflow='';
           try{ if(lbTrigger)lbTrigger.focus(); }catch(e){} lbTrigger=null; }
         lb.addEventListener('click',function(e){ if(e.target===lb && Date.now()-lbOpenedAt>300) closeLb(); });
@@ -495,8 +497,8 @@
                 im.style.cssText='width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;border-radius:4px;display:block;cursor:pointer';
                 // 순수 <img> 에 click 만 달면 키보드로는 열 수 없다(WCAG 2.1.1 위반).
             im.tabIndex=0; im.setAttribute('role','button'); im.setAttribute('aria-label','후기 사진 확대 보기');
-            im.addEventListener('click',function(){ openLb(fullSrc,im,null,ent&&ent.thumb?thumbSrc:null); });
-            im.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openLb(fullSrc,im,null,ent&&ent.thumb?thumbSrc:null); } });
+            im.addEventListener('click',function(){ openLb(fullSrc,im,null,ent&&ent.thumb?thumbSrc:null,ent); });
+            im.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openLb(fullSrc,im,null,ent&&ent.thumb?thumbSrc:null,ent); } });
                 pg.appendChild(im);
               });
               card.appendChild(pg);
@@ -1305,28 +1307,37 @@
 
 <!-- 2026-09-29 랜딩 UX 실측 3차: 해시 링크(/#allday·/#faq 등)로 첫 진입하면 smooth 스크롤이 도는 사이 후기·달력이 늦게 채워져
      문서가 ~1,550px 길어지고, 스크롤이 옛 목표에서 멈췄다(PC 목표 1,530~1,590px 아래). 문서 높이가 바뀔 때마다 목표로 즉시 다시 맞춘다.
-     손님이 직접 스크롤·탭·키 입력하거나 메뉴(해시 변경)를 누르면, 또는 6초가 지나면 멈춘다. -->
+     손님이 직접 스크롤·탭·키 입력하거나 메뉴(해시 변경)를 누르면, 또는 6초가 지나면 멈춘다.
+     입력 이벤트가 없는 스크롤(스크롤바 드래그 등)도 잡는다: 다시 맞추기 직전 위치가 «우리가 맞춘 곳» 또는
+     «그곳 + 늘어난 높이»(브라우저 스크롤 고정)가 아니면 손님이 움직인 것으로 보고 손 뗀다.
+     해시는 선택자로 해석하지 않고 id 로만 찾는다(#faq,body·#utm=… 같은 값에 엉뚱한 요소로 가지 않게). -->
 <script>
 (function(){
   var h=location.hash, el=null;
   if(!h||h.length<2||!('ResizeObserver' in window))return;
-  try{ el=document.querySelector(h); }catch(e){ return; }
+  try{ el=document.getElementById(decodeURIComponent(h.slice(1))); }catch(e){ return; }
   if(!el)return;
-  var done=false, t0=Date.now(), lastH=0, ro;
+  var LIMIT_MS=6000, done=false, t0=Date.now(), lastH=0, ourY=null, ro;
+  var de=document.documentElement;
   function stop(){ if(done)return; done=true; if(ro)ro.disconnect(); }
   ['wheel','touchstart','keydown','pointerdown','hashchange'].forEach(function(ev){ window.addEventListener(ev,stop,{passive:true,once:true}); });
   ro=new ResizeObserver(function(){
     if(done)return;
-    if(Date.now()-t0>6000){ stop(); return; }
-    var hh=document.documentElement.scrollHeight;
+    if(Date.now()-t0>LIMIT_MS){ stop(); return; }
+    var hh=de.scrollHeight;
     if(hh===lastH)return;
+    if(ourY!==null){
+      var y=window.scrollY, grew=hh-lastH;
+      if(Math.abs(y-ourY)>4 && Math.abs(y-(ourY+grew))>4){ stop(); return; }
+    }
     lastH=hh;
     // 'instant' 를 모르는 옛 Safari(15.4 미만)는 TypeError → 부드러운 스크롤을 잠시 끄고 기본 정렬로
     try{ el.scrollIntoView({block:'start',behavior:'instant'}); }
-    catch(e){ var de=document.documentElement, sb=de.style.scrollBehavior; de.style.scrollBehavior='auto'; el.scrollIntoView(true); de.style.scrollBehavior=sb; }
+    catch(e){ var sb=de.style.scrollBehavior; de.style.scrollBehavior='auto'; el.scrollIntoView(true); de.style.scrollBehavior=sb; }
+    ourY=window.scrollY;
   });
   ro.observe(document.body);
-  setTimeout(stop,6500);
+  setTimeout(stop,LIMIT_MS+500);
 })();
 </script>
 
