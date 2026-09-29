@@ -15,7 +15,10 @@
   reviews_all.json      A+B 통합 후기 — index.html(메인 집계)가 읽음
   reviews_originals.json 양 룸 원문 스냅샷(feedback_id 기준) — build_reviews verbatim 대조 정합용
 
-사진: 아워 CDN URL 을 그대로 참조한다(다운로드·커밋 없음). 렌더러는 src 를 그대로 쓴다.
+사진: 후기 JSON 에는 아워 CDN 원본 URL 을 그대로 적는다(이 스크립트는 다운로드·커밋 없음).
+  화면은 reviews/img/map.json 의 축소 WebP 사본(build_review_images.py, 2026-09-29 자체 호스팅)을 먼저 쓰고,
+  매핑이 없으면 원본 URL 로 폴백한다. ⚠️ 새 후기 사진의 축소 사본은 build_review_images.py 를 따로 돌려야 생긴다
+  (이 스크립트의 빌드 체인에는 아직 없다 — 없으면 그 사진만 원본으로 느리게 뜬다).
 이름: mask_name(build_reviews) 로 앞 2글자+*** (공개 레포라 노출 축소 — 이건 큐레이션이 아니라 개인정보 처리).
 blind 처리된 후기는 제외(아워에서 숨긴 것).
 
