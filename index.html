@@ -389,6 +389,7 @@
       <!-- 후기 사진 확대 라이트박스(썸네일 클릭 시) -->
       <div id="reviewLightbox" role="dialog" aria-modal="true" aria-label="사진 확대" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.86);align-items:center;justify-content:center;padding:24px">
         <img id="reviewLightboxImg" alt="누비 스튜디오 후기 사진 확대" style="max-width:min(900px,92vw);max-height:86vh;object-fit:contain;border-radius:6px;display:block">
+        <div id="reviewLightboxLoading" role="status" aria-live="polite" style="display:none;position:absolute;left:50%;top:50%;margin:-22px 0 0 -22px;width:44px;height:44px;pointer-events:none"><span class="lb-spin" aria-hidden="true"></span><span class="sr-only">사진을 불러오는 중</span></div>
         <button id="reviewLightboxClose" aria-label="닫기" style="position:absolute;top:18px;right:22px;width:40px;height:40px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:22px;line-height:1;cursor:pointer">×</button>
       </div>
       <script>
@@ -403,13 +404,27 @@
         // 배경 스크롤 락(2026-07-29) — 라이트박스가 열린 채로 뒷배경이 스크롤돼 닫으면 엉뚱한 위치였다.
         // 복원은 closeLb() 한 곳에서만 하고 모든 닫기 경로(× 버튼·배경 클릭·ESC)가 이 함수를 거치게 둔다.
         var lbPrevOverflow='';
-        function openLb(src,trigger,alt){ lbTrigger=trigger||null; lbImg.src=src; lbImg.alt=alt||'누비 스튜디오 후기 사진 확대'; lb.style.display='flex';
+        // 2026-09-29 체감 개선: 클릭 즉시 열고 «불러오는 중» 스피너(+흐린 썸네일)를 보이다가,
+        //   확대본이 load+decode 되면 교체한다. 열린 직후 300ms 는 배경 클릭을 무시(로딩 중 «반응 없는 클릭»→즉시 닫힘 방지).
+        //   × 버튼·ESC 는 항상 즉시 닫는다.
+        var lbLoading=document.getElementById('reviewLightboxLoading'), lbOpenedAt=0, lbToken=0;
+        function openLb(src,trigger,alt,placeholder){ lbTrigger=trigger||null; var tok=++lbToken; lbOpenedAt=Date.now();
+          lbImg.alt=alt||'누비 스튜디오 후기 사진 확대';
+          if(placeholder){ lbImg.src=placeholder; lbImg.style.filter='blur(6px)'; lbImg.style.display='block'; }
+          else { lbImg.removeAttribute('src'); lbImg.style.display='none'; }
+          if(lbLoading) lbLoading.style.display='block';
+          lb.style.display='flex';
           lbPrevOverflow=document.body.style.overflow; document.body.style.overflow='hidden';
-          try{document.getElementById('reviewLightboxClose').focus();}catch(e){} }
-        function closeLb(){ lb.style.display='none'; lbImg.src='';
+          try{document.getElementById('reviewLightboxClose').focus();}catch(e){}
+          var probe=new Image();
+          function show(){ if(tok!==lbToken) return; lbImg.src=src; lbImg.style.filter=''; lbImg.style.display='block'; if(lbLoading) lbLoading.style.display='none'; }
+          probe.onload=function(){ if(probe.decode){ probe.decode().then(show,show); } else { show(); } };
+          probe.onerror=show;
+          probe.src=src; }
+        function closeLb(){ lbToken++; lb.style.display='none'; lbImg.removeAttribute('src'); lbImg.style.filter=''; if(lbLoading) lbLoading.style.display='none';
           document.body.style.overflow=lbPrevOverflow; lbPrevOverflow='';
           try{ if(lbTrigger)lbTrigger.focus(); }catch(e){} lbTrigger=null; }
-        lb.addEventListener('click',function(e){ if(e.target===lb) closeLb(); });
+        lb.addEventListener('click',function(e){ if(e.target===lb && Date.now()-lbOpenedAt>300) closeLb(); });
         document.getElementById('reviewLightboxClose').addEventListener('click',closeLb);
         document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&lb.style.display==='flex') closeLb(); });
         // 2026-09-17 P0: 모바일 룸 갤러리(.mgal)가 같은 라이트박스를 쓴다 — open/close 만 클로저 밖으로.
@@ -443,7 +458,10 @@
         window.addEventListener('resize', onReviewScroll);
         if(reviewMq.addEventListener) reviewMq.addEventListener('change', syncReviewHeight); else reviewMq.addListener(syncReviewHeight);
 
-        fetch('reviews_all.json',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
+        // 축소 WebP 사본 매핑(build_review_images.py) — 실패해도 렌더는 계속(원본 URL 폴백)
+        var mapP=fetch('reviews/img/map.json').then(function(r){return r.ok?r.json():{}}).catch(function(){return {}});
+        Promise.all([fetch('reviews_all.json',{cache:'no-store'}).then(function(r){return r.json();}),mapP]).then(function(res){
+          var d=res[0], imgMap=res[1]||{};
           var rv=(d&&d.reviews)||[], n=(d&&d.count)||rv.length;
           rv.sort(function(a,b){ return (b.date||'0000-00-00').localeCompare(a.date||'0000-00-00'); }); // 항상 최신순
           var c=document.getElementById('reviewCount'), t=document.getElementById('reviewTotal');
@@ -471,12 +489,14 @@
               var pg=document.createElement('div');
               pg.style.cssText='display:grid;grid-template-columns:repeat('+Math.min(v.photos.length,2)+',1fr);gap:6px;margin-bottom:11px';
               v.photos.slice(0,2).forEach(function(src){
-                var im=document.createElement('img'); im.src=src; im.alt='누비 스튜디오 후기 사진'; im.loading='lazy';
-                im.style.cssText='width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:4px;display:block;cursor:pointer';
+                var ent=imgMap[src], thumbSrc=(ent&&ent.thumb)||src, fullSrc=(ent&&ent.full)||src;
+                var im=document.createElement('img'); im.src=thumbSrc; im.alt='누비 스튜디오 후기 사진'; im.loading='lazy'; im.decoding='async';
+                if(ent&&ent.w&&ent.h){ im.width=ent.w; im.height=ent.h; }
+                im.style.cssText='width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;border-radius:4px;display:block;cursor:pointer';
                 // 순수 <img> 에 click 만 달면 키보드로는 열 수 없다(WCAG 2.1.1 위반).
             im.tabIndex=0; im.setAttribute('role','button'); im.setAttribute('aria-label','후기 사진 확대 보기');
-            im.addEventListener('click',function(){ openLb(src,im); });
-            im.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openLb(src,im); } });
+            im.addEventListener('click',function(){ openLb(fullSrc,im,null,ent&&ent.thumb?thumbSrc:null); });
+            im.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openLb(fullSrc,im,null,ent&&ent.thumb?thumbSrc:null); } });
                 pg.appendChild(im);
               });
               card.appendChild(pg);
