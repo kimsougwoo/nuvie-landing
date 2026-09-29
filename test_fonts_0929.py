@@ -47,28 +47,27 @@ def test_subset_covers_every_character_the_site_shows():
         assert not hard, f"{w}: 서브셋에 빠진 글자 {''.join(hard)[:40]} — build_fonts.py 를 다시 돌릴 것"
 
 
-def test_fonts_css_declares_four_weights_with_swap():
+def test_fonts_css_declares_four_weights_with_optional():
+    """09-30 대표 결정: font-display: optional — 첫 그리기 전에 없으면 그 페이지는 기기 글꼴로 끝까지(중간 교체·밀림 0).
+    swap + preload 는 첫 방문 FCP·LCP 를 +0.4~0.9초 늦췄고, swap 무 preload 는 뒤로 가기 밀림이 커졌다(nuvie_ux_lab 번갈아 실측)."""
     css = _read("fonts.css")
     faces = re.findall(r"@font-face\s*\{([^}]*)\}", css)
     got = {int(re.search(r"font-weight:\s*(\d+)", f).group(1)) for f in faces}
     assert got == set(WEIGHTS)
     for f in faces:
-        assert "NuvieSans" in f and "font-display:swap" in f.replace(" ", "")
+        assert "NuvieSans" in f and "font-display:optional" in f.replace(" ", "")
         assert re.search(r"url\(/fonts/nuvie-sans-\d{3}\.woff2\)", f)
 
 
 def _assert_new_font_head(html, page):
     head = _head(html)
-    for w in WEIGHTS:
-        assert re.search(rf'<link rel="preload" href="/fonts/nuvie-sans-{w}\.woff2" as="font" type="font/woff2" crossorigin>', head), (page, w)
+    pre = [int(w) for w in re.findall(r'<link rel="preload" href="/fonts/nuvie-sans-(\d{3})\.woff2" as="font" type="font/woff2" crossorigin>', head)]
+    assert set(pre) <= set(WEIGHTS) and len(pre) == len(set(pre)), (page, pre)
     assert '<link rel="stylesheet" href="/fonts.css">' in head, page
-    # CDN 동적 서브셋은 드문 글자 예비로만 — 렌더를 막지 않게(media=print → onload 로 all).
-    #   <noscript> 안의 줄은 JS 가 꺼진 때만 쓰이므로 판정에서 뺀다.
-    live = re.sub(r"<noscript>.*?</noscript>", "", head, flags=re.S)
-    blocking = re.findall(r'<link rel="stylesheet" href="' + re.escape(CDN) + r'">', live)
-    assert not blocking, f"{page}: CDN 글꼴 CSS 가 아직 렌더를 막는다"
-    assert re.search(r'href="' + re.escape(CDN) + r'" media="print" onload="this\.media=\'all\'"', head), page
-    assert head.index("/fonts/nuvie-sans-400.woff2") < head.index("/styles.css"), f"{page}: preload 는 스타일보다 먼저"
+    # optional 방식에서는 CDN Pretendard(swap)가 남아 있으면 NuvieSans 를 못 쓴 페이지가 결국 Pretendard 로 바뀌며 다시 밀린다
+    assert CDN not in head and "cdn.jsdelivr.net" not in head, f"{page}: CDN 글꼴이 남아 있다"
+    if pre:
+        assert head.index("/fonts/nuvie-sans-") < head.index("/styles.css"), f"{page}: preload 는 스타일보다 먼저"
 
 
 def test_home_and_room_a_use_self_hosted_fonts():

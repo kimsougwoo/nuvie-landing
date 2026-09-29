@@ -84,24 +84,17 @@
 <meta name="twitter:title" content="누비 스튜디오 — 코스프레 컨셉 렌탈 스튜디오 · 까치산">
 <meta name="twitter:description" content="코스프레 무인 렌탈 스튜디오. 동양풍 블랙 호리존 A룸·화이트 자연광 B룸. 까치산역 도보 10분. 예약은 아워플레이스.">
 <meta name="twitter:image" content="https://www.nuviestudio.com/og.jpg">
-<!-- 2026-09-29 글꼴 자체 호스팅: 사이트 글자만 담은 NuvieSans(Pretendard 서브셋·OFL 이름 변경) 4종을 글자 배치 «전에» 받는다.
-     동적 서브셋(아래 CDN)만 쓸 때는 배치 뒤에 조각을 요청해 새로 열 때마다 글꼴이 늦게 바뀌며 글이 밀렸다
-     (/a 360px 뒤로 가기 CLS 0.4~0.6). CDN CSS 는 드문 글자 예비로만 두고 렌더를 막지 않게 media=print→all. -->
+<!-- 2026-09-30 글꼴(대표 결정 «font-display: optional»): 사이트 글자만 담은 NuvieSans(Pretendard 서브셋·OFL 이름 변경,
+     /fonts.css) — 첫 그리기 전에 도착하면 쓰고, 늦으면 그 페이지는 기기 기본 한글 글꼴로 끝까지(중간 교체·밀림 없음).
+     CDN Pretendard 는 싣지 않는다(남기면 NuvieSans 를 못 쓴 페이지가 결국 Pretendard 로 바뀌며 다시 밀린다).
+     미리 받는 굵기 = build_rooms.FONT_PRELOAD 와 같게. 이력: 07-29 static 전체 2.98MB → CDN 동적 서브셋,
+     09-29 동적 서브셋의 늦은 교체로 /a 360px 뒤로 가기 CLS 0.4~0.6·렌더 차단(/a 첫 화면 3.1초). -->
 <link rel="preload" href="/fonts/nuvie-sans-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/fonts/nuvie-sans-500.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/fonts/nuvie-sans-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/nuvie-sans-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/fonts.css">
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<!-- 2026-07-29 P0 성능: static 전체(unicode-range 없음, 4 weight 합 3,121,336B = 2.98MB, 페이지 이미지
-     전량 2.24MB보다 컸다) → dynamic-subset 로 교체. 같은 호스트(cdn.jsdelivr.net)라 위 preconnect 불변.
-     @font-face 는 weight 100~900 전부 유지되고 각 weight 가 unicode-range 92개 조각으로 쪼개져
-     실제 쓰는 글자 조각만 내려받는다(400/500/600/700 4종 모두 포함 확인). -->
 <!-- 2026-09-17 P0: 히어로 LCP 프리로드(srcset 반영·모바일 800w) + 룸 상세 선수신(quick_back 완화·인앱 Chromium만·스크립트 실행 없음). -->
 <link rel="preload" as="image" href="/img/room-b.jpg" imagesrcset="/img/room-b-800.jpg 800w, /img/room-b.jpg 1600w" imagesizes="100vw" fetchpriority="high">
 <link rel="prefetch" href="/a" as="document"><link rel="prefetch" href="/b" as="document">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css"></noscript>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"LocalBusiness","@id":"https://www.nuviestudio.com/#business","name":"누비 스튜디오 NUVIE STUDIO","alternateName":["누비스튜디오","NUVIE STUDIO"],"description":"코스프레 촬영을 위한 컨셉 렌탈 스튜디오. 동양풍 블랙 호리존 A룸, 화이트 티타임 카페 B룸. 무인 운영.","url":"https://www.nuviestudio.com/","image":"https://www.nuviestudio.com/og.jpg","areaServed":"서울","address":{"@type":"PostalAddress","streetAddress":"곰달래로 184, 4층 (화곡동 874-12 남양빌딩)","addressLocality":"서울 강서구","addressRegion":"서울","addressCountry":"KR"},"openingHours":"Mo-Su 00:00-24:00","hasMap":["https://naver.me/GM334mVo","https://place.map.kakao.com/918861206"],"sameAs":["https://x.com/nuvie_studio","https://www.instagram.com/nuvie_studio","https://naver.me/GM334mVo","https://place.map.kakao.com/918861206","https://www.hourplace.co.kr/place/61823","https://www.hourplace.co.kr/place/62341"],"keywords":"코스프레 스튜디오, 코스프레 렌탈, 컨셉 스튜디오, 까치산역 스튜디오, 강서구 코스프레, 동양풍 스튜디오, 자연광 스튜디오, 화이트 티타임 카페, 티타임 스튜디오, 동양풍 코스프레 스튜디오, 동양풍 코스프레 촬영","knowsAbout":["코스프레 촬영","동양풍 코스프레","블랙 호리존(BLACK CYC, 4M × 2.5M × 2.3M) 촬영","자연광 룩북·프로필 촬영"],"priceRange":"₩₩","makesOffer":[{"@type":"Offer","name":"A룸 — 동양풍 & 블랙 호리존(BLACK CYC)","url":"https://www.hourplace.co.kr/place/61823","category":"코스프레 스튜디오 대관"},{"@type":"Offer","name":"B룸 — 화이트 티타임 카페","url":"https://www.hourplace.co.kr/place/62341","availability":"https://schema.org/InStock","category":"촬영 스튜디오 대관"}],"dateModified":"2026-09-22"}
 </script>

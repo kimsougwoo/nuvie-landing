@@ -53,23 +53,23 @@ def booking_href(room: dict, catalog: dict) -> str:
 PRETENDARD_CDN = "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css"
 # 🧊 11/11 까지 동결된 룸 — 글꼴 head 를 옛 두 줄 그대로(b.html 바이트 동일). 동결이 풀리면 이 집합에서 뺀다.
 FONT_HEAD_FROZEN = {"b"}
+# 미리 받을 굵기 — 번갈아 실측으로 정한다(4종 모두는 첫 방문 FCP·LCP +0.4~0.9초). index.html head 도 같은 값으로 맞춘다.
+FONT_PRELOAD = (400, 700)
 
 
 def font_head(slug: str) -> str:
     """룸 페이지 head 의 글꼴 줄(2026-09-29).
 
-    새 방식 = 사이트 글자 서브셋 NuvieSans 4종 preload + fonts.css, CDN 동적 서브셋은 드문 글자 예비(비차단).
+    새 방식(09-30 대표 결정 «optional») = 사이트 글자 서브셋 NuvieSans(fonts.css, font-display: optional) + FONT_PRELOAD 굵기만
+      preload. CDN Pretendard 는 싣지 않는다 — 남기면 NuvieSans 를 못 쓴 페이지가 결국 Pretendard(swap)로 바뀌며 다시 밀린다.
     동결 룸 = 종전 두 줄(preconnect + 렌더를 막는 CDN CSS) 그대로.
     """
     if slug in FONT_HEAD_FROZEN:
         return ('<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>\n'
                 f'<link rel="stylesheet" href="{PRETENDARD_CDN}">')
     lines = [f'<link rel="preload" href="/fonts/nuvie-sans-{w}.woff2" as="font" type="font/woff2" crossorigin>'
-             for w in (400, 500, 600, 700)]
-    lines += ['<link rel="stylesheet" href="/fonts.css">',
-              '<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>',
-              f'<link rel="stylesheet" href="{PRETENDARD_CDN}" media="print" onload="this.media=\'all\'">',
-              f'<noscript><link rel="stylesheet" href="{PRETENDARD_CDN}"></noscript>']
+             for w in FONT_PRELOAD]
+    lines.append('<link rel="stylesheet" href="/fonts.css">')
     return "\n".join(lines)
 
 
