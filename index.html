@@ -946,6 +946,9 @@
     }
     panel.style.display='block';
     renderCal();
+    // 모바일: 상세 패널이 달력 바로 아래 화면 밖(고정 하단 바 뒤)에 열려 «눌렀는데 반응 없음»으로 보였다(2026-09-29 실측).
+    //   보이는 자리까지 최소한만 스크롤한다(하단 바는 styles.css #dayDetail scroll-margin-bottom 으로 피한다).
+    try{panel.scrollIntoView({block:'nearest'});}catch(e){}
   }
   var calGridEl=document.getElementById('calGrid');
   if(calGridEl)calGridEl.addEventListener('click',function(ev){
@@ -1064,8 +1067,10 @@
       var cell=document.createElement('div');
       cell.className='cell';
       cell.setAttribute('data-datekey',key);
-      if(key===SELECTED_KEY)cell.style.outline='1.5px solid var(--accent)';
       cell.style.cssText='min-height:96px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 7px 9px;display:flex;flex-direction:column;gap:3px;overflow:hidden'+(inMonth?'':';opacity:.3')+(isToday?';background:color-mix(in srgb, var(--accent) 9%, transparent)':'');
+      // 선택일 표시는 cssText 대입 «뒤»에 준다 — 앞에 두면 cssText 가 통째로 덮어써 눌린 날 표시가 사라졌다(2026-09-29 실측).
+      //   셀이 overflow:hidden 이라 바깥 outline 은 잘리므로 안쪽으로(offset -2px) 그린다.
+      if(key===SELECTED_KEY){cell.style.outline='2px solid var(--accent)';cell.style.outlineOffset='-2px';}
       var num=document.createElement('div');
       num.textContent=d.getDate();
       num.style.cssText=isToday
