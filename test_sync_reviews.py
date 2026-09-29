@@ -99,7 +99,8 @@ def _record(monkeypatch):
 def test_build_chain_makes_review_images_first_and_non_fatal(tmp_path, monkeypatch):
     calls = _record(monkeypatch)
     assert S.main(["--from", _fake_scrape(tmp_path)]) == 0
-    assert calls == [("build_review_images", False), ("build_reviews", True), ("build_rooms", True)]
+    # 글꼴 서브셋은 HTML(build_reviews·build_rooms 결과)의 글자로 만들므로 맨 끝, 실패해도 계속(예비 = CDN 동적 서브셋)
+    assert calls == [("build_review_images", False), ("build_reviews", True), ("build_rooms", True), ("build_fonts", False)]
 
 
 def test_no_build_and_offline_skip_image_download(tmp_path, monkeypatch):

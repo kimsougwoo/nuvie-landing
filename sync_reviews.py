@@ -209,6 +209,9 @@ def main(argv: list[str]) -> int:
         _run_build("build_review_images", fatal=False)
         for mod in ("build_reviews", "build_rooms"):
             _run_build(mod)
+        # 글꼴 서브셋(2026-09-29): 새 후기의 새 글자를 담도록 HTML 이 다 만들어진 뒤 다시 만든다.
+        #   실패해도 계속 — 빠진 글자는 CDN 동적 서브셋('Pretendard')이 대신 그린다.
+        _run_build("build_fonts", fatal=False)
     return 0
 
 
