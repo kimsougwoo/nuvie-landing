@@ -1308,8 +1308,9 @@
 <!-- 2026-09-29 랜딩 UX 실측 3차: 해시 링크(/#allday·/#faq 등)로 첫 진입하면 smooth 스크롤이 도는 사이 후기·달력이 늦게 채워져
      문서가 ~1,550px 길어지고, 스크롤이 옛 목표에서 멈췄다(PC 목표 1,530~1,590px 아래). 문서 높이가 바뀔 때마다 목표로 즉시 다시 맞춘다.
      손님이 직접 스크롤·탭·키 입력하거나 메뉴(해시 변경)를 누르면, 또는 6초가 지나면 멈춘다.
-     입력 이벤트가 없는 스크롤(스크롤바 드래그 등)도 잡는다: 다시 맞추기 직전 위치가 «우리가 맞춘 곳» 또는
-     «그곳 + 늘어난 높이»(브라우저 스크롤 고정)가 아니면 손님이 움직인 것으로 보고 손 뗀다.
+     스크롤바를 잡아 끌어도 페이지에 pointerdown 이 온다(실측: 화면 있는 크롬 136, 드래그로 y=2,755 이동 시 pointerdown·mousedown 발생)
+     → 위 입력 이벤트로 함께 멈춘다. ⚠️ «위치가 바뀌었으면 손님» 식 판정은 넣지 말 것: 크롬 자체의 해시 smooth 추적을
+     손님으로 오인해 /a→홈 «빈 시간» 진입이 80px 가려졌다(2026-09-29 S263 실측).
      해시는 선택자로 해석하지 않고 id 로만 찾는다(#faq,body·#utm=… 같은 값에 엉뚱한 요소로 가지 않게). -->
 <script>
 (function(){
@@ -1317,7 +1318,7 @@
   if(!h||h.length<2||!('ResizeObserver' in window))return;
   try{ el=document.getElementById(decodeURIComponent(h.slice(1))); }catch(e){ return; }
   if(!el)return;
-  var LIMIT_MS=6000, done=false, t0=Date.now(), lastH=0, ourY=null, ro;
+  var LIMIT_MS=6000, done=false, t0=Date.now(), lastH=0, ro;
   var de=document.documentElement;
   function stop(){ if(done)return; done=true; if(ro)ro.disconnect(); }
   ['wheel','touchstart','keydown','pointerdown','hashchange'].forEach(function(ev){ window.addEventListener(ev,stop,{passive:true,once:true}); });
@@ -1326,15 +1327,10 @@
     if(Date.now()-t0>LIMIT_MS){ stop(); return; }
     var hh=de.scrollHeight;
     if(hh===lastH)return;
-    if(ourY!==null){
-      var y=window.scrollY, grew=hh-lastH;
-      if(Math.abs(y-ourY)>4 && Math.abs(y-(ourY+grew))>4){ stop(); return; }
-    }
     lastH=hh;
     // 'instant' 를 모르는 옛 Safari(15.4 미만)는 TypeError → 부드러운 스크롤을 잠시 끄고 기본 정렬로
     try{ el.scrollIntoView({block:'start',behavior:'instant'}); }
     catch(e){ var sb=de.style.scrollBehavior; de.style.scrollBehavior='auto'; el.scrollIntoView(true); de.style.scrollBehavior=sb; }
-    ourY=window.scrollY;
   });
   ro.observe(document.body);
   setTimeout(stop,LIMIT_MS+500);

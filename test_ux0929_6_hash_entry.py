@@ -56,11 +56,11 @@ def test_realign_has_bounded_time_limit():
     assert re.search(r"Date\.now\(\)\s*-\s*t0\s*>\s*LIMIT_MS", s) and re.search(r"setTimeout\(stop,\s*LIMIT_MS", s)
 
 
-def test_realign_stops_when_position_moved_without_input_events():
-    """스크롤바 드래그처럼 입력 이벤트 없이 움직인 경우: 우리가 맞춘 위치도, 거기에 늘어난 높이를 더한 위치도 아니면 멈춘다."""
+def test_realign_has_no_position_based_user_guess():
+    """«위치가 바뀌었으면 손님이 움직였다» 식 판정 금지 — 크롬 자체의 해시 smooth 추적을 손님으로 오인해
+    /a→홈 «빈 시간» 진입이 80px 가려졌다(2026-09-29 S263). 스크롤바 드래그는 pointerdown 으로 이미 멈춘다(실측)."""
     s = _realign_script() or ""
-    assert re.search(r"ourY\s*=\s*window\.scrollY", s), "맞춘 뒤 위치를 기억하지 않는다"
-    assert re.search(r"Math\.abs\(y-ourY\)>4\s*&&\s*Math\.abs\(y-\(ourY\+grew\)\)>4\)\{\s*stop\(\)", s)
+    assert "window.scrollY" not in s and "pageYOffset" not in s, "스크롤 위치로 손님 입력을 추측하지 말 것"
 
 
 def test_hash_is_resolved_by_id_not_selector():
