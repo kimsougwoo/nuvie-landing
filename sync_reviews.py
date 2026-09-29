@@ -17,8 +17,9 @@
 
 사진: 후기 JSON 에는 아워 CDN 원본 URL 을 그대로 적는다(이 스크립트는 다운로드·커밋 없음).
   화면은 reviews/img/map.json 의 축소 WebP 사본(build_review_images.py, 2026-09-29 자체 호스팅)을 먼저 쓰고,
-  매핑이 없으면 원본 URL 로 폴백한다. ⚠️ 새 후기 사진의 축소 사본은 build_review_images.py 를 따로 돌려야 생긴다
-  (이 스크립트의 빌드 체인에는 아직 없다 — 없으면 그 사진만 원본으로 느리게 뜬다).
+  매핑이 없으면 원본 URL 로 폴백한다. 새 후기 사진의 축소 사본은 build_review_images.py 가 만든다
+  (2026-09-29 부터 이 스크립트의 빌드 체인 맨 앞에서 돈다 — 실패해도 체인은 계속, 그 사진만 원본 폴백.
+   --offline·--no-build 는 내려받지 않는다).
 이름: mask_name(build_reviews) 로 앞 2글자+*** (공개 레포라 노출 축소 — 이건 큐레이션이 아니라 개인정보 처리).
 blind 처리된 후기는 제외(아워에서 숨긴 것).
 
@@ -149,7 +150,8 @@ def _load_existing_docs() -> tuple[dict, dict]:
     return docs[0], docs[1]
 
 
-def _run_build(module: str) -> None:
+def _run_build(module: str, fatal: bool = True) -> None:
+    """빌드 모듈 실행. fatal=False 면 실패해도 경고만 남기고 체인을 계속한다(축소 사본처럼 폴백이 있는 단계)."""
     r = subprocess.run([sys.executable, str(ROOT / f"{module}.py")],
                        capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(ROOT))
     summary = (r.stdout or "").strip()[-160:]
@@ -157,6 +159,9 @@ def _run_build(module: str) -> None:
     print(f"[sync_reviews] {module}: rc={r.returncode} {safe_summary}")
     if r.returncode != 0:
         error = (r.stderr or "")[:300].encode("ascii", "backslashreplace").decode("ascii")
+        if not fatal:
+            print(f"[sync_reviews] ⚠️ {module} 실패(계속 진행 — 해당 사진은 원본 URL 로 폴백): {error}")
+            return
         raise SystemExit(f"[sync_reviews] {module} 실패: {error}")
 
 
@@ -200,6 +205,8 @@ def main(argv: list[str]) -> int:
     print(f"[sync_reviews] A룸 {doc_a['count']}건 · B룸 {doc_b['count']}건 · 메인 {all_doc['count']}건 재생성 완료")
 
     if "--no-build" not in argv:
+        # 축소 사본 먼저(build_reviews 가 map.json 으로 정적 카드를 그린다). 내려받기·PIL 실패는 폴백이 있어 치명 아님.
+        _run_build("build_review_images", fatal=False)
         for mod in ("build_reviews", "build_rooms"):
             _run_build(mod)
     return 0

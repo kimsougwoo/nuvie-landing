@@ -71,3 +71,49 @@ def test_all_doc_merges_rooms_and_aggregates_from_reviews():
     assert [review["text"] for review in data["reviews"]] == [
         "B 최신 후기", "A 후기", "B 이전 후기"
     ]
+
+
+# ── 2026-09-29: 새 후기 사진 축소 사본 자동화 ────────────────────────────────────────────
+#   축소 사본(build_review_images)이 체인에 없어 새 후기 사진은 원본(최대 25MB)으로 떴다.
+#   체인 = build_review_images(실패해도 계속) → build_reviews(map.json 으로 정적 카드) → build_rooms.
+import json as _json
+import subprocess as _sp
+
+
+def _fake_scrape(tmp_path):
+    rev = {"feedback_id": 1, "작성자": "홍길동", "작성일": "2026.09.01", "평점": 5, "후기": "좋아요", "사진": [], "blind": False}
+    data = {"ok": True, "rooms": [{"room": "A룸", "place_id": S.PLACE_A, "reviews": [rev]},
+                                  {"room": "B룸", "place_id": S.PLACE_B, "reviews": []}]}
+    p = tmp_path / "scrape.json"
+    p.write_text(_json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    return str(p)
+
+
+def _record(monkeypatch):
+    calls = []
+    monkeypatch.setattr(S, "_dump", lambda *a, **k: None)   # 실제 후기 파일은 건드리지 않는다
+    monkeypatch.setattr(S, "_run_build", lambda mod, fatal=True: calls.append((mod, fatal)))
+    return calls
+
+
+def test_build_chain_makes_review_images_first_and_non_fatal(tmp_path, monkeypatch):
+    calls = _record(monkeypatch)
+    assert S.main(["--from", _fake_scrape(tmp_path)]) == 0
+    assert calls == [("build_review_images", False), ("build_reviews", True), ("build_rooms", True)]
+
+
+def test_no_build_and_offline_skip_image_download(tmp_path, monkeypatch):
+    calls = _record(monkeypatch)
+    S.main(["--from", _fake_scrape(tmp_path), "--no-build"])
+    assert calls == []
+    monkeypatch.setattr(S, "_load_existing_docs", lambda: ({"reviews": [{"date": "2026-09-01", "rating": 5, "text": "a"}]}, {"reviews": []}))
+    S.main(["--offline"])
+    assert calls == [("build_reviews", True)], "오프라인은 내려받기(축소 사본) 없이 메인만 재빌드"
+
+
+def test_non_fatal_build_failure_does_not_stop_chain(monkeypatch):
+    monkeypatch.setattr(_sp, "run", lambda *a, **k: _sp.CompletedProcess(a, 1, stdout="", stderr="ModuleNotFoundError: PIL"))
+    S._run_build("build_review_images", fatal=False)   # 경고만, 예외 없음
+    import pytest
+    with pytest.raises(SystemExit):
+        S._run_build("build_reviews")
