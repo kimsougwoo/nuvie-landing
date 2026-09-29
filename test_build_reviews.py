@@ -168,7 +168,36 @@ def test_static_block_carries_verbatim_text():
     blk = html[html.index(B.STATIC_START):html.index(B.STATIC_END)]
     newest = sorted(data["reviews"], key=lambda v: v.get("date") or "", reverse=True)[0]
     assert newest["text"][:20] in blk, "최신 후기 본문이 정적 블록에 없다"
-    assert blk.count('role="listitem"') == B.STATIC_N
+    # 2026-09-29: 3장 → 전부. 3장만 두면 JS 가 23장을 그릴 때 PC 후기 섹션이 712→2,262px 로 자라
+    #   해시 링크 진입(/#allday 등)에서 목적지가 밀렸다(CLS 0.86 실측). 전부 넣어 처음부터 제 높이로.
+    assert blk.count('role="listitem"') == len(data["reviews"])
+
+
+def _photo_review(url="https://img.hourplace.co.kr/feedback/user/1/x"):
+    return {"reviews": [{"name": "가나***", "date": "2026-09-01", "rating": 5, "text": "좋아요", "photos": [url, url + "2", url + "3"]}]}
+
+
+def test_static_block_draws_photo_grid_like_js_render():
+    """정적 카드도 JS 카드와 같은 사진 칸(최대 2장·정사각형·축소 썸네일)을 가져야 높이가 같다."""
+    url = "https://img.hourplace.co.kr/feedback/user/1/x"
+    img_map = {url: {"thumb": "reviews/img/aaa-640.webp", "full": "reviews/img/aaa-1600.webp", "w": 1200, "h": 1600}}
+    out = B.render_static_reviews(_photo_review(url), img_map=img_map)
+    assert out.count("<img") == 2, "사진은 최대 2장(JS 와 같은 slice(0,2))"
+    assert "grid-template-columns:repeat(2,1fr)" in out
+    assert 'src="reviews/img/aaa-640.webp"' in out and 'width="1200"' in out and 'height="1600"' in out
+    assert "aspect-ratio:1/1" in out and 'loading="lazy"' in out
+    assert out.index("<img") < out.index("<p "), "사진 칸은 본문 위(JS 순서)"
+
+
+def test_static_block_falls_back_to_original_url_without_map():
+    url = "https://img.hourplace.co.kr/feedback/user/1/x"
+    out = B.render_static_reviews(_photo_review(url), img_map={})
+    assert f'src="{url}"' in out and "width=" not in out.split("<img", 1)[1].split(">", 1)[0]
+
+
+def test_static_block_renders_every_review_by_default():
+    data = {"reviews": [{"name": f"n{i}", "date": f"2026-01-{i + 1:02d}", "rating": 5, "text": f"t{i}"} for i in range(9)]}
+    assert B.render_static_reviews(data).count('role="listitem"') == 9
 
 
 def test_static_block_escapes_html():

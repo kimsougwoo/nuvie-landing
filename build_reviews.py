@@ -76,7 +76,11 @@ def sync_localbusiness_date_modified(html, updated):
 
 STATIC_START = "<!-- REVIEWS:STATIC:START -->"
 STATIC_END = "<!-- REVIEWS:STATIC:END -->"
-STATIC_N = 3          # 크롤러가 읽을 대표 후기 수(최신순). 늘리면 HTML 만 무거워진다.
+# 정적으로 넣을 후기 수. None = 전부(2026-09-29 3 → 전부).
+#   종전 3건은 «크롤러용 대표 후기만, 늘리면 HTML 만 무거워진다»는 판단이었다. 그런데 JS 가 23장을 다시 그리면
+#   PC 후기 섹션이 712→2,262px 로 자라, 해시 링크(/#allday·/#faq 등) 진입 때 목적지가 밀렸다(CLS 0.86 실측,
+#   nuvie_ux_lab probe_cls_src.py). 전부 넣으면 처음부터 제 높이라 늦은 렌더가 아무것도 밀지 않는다.
+STATIC_N = None
 
 
 def _esc(s):
@@ -84,7 +88,36 @@ def _esc(s):
             .replace(">", "&gt;").replace('"', "&quot;"))
 
 
-def render_static_reviews(data, n=STATIC_N):
+IMG_MAP = os.path.join(HERE, "reviews", "img", "map.json")
+
+
+def load_img_map(path=IMG_MAP):
+    """build_review_images.py 가 만든 {원본URL: {thumb, full, w, h}}. 없거나 깨지면 {}(원본 URL 폴백)."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            m = json.load(fh)
+        return m if isinstance(m, dict) else {}
+    except Exception:
+        return {}
+
+
+def _static_photo_grid(photos, img_map):
+    """JS 카드와 같은 사진 칸 — 최대 2장·정사각형(aspect-ratio 1/1 이라 사진이 늦게 와도 높이 고정)."""
+    photos = [p for p in (photos or []) if p][:2]
+    if not photos:
+        return ""
+    imgs = []
+    for src in photos:
+        ent = img_map.get(src) or {}
+        thumb = ent.get("thumb") or src
+        dims = f' width="{int(ent["w"])}" height="{int(ent["h"])}"' if ent.get("w") and ent.get("h") else ""
+        imgs.append(f'<img src="{_esc(thumb)}" alt="누비 스튜디오 후기 사진" loading="lazy" decoding="async"{dims} '
+                    'style="width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;border-radius:4px;display:block">')
+    return (f'<div style="display:grid;grid-template-columns:repeat({len(photos)},1fr);gap:6px;margin-bottom:11px">'
+            + "".join(imgs) + "</div>")
+
+
+def render_static_reviews(data, n=STATIC_N, img_map=None):
     """크롤러용 정적 후기 카드 HTML 을 만든다(최신순 n건).
 
     왜 필요한가 — 후기 카드는 `fetch('reviews_all.json')` 으로 **브라우저에서만** 그려진다.
@@ -94,11 +127,15 @@ def render_static_reviews(data, n=STATIC_N):
 
     ⚠️ 사람이 손으로 박지 않는다 — `reviews_all.json` 이 바뀔 때마다 이 함수가 다시 만든다.
        손으로 박으면 정본이 또 하나 늘고, 그게 오늘 내내 고친 결함들의 원인이다.
-    ⚠️ 마크업은 JS 카드와 같은 모양을 쓰되 사진은 넣지 않는다 — 크롤러가 읽는 건 텍스트이고,
-       클릭 확대는 어차피 JS 가 붙여야 동작한다. JS 가 뜨면 이 블록은 통째로 교체된다.
+    ⚠️ 마크업은 JS 카드와 «같은 기하»여야 한다 — 사진 칸까지(2026-09-29). JS 가 뜨면 이 블록은 통째로
+       교체되는데, 높이가 다르면 교체 순간 아래 섹션이 밀린다. 사진은 축소 썸네일(map.json)·정사각형·lazy.
+       클릭 확대는 JS 가 교체하며 붙인다.
     """
+    img_map = load_img_map() if img_map is None else img_map
     rv = sorted((data or {}).get("reviews", []),
-                key=lambda v: v.get("date") or "0000-00-00", reverse=True)[:n]
+                key=lambda v: v.get("date") or "0000-00-00", reverse=True)
+    if n:
+        rv = rv[:n]
     card = ('background:var(--elev);border-radius:5px;padding:18px 20px;border:1px solid var(--line);'
             'break-inside:avoid;-webkit-column-break-inside:avoid;margin-bottom:14px')
     out = [STATIC_START]
@@ -112,6 +149,7 @@ def render_static_reviews(data, n=STATIC_N):
             f'<span class="sr-only">5점 만점에 {int(v.get("rating") or 5)}점</span>'
             f'<span style="font-family:var(--label-font);font-size:12px;color:var(--dim)">{who}</span>'
             f'</div>'
+            f'{_static_photo_grid(v.get("photos"), img_map)}'
             f'<p style="margin:0;font-size:13.5px;color:var(--ink);line-height:1.75;white-space:pre-line">'
             f'"{_esc(v.get("text", ""))}"</p></div>')
     out.append("        " + STATIC_END)
