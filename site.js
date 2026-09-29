@@ -72,8 +72,14 @@
     clarityTag('utm_content', u.utm_content);
   }
 
+  // 2026-09-30: 새 탭으로 나가는 예약 클릭은 계측을 «화면을 그린 뒤»로 늦춘다(내용·순서 불변, /b 는 동결이라 종전대로)
+  //   — 규칙·예외는 attribution.js afterPaint 한 곳에 있다.
+  function afterPaint(el, fn) {
+    var A = window.NUVIE_ATTRIBUTION;
+    if (A && A.afterPaint) A.afterPaint(el, fn); else fn();
+  }
   function trackBook(room) {
-    return function () {
+    return function (ev) { afterPaint(ev && ev.currentTarget, function () {
       clarityTag('event', 'book_click');
       clarityTag('room', room);
       clarityTag('page', PAGE_ORIGIN);
@@ -90,7 +96,7 @@
           gtag('event', 'ad_capture', { fbc: fbc, fbp: fbp, room: room, transport_type: 'beacon' });
         }
       } catch (e) {}
-    };
+    }); };
   }
 
   /* ---------- 히어로 CTA 계측(감사 개선 #2) ----------

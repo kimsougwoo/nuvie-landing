@@ -106,7 +106,41 @@
     };
   }
 
-  window.NUVIE_ATTRIBUTION = { get: snapshot, event: event, tag: clarityTag, utmParams: utmParams };
+  /* 새 탭으로 나가는 클릭의 계측을 «다음 화면을 그린 뒤»로 미룬다 (2026-09-30).
+   * 왜: 예약 버튼 한 번에 gtag·fbq·clarity 호출이 약 10번 클릭 처리 안에서 돌아, 추적이 켜진 모바일(CPU 4배)에서
+   *   누른 뒤 화면이 344ms 늦게 그려졌다(nuvie_ux_lab 실측). 호출 내용·순서는 그대로 두고 시점만 옮긴다.
+   * ⚠️ 같은 탭 이동은 미루지 않는다(페이지가 떠나며 계측이 사라진다) — target=_blank 일 때만.
+   * ⚠️ 새 탭이 앞으로 오면 이 탭은 숨겨져 requestAnimationFrame 이 멈춘다 → 숨김 전환·200ms 시계로도 반드시 한 번 보낸다.
+   * 🧊 /b 는 11/11 동결 — 종전처럼 바로 실행(해제 절차 = B_UNFREEZE_1111.md). 계약 = test_after_paint.js */
+  var paintQ = [];
+  var paintArmed = false;
+  var paintGen = 0;   // 앞 클릭의 200ms 시계가 뒤 클릭 몫을 그리기 전에 비우지 않게
+  function flushPaintQ(gen) {
+    if (!paintArmed || (typeof gen === 'number' && gen !== paintGen)) return;
+    paintArmed = false;
+    document.removeEventListener('visibilitychange', flushPaintQ);
+    var q = paintQ.splice(0);
+    for (var i = 0; i < q.length; i++) {
+      try { q[i](); } catch (e) {}
+    }
+  }
+  function afterPaint(el, fn) {
+    var frozen = false;
+    try { frozen = document.body.getAttribute('data-room') === 'b'; } catch (e) {}
+    if (!el || el.target !== '_blank' || frozen || typeof window.requestAnimationFrame !== 'function') {
+      try { fn(); } catch (e) {}
+      return;
+    }
+    paintQ.push(fn);
+    if (paintArmed) return;
+    paintArmed = true;
+    var gen = ++paintGen;
+    window.requestAnimationFrame(function () { window.setTimeout(function () { flushPaintQ(gen); }, 0); });
+    window.setTimeout(function () { flushPaintQ(gen); }, 200);
+    document.addEventListener('visibilitychange', flushPaintQ);
+  }
+
+  window.NUVIE_ATTRIBUTION = { get: snapshot, event: event, tag: clarityTag, utmParams: utmParams, afterPaint: afterPaint };
 
   var _u = utmParams();
   event('landing_view', {
@@ -139,14 +173,16 @@
   document.addEventListener('click', function (e) {
     var target = e.target && e.target.closest ? e.target.closest('[data-book],#availBookA,#availBookB,#dayDetailBookA,#dayDetailBookB') : null;
     if (target) {
-      event('booking_intent', {
-        room: roomFor(target),
-        placement: clip(target.id || 'booking_cta', 60),
-        transport_type: 'beacon'
+      afterPaint(target, function () {
+        event('booking_intent', {
+          room: roomFor(target),
+          placement: clip(target.id || 'booking_cta', 60),
+          transport_type: 'beacon'
+        });
+        clarityTag('event', 'booking_intent');
+        clarityTag('room', roomFor(target) || 'unknown');
+        clarityTag('placement', target.id || 'booking_cta');
       });
-      clarityTag('event', 'booking_intent');
-      clarityTag('room', roomFor(target) || 'unknown');
-      clarityTag('placement', target.id || 'booking_cta');
       return;
     }
   });
