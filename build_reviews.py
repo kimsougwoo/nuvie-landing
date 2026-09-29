@@ -111,7 +111,9 @@ def _static_photo_grid(photos, img_map):
         ent = img_map.get(src) or {}
         thumb = ent.get("thumb") or src
         dims = f' width="{int(ent["w"])}" height="{int(ent["h"])}"' if ent.get("w") and ent.get("h") else ""
-        imgs.append(f'<img src="{_esc(thumb)}" alt="누비 스튜디오 후기 사진" loading="lazy" decoding="async"{dims} '
+        # src 없이 자리만(data-src 는 추적용) — 정적 칸에 src 를 주면 느린 망에서 썸네일 15장이 첫 화면 사진과 대역폭을
+        #   다퉈 LCP 가 6.9→8.7초로 늦었다(09-30 실측). 실제 사진은 JS 가 카드를 교체하며 붙인다. alt 비움 = 빈 칸에 글자 안 뜨게.
+        imgs.append(f'<img data-src="{_esc(thumb)}" alt="" aria-hidden="true"{dims} '
                     'style="width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;border-radius:4px;display:block;cursor:pointer">')
     return (f'<div style="display:grid;grid-template-columns:repeat({len(photos)},1fr);gap:6px;margin-bottom:11px">'
             + "".join(imgs) + "</div>")

@@ -184,15 +184,17 @@ def test_static_block_draws_photo_grid_like_js_render():
     out = B.render_static_reviews(_photo_review(url), img_map=img_map)
     assert out.count("<img") == 2, "사진은 최대 2장(JS 와 같은 slice(0,2))"
     assert "grid-template-columns:repeat(2,1fr)" in out
-    assert 'src="reviews/img/aaa-640.webp"' in out and 'width="1200"' in out and 'height="1600"' in out
-    assert "aspect-ratio:1/1" in out and 'loading="lazy"' in out
+    assert 'data-src="reviews/img/aaa-640.webp"' in out and 'width="1200"' in out and 'height="1600"' in out
+    # 정적 칸은 자리만 잡는다 — src 가 있으면 느린 망에서 썸네일 15장이 첫 화면 사진과 대역폭을 다퉈 LCP 가 1.7초 늦었다(09-30 실측)
+    assert not re.search(r'<img[^>]*\ssrc=', out), "정적 후기 사진은 src 없이(JS 가 교체하며 붙인다)"
+    assert "aspect-ratio:1/1" in out
     assert out.index("<img") < out.index("<p "), "사진 칸은 본문 위(JS 순서)"
 
 
 def test_static_block_falls_back_to_original_url_without_map():
     url = "https://img.hourplace.co.kr/feedback/user/1/x"
     out = B.render_static_reviews(_photo_review(url), img_map={})
-    assert f'src="{url}"' in out and "width=" not in out.split("<img", 1)[1].split(">", 1)[0]
+    assert f'data-src="{url}"' in out and "width=" not in out.split("<img", 1)[1].split(">", 1)[0]
 
 
 def test_static_block_renders_every_review_by_default():
