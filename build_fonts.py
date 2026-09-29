@@ -26,9 +26,10 @@ FAMILY = "NuvieSans"
 WEIGHTS = {400: "Regular", 500: "Medium", 600: "SemiBold", 700: "Bold"}
 # 사이트 글이 나오는 파일(HTML 속 JS 문자열 포함) + 후기·룸 데이터
 TEXT_SOURCES = ["index.html", "a.html", "b.html", "404.html", "privacy.html", "room.template.html",
+                "site.js", "rooms.data.js",   # JS 가 화면에 쓰는 문구(새 눈 검수 09-29: 빠져 있었다)
                 "reviews_all.json", "reviews.json", "reviews_b.json", "rooms.json"]
-# 늘 넣는 글자: 인쇄 가능한 ASCII 전부 + 자주 쓰는 기호(새 문구·후기에 흔한 것)
-ALWAYS = "".join(chr(c) for c in range(0x20, 0x7F)) + "·…‘’“”«»〈〉「」『』–—→←↑↓★☆♥♡✓✔×÷°%₩~!?()[]"
+# 늘 넣는 글자: 인쇄 가능한 ASCII 전부 + 자주 쓰는 기호(새 문구·후기에 흔한 것) + 테마 버튼 ☾☀
+ALWAYS = "".join(chr(c) for c in range(0x20, 0x7F)) + "·…‘’“”«»〈〉「」『』–—→←↑↓★☆♥♡✓✔×÷°%₩~!?()[]☾☀"
 
 
 def site_chars(root=HERE, sources=TEXT_SOURCES):
