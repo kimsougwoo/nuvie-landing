@@ -1,8 +1,8 @@
 /* 사이트 글자 서브셋 글꼴(2026-09-29) — build_fonts.py 가 만든 fonts/nuvie-sans-*.woff2.
    원본 = Pretendard v1.3.9 (SIL OFL 1.1 · Reserved Font Name «Pretendard» → 수정본이라 이름을 NuvieSans 로 바꿈,
    라이선스 원문 = /fonts/LICENSE-Pretendard-OFL.txt).
-   HTML head 의 <link rel=preload> 가 글자 배치 «전에» 받아 두므로, 새로 열거나 뒤로 가기 해도 글꼴이 늦게 바뀌며
-   글이 밀리지 않는다. font-display: optional(09-30 대표 결정) = 첫 그리기 전에 없으면 그 페이지는 기기 기본 한글 글꼴로 끝까지.
+   미리 받지 않는다(preload 는 첫 방문 FCP·LCP 를 늦췄다 — 09-30 번갈아 실측). 한 번 받으면 캐시(vercel.json /fonts 7일)라
+   다음 페이지·뒤로 가기는 NuvieSans 로 바로 그린다. font-display: optional(09-30 대표 결정) = 첫 그리기 전에 없으면 그 페이지는 기기 기본 한글 글꼴로 끝까지.
    서브셋에 없는 드문 글자도 기기 글꼴로 나온다(CDN Pretendard 는 홈·/a 에 싣지 않는다). */
 @font-face{font-family:'NuvieSans';font-style:normal;font-weight:400;font-display:optional;src:url(/fonts/nuvie-sans-400.woff2) format('woff2')}
 @font-face{font-family:'NuvieSans';font-style:normal;font-weight:500;font-display:optional;src:url(/fonts/nuvie-sans-500.woff2) format('woff2')}

@@ -87,10 +87,8 @@
 <!-- 2026-09-30 글꼴(대표 결정 «font-display: optional»): 사이트 글자만 담은 NuvieSans(Pretendard 서브셋·OFL 이름 변경,
      /fonts.css) — 첫 그리기 전에 도착하면 쓰고, 늦으면 그 페이지는 기기 기본 한글 글꼴로 끝까지(중간 교체·밀림 없음).
      CDN Pretendard 는 싣지 않는다(남기면 NuvieSans 를 못 쓴 페이지가 결국 Pretendard 로 바뀌며 다시 밀린다).
-     미리 받는 굵기 = build_rooms.FONT_PRELOAD 와 같게. 이력: 07-29 static 전체 2.98MB → CDN 동적 서브셋,
+     미리 받지 않는다(build_rooms.FONT_PRELOAD=() 와 같게 — 09-30 번갈아 실측으로 없음이 가장 좋았다). 이력: 07-29 static 전체 2.98MB → CDN 동적 서브셋,
      09-29 동적 서브셋의 늦은 교체로 /a 360px 뒤로 가기 CLS 0.4~0.6·렌더 차단(/a 첫 화면 3.1초). -->
-<link rel="preload" href="/fonts/nuvie-sans-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/fonts/nuvie-sans-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/fonts.css">
 <!-- 2026-09-17 P0: 히어로 LCP 프리로드(srcset 반영·모바일 800w) + 룸 상세 선수신(quick_back 완화·인앱 Chromium만·스크립트 실행 없음). -->
 <link rel="preload" as="image" href="/img/room-b.jpg" imagesrcset="/img/room-b-800.jpg 800w, /img/room-b.jpg 1600w" imagesizes="100vw" fetchpriority="high">
