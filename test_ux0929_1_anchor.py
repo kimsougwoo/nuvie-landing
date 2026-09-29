@@ -84,7 +84,7 @@ def test_allday_anchor_has_mobile_margin():
 def test_allday_anchor_has_pc_margin():
     hit = [(p, b) for p, b in top_level_rules() if "#allday" in p and "scroll-margin-top" in b]
     assert hit, "PC 폭 #allday scroll-margin-top 이 없다"
-    assert 74 <= _margin_px(hit[0][1]) <= 94
+    assert 90 <= _margin_px(hit[0][1]) <= 110
 
 
 

@@ -464,16 +464,16 @@ html{scroll-behavior:smooth}
   body:not([data-room="b"]) #firstvisit{scroll-margin-top:84px}
   /* #allday 는 data-reveal 조상(translateY 22px → none)이 아직 안 나타난 상태에서 스크롤 위치가 계산돼
      도착하면 22px 더 위로 올라간다(2026-09-29 실측: 모바일 0px·PC -8px). 애니메이션이 없는 브라우저에서도
-     0~24px 안에 들어오도록 22px 를 절반쯤 얹는다(PC 92 → 0/22px, 모바일 148 → 2/24px). */
-  body:not([data-room="b"]) #allday{scroll-margin-top:92px}
+     0~24px 안에 들어오도록 22px 를 절반쯤 얹는다(PC 98 → 6/28px, 모바일 152 → 6/28px — 애니메이션 유무 양쪽에서 가려지지 않게). */
+  body:not([data-room="b"]) #allday{scroll-margin-top:98px}
   @media(max-width:640px){
     body:not([data-room="b"]) section[id],
     body:not([data-room="b"]) #firstvisit{scroll-margin-top:146px}
-    body:not([data-room="b"]) #allday{scroll-margin-top:148px}
+    body:not([data-room="b"]) #allday{scroll-margin-top:152px}
     /* /a «요금·예약» 칩 → #booking(DIV) 은 section[id] 에 안 걸려 가격 줄이 상단 바 밑 85px 에 가렸다.
        칩바는 헤더 바로 아래(top=헤더 높이)에 붙는다 — JS(site.js wireChipbar)가 정확값을 넣고,
        JS 실행 전·차단 시에는 실측 헤더 높이 61px 를 대비값으로 쓴다. A룸 전용(/b 동결). */
-    body:not([data-room="b"]) #booking{scroll-margin-top:146px}
+    body:not([data-room="b"]) #booking{scroll-margin-top:152px}
     body[data-room="a"] .nv-chipbar{top:61px}
   }
 
