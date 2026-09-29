@@ -198,8 +198,25 @@
     setTimeout(function () { els.forEach(reveal); }, 1200);
   }
 
+  /* 모바일 섹션 칩바(.nv-chipbar) 스티키 top 을 상단 헤더(.side) 높이로 맞춘다 — 허브(index.html)와 같은 방식.
+   * 2026-09-29 UX 실측: /a 는 이 배선이 없어 칩바가 top:0 에 붙었고, 헤더(z-index 50)가 칩바(40)를 덮어
+   *   스크롤 뒤에는 칩 대신 헤더 링크가 눌렸다(홈 상단 이동, 시나리오 9건). 🧊 /b 는 11/11 동결 → A룸 전용. */
+  function wireChipbar() {
+    if (document.body.getAttribute('data-room') !== 'a') return;
+    var bar = document.querySelector('.nv-chipbar'), side = document.querySelector('.side');
+    if (!bar || !side) return;
+    var mq = window.matchMedia('(max-width:640px)');
+    function set() { bar.style.top = mq.matches ? (Math.round(side.getBoundingClientRect().height) + 'px') : ''; }
+    set();
+    window.addEventListener('resize', set);
+    window.addEventListener('load', set);
+    if (mq.addEventListener) mq.addEventListener('change', set); else if (mq.addListener) mq.addListener(set);
+    try { if (window.ResizeObserver) new ResizeObserver(set).observe(side); } catch (e) { /* 폰트 로드로 헤더 높이가 바뀌면 재계산 */ }
+  }
+
   function init() {
     var root = document.getElementById('root') || document;
+    wireChipbar();
     wireBooking(root);
     wireHeroCta(root);
     wireTheme();
