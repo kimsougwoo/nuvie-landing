@@ -452,6 +452,22 @@ html{scroll-behavior:smooth}
        앵커 도착 시 섹션 제목이 칩바 아래로 파묻혔다(클릭 1위 「공간 보기」가 정통으로 맞음). */
     section[id],#firstvisit{scroll-margin-top:146px}
   }
+  /* 앵커 도착 보정(2026-09-29 랜딩 UX 실측): 위 146px 규칙은 640px 이하에만 있어 PC 에서는 모든 앵커가
+     상단 바(70px)에 목표 상단이 가린 채 도착했다(홈 #rooms·#reviews·#availability·#location·#faq 전부 -70px).
+     ⇒ 모든 폭에 상단 바 높이 + 14px(=84px), 모바일은 헤더+칩바 합 + 22px(=146px). #allday 는 <details> 라
+     section[id] 에 안 걸려 모바일에서 질문이 바 밑 66~69px 에 떨어졌다.
+     🧊 /b 는 11/11 동결이라 b 룸 페이지(body[data-room="b"])는 제외한다 — 기존 규칙(640px 이하 146px)만 그대로. */
+  body:not([data-room="b"]) section[id],
+  body:not([data-room="b"]) #firstvisit{scroll-margin-top:84px}
+  /* #allday 는 data-reveal 조상(translateY 22px → none)이 아직 안 나타난 상태에서 스크롤 위치가 계산돼
+     도착하면 22px 더 위로 올라간다(2026-09-29 실측: 모바일 0px·PC -8px). 애니메이션이 없는 브라우저에서도
+     0~24px 안에 들어오도록 22px 를 절반쯤 얹는다(PC 92 → 0/22px, 모바일 148 → 2/24px). */
+  body:not([data-room="b"]) #allday{scroll-margin-top:92px}
+  @media(max-width:640px){
+    body:not([data-room="b"]) section[id],
+    body:not([data-room="b"]) #firstvisit{scroll-margin-top:146px}
+    body:not([data-room="b"]) #allday{scroll-margin-top:148px}
+  }
 
   /* 11) 로딩 스켈레톤 — 은은한 opacity 펄스(글로우/시머 아님), reduced-motion이면 정지 */
   .nv-skel{background:color-mix(in srgb,var(--ink) 9%,var(--panel));border-radius:5px;animation:nvSkel 1.4s ease-in-out infinite}
