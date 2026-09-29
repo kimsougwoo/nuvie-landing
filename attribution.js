@@ -142,6 +142,62 @@
 
   window.NUVIE_ATTRIBUTION = { get: snapshot, event: event, tag: clarityTag, utmParams: utmParams, afterPaint: afterPaint };
 
+  /* 실사용자 INP 수집 (2026-09-30) — GA4 이벤트 web_vitals.
+   * 왜: Clarity INP 는 조회 11회 표본이라 한두 건에 p75 가 1.6초로 튀었고 어느 버튼이 느린지도 몰랐다(09-29 조사).
+   *   web-vitals 6.2.2(Apache-2.0, /vendor/ 자체 호스팅)의 onINP 가 «느린 상호작용 대상·구간»을 알려 준다.
+   * 페이지가 다 뜬 뒤 유휴 때 불러온다 · 내부 방문·/b(11/11 동결)는 불러오지 않는다 · 대상은 태그·id·class 모양,
+   *   스크립트·페이지는 경로만(쿼리 제거) · 계약 = test_rum_inp.js */
+  var VITALS_SRC = '/vendor/web-vitals-6.2.2.attribution.iife.js';
+  var vitalsLoaded = false;
+  function pathOnly(url) {
+    try { var u = new URL(url, window.location.origin); return clip(u.hostname === window.location.hostname ? u.pathname : u.hostname + u.pathname, 100); } catch (e) { return ''; }
+  }
+  function sendInp(m) {
+    try {
+      var a = m.attribution || {};
+      var ls = a.longestScript && a.longestScript.entry;
+      event('web_vitals', {
+        metric_name: m.name,
+        metric_value: Math.round(m.value),
+        metric_rating: m.rating,
+        interaction_target: String(a.interactionTarget || '').slice(-100),
+        interaction_type: clip(a.interactionType, 20),
+        input_delay: Math.round(a.inputDelay || 0),
+        processing_duration: Math.round(a.processingDuration || 0),
+        presentation_delay: Math.round(a.presentationDelay || 0),
+        loaf_script: ls ? pathOnly(ls.sourceURL || '') : '',
+        page_path: clip(window.location.pathname, 100),
+        transport_type: 'beacon'
+      });
+    } catch (e) {}
+  }
+  function loadVitals() {
+    if (vitalsLoaded) return;
+    vitalsLoaded = true;
+    try {
+      var s = document.createElement('script');
+      s.async = true;
+      s.src = VITALS_SRC;
+      s.onload = function () {
+        try { if (window.webVitals && window.webVitals.onINP) window.webVitals.onINP(sendInp); } catch (e) {}
+      };
+      document.head.appendChild(s);
+    } catch (e) {}
+  }
+  function whenIdle(fn) {
+    if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(fn, { timeout: 3000 });
+    else window.setTimeout(fn, 1);
+  }
+  (function scheduleVitals() {
+    try {
+      var frozen = false;
+      try { frozen = document.body.getAttribute('data-room') === 'b'; } catch (e) {}
+      if (window.__nvInternal || frozen) return;
+      if (document.readyState === 'complete') whenIdle(loadVitals);
+      else window.addEventListener('load', function () { whenIdle(loadVitals); });
+    } catch (e) {}   // 수집이 실패해도 계측 본체는 살아 있어야 한다
+  })();
+
   var _u = utmParams();
   event('landing_view', {
     first_source: clip(state.first_touch && state.first_touch.utm_source, 60) || 'direct',

@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 HERE = Path(__file__).resolve().parent
-JS_CONTRACT_TESTS = ["test_attribution_contract.js", "test_interest_api.js", "test_webmcp.js", "test_after_paint.js"]
+JS_CONTRACT_TESTS = ["test_attribution_contract.js", "test_interest_api.js", "test_webmcp.js", "test_after_paint.js", "test_rum_inp.js"]
 _NODE = shutil.which("node")
 
 
