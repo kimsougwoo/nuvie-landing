@@ -40,7 +40,7 @@ html{scroll-behavior:smooth}
           브랜드 표현, 여긴 **읽어내야 하는 데이터**다. 색맹 안전판으로 칩에 룸 글자도 넣는다. */
     --calA:#E8965A; --calB:#5CC9BE;
     --promo:#017BC6;                     /* ⚠️ 프로모·할인 배지 전용. 일반 UI 사용 금지 */
-    --label-font:'Pretendard',sans-serif;
+    --label-font:'NuvieSans','Pretendard',sans-serif;
   }
   [data-theme="light"]{
     /* 라이트 = Stayfolio 값을 거의 그대로 채택 */
@@ -55,7 +55,8 @@ html{scroll-behavior:smooth}
     --roomA:#5E5E61; --roomB:#5E5E61;
     --calA:#8F3D12; --calB:#0C5F5B;   /* 라이트: 같은 앰버/청록을 어둡게 — 대비 5.45 / 5.30 */
   }
-  body{font-family:'Pretendard',system-ui,sans-serif;font-weight:400;line-height:1.7;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;word-break:keep-all}
+  /* 2026-09-29: 'NuvieSans'(자체 호스팅 서브셋, fonts.css) 먼저 — /b 는 fonts.css 를 안 불러 NuvieSans 를 모르므로 종전대로 Pretendard. */
+  body{font-family:'NuvieSans','Pretendard',system-ui,sans-serif;font-weight:400;line-height:1.7;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;word-break:keep-all}
   [data-theme] *{transition:background-color .45s ease, border-color .45s ease, color .35s ease}
   a{color:inherit}
   @keyframes nvKen{from{transform:scale(1.05)}to{transform:scale(1.13)}}
