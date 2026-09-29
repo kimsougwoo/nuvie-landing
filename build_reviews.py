@@ -112,7 +112,7 @@ def _static_photo_grid(photos, img_map):
         thumb = ent.get("thumb") or src
         dims = f' width="{int(ent["w"])}" height="{int(ent["h"])}"' if ent.get("w") and ent.get("h") else ""
         imgs.append(f'<img src="{_esc(thumb)}" alt="누비 스튜디오 후기 사진" loading="lazy" decoding="async"{dims} '
-                    'style="width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;border-radius:4px;display:block">')
+                    'style="width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;border-radius:4px;display:block;cursor:pointer">')
     return (f'<div style="display:grid;grid-template-columns:repeat({len(photos)},1fr);gap:6px;margin-bottom:11px">'
             + "".join(imgs) + "</div>")
 
