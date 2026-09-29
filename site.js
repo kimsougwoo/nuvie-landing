@@ -148,12 +148,50 @@
     // 2026-09-17 P0: 룸 갤러리 사진 확대 라이트박스(모바일 dead_click) — 템플릿에 #reviewLightbox 있으면 배선.
     var lb=document.getElementById('reviewLightbox'), lbImg=document.getElementById('reviewLightboxImg'), lbClose=document.getElementById('reviewLightboxClose');
     if (lb && lbImg && lbClose) {
-      var trig=null, prevOv='';
+      var trig=null, prevOv='', lbTok=0;
       function openLb(src,el,alt){ trig=el||null; lbImg.src=src; lbImg.alt=alt||'사진 확대'; lb.style.display='flex'; prevOv=document.body.style.overflow; document.body.style.overflow='hidden'; try{lbClose.focus();}catch(e){} }
-      function closeLb(){ lb.style.display='none'; lbImg.src=''; document.body.style.overflow=prevOv; try{ if(trig) trig.focus(); }catch(e){} trig=null; }
+      function closeLb(){ lbTok++; lb.style.display='none'; lbImg.src=''; lbImg.style.filter=''; document.body.style.overflow=prevOv; try{ if(trig) trig.focus(); }catch(e){} trig=null; }
       lb.addEventListener('click',function(e){ if(e.target===lb) closeLb(); });
       lbClose.addEventListener('click',closeLb);
       document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&lb.style.display==='flex') closeLb(); });
+      // 2026-09-29 UX 실측 U-07: /a 후기 사진은 <a target=_blank href=아워 CDN 원본> 이라 눌러도 사이트 안에서 안 커지고
+      //   새 탭에 원본(최대 24.8MB)이 열렸다. 홈(index.html)과 같은 방식으로 이 페이지의 라이트박스로 연다 —
+      //   reviews/img/map.json 의 thumb(흐린 자리표시)→full(축소 WebP)을 쓰고, 매핑이 없으면 원본으로 폴백한다.
+      //   🧊 /b 는 11/11 동결이라 A룸에서만 배선한다(href 는 그대로 둬서 JS 실패 시엔 종전대로 새 탭).
+      if (document.body.getAttribute('data-room') === 'a') {
+        var rvLinks = root.querySelectorAll('#reviews a[href^="https://img.hourplace.co.kr/"]');
+        var rvOpenedAt = 0, rvMap = {};
+        lb.addEventListener('click', function (e) {   // 로딩 중 «반응 없는 클릭» 이 곧바로 닫기로 처리되는 것 방지(홈과 동일 300ms)
+          if (e.target === lb && Date.now() - rvOpenedAt < 300) e.stopImmediatePropagation();
+        }, true);
+        var openReview = function (a, e) {
+          e.preventDefault();
+          var href = a.getAttribute('href'), ent = rvMap[href] || {}, im = a.querySelector('img');
+          var full = ent.full || href, thumb = ent.thumb || '';
+          openLb(thumb || full, a, (im && im.alt) || '후기 사진 확대');
+          rvOpenedAt = Date.now();
+          if (thumb) {
+            lbImg.style.filter = 'blur(6px)';
+            var tok = lbTok, probe = new Image();
+            var show = function () { if (tok !== lbTok) return; lbImg.src = full; lbImg.style.filter = ''; };
+            probe.onload = function () { if (probe.decode) probe.decode().then(show, show); else show(); };
+            probe.onerror = show;
+            probe.src = full;
+          }
+        };
+        Array.prototype.forEach.call(rvLinks, function (a) {
+          a.addEventListener('click', function (e) { openReview(a, e); });
+        });
+        // 축소본 매핑은 늦게 와도 된다 — 도착하면 썸네일도 축소본으로 바꿔 원본 대용량을 덜 받는다(실패하면 원본 유지).
+        fetch('reviews/img/map.json').then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; })
+          .then(function (m) {
+            rvMap = m || {};
+            Array.prototype.forEach.call(rvLinks, function (a) {
+              var ent = rvMap[a.getAttribute('href')], im = a.querySelector('img');
+              if (ent && ent.thumb && im && im.getAttribute('src') !== ent.thumb) im.src = ent.thumb;
+            });
+          });
+      }
       root.querySelectorAll('.gal img').forEach(function(img){
         img.tabIndex=0; img.setAttribute('role','button'); img.setAttribute('aria-label',(img.alt||'사진')+' 확대 보기'); img.style.cursor='zoom-in';
         function open(){ openLb(img.currentSrc||img.src,img,img.alt); try{ if(window.gtag) gtag('event','gallery_zoom',{src:(img.getAttribute('src')||'').slice(0,60),transport_type:'beacon'}); }catch(e){} }
