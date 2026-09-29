@@ -1303,6 +1303,33 @@
 })();
 </script>
 
+<!-- 2026-09-29 랜딩 UX 실측 3차: 해시 링크(/#allday·/#faq 등)로 첫 진입하면 smooth 스크롤이 도는 사이 후기·달력이 늦게 채워져
+     문서가 ~1,550px 길어지고, 스크롤이 옛 목표에서 멈췄다(PC 목표 1,530~1,590px 아래). 문서 높이가 바뀔 때마다 목표로 즉시 다시 맞춘다.
+     손님이 직접 스크롤·탭·키 입력하거나 메뉴(해시 변경)를 누르면, 또는 6초가 지나면 멈춘다. -->
+<script>
+(function(){
+  var h=location.hash, el=null;
+  if(!h||h.length<2||!('ResizeObserver' in window))return;
+  try{ el=document.querySelector(h); }catch(e){ return; }
+  if(!el)return;
+  var done=false, t0=Date.now(), lastH=0, ro;
+  function stop(){ if(done)return; done=true; if(ro)ro.disconnect(); }
+  ['wheel','touchstart','keydown','pointerdown','hashchange'].forEach(function(ev){ window.addEventListener(ev,stop,{passive:true,once:true}); });
+  ro=new ResizeObserver(function(){
+    if(done)return;
+    if(Date.now()-t0>6000){ stop(); return; }
+    var hh=document.documentElement.scrollHeight;
+    if(hh===lastH)return;
+    lastH=hh;
+    // 'instant' 를 모르는 옛 Safari(15.4 미만)는 TypeError → 부드러운 스크롤을 잠시 끄고 기본 정렬로
+    try{ el.scrollIntoView({block:'start',behavior:'instant'}); }
+    catch(e){ var de=document.documentElement, sb=de.style.scrollBehavior; de.style.scrollBehavior='auto'; el.scrollIntoView(true); de.style.scrollBehavior=sb; }
+  });
+  ro.observe(document.body);
+  setTimeout(stop,6500);
+})();
+</script>
+
 <!-- UGC 이용권 안내 팝업 = 제거됨 (2026-09-03: UGC 제도를 «자사몰 이후»로 연기 — 대표 결정).
      팝업은 UGC_START='' 로 이미 fail-closed(안 뜸)였고, 제도 연기에 맞춰 마크업까지 내렸다.
      재도입 시 git 이력에서 복원(제도 시작=공지 트윗 발행일 · report.py NUVIE_UGC_PROGRAM_START 와 동일 날짜). -->
