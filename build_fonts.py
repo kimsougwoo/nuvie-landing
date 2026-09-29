@@ -4,8 +4,8 @@
 왜: Pretendard «동적 서브셋»(CDN CSS·unicode-range 92조각)은 글자를 배치한 «뒤에야» 필요한 조각을 요청한다.
   그래서 새로 열 때마다(뒤로 가기 포함) 대체 글꼴로 먼저 그리고 나중에 바뀌며, 그때 화면에 있는 글이 전부
   줄바꿈을 다시 해 밀린다(/a 360px 뒤로 가기 CLS 0.4~0.6 실측). 또 CDN CSS 가 렌더를 막아 /a 첫 화면이 3.1초였다.
-무엇: 사이트에 실제로 나오는 글자만 담은 woff2 를 굵기별로 만들어 자체 호스팅하고 <link rel=preload> 로
-  자체 호스팅한다(미리 받지 않음 = build_rooms.FONT_PRELOAD=()). fonts.css 는 font-display: optional(09-30 대표 결정) —
+무엇: 사이트에 실제로 나오는 글자만 담은 woff2 를 굵기별로 만들어 자체 호스팅한다(미리 받지 않음 =
+  build_rooms.FONT_PRELOAD=() — preload 는 첫 방문을 늦췄다). fonts.css 는 font-display: optional(09-30 대표 결정) —
   제때 없으면 그 페이지는 기기 기본 한글 글꼴로 끝까지. 서브셋에 없는 글자도 기기 글꼴로 나온다.
 
 라이선스(SIL OFL 1.1 · Reserved Font Name «Pretendard»): 서브셋은 OFL 상 수정본이라 «Pretendard» 이름을 쓰지 않는다

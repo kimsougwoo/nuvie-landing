@@ -70,6 +70,14 @@ def _assert_new_font_head(html, page):
         assert head.index("/fonts/nuvie-sans-") < head.index("/styles.css"), f"{page}: preload 는 스타일보다 먼저"
 
 
+def test_no_font_preload_by_decision():
+    """09-30 번갈아 실측: preload(4종·400/700 모두) 는 첫 방문 FCP 를 +0.3~0.8초 늦췄다 → 미리 받지 않는다(새 눈 검수: 잠금 없던 결정)."""
+    import build_rooms as BR
+    assert BR.FONT_PRELOAD == ()
+    for page in ("index.html", "a.html"):
+        assert 'rel="preload" href="/fonts/' not in _head(_read(page)), page
+
+
 def test_home_and_room_a_use_self_hosted_fonts():
     _assert_new_font_head(_read("index.html"), "index.html")
     _assert_new_font_head(_read("a.html"), "a.html")
