@@ -771,7 +771,7 @@
     var a=document.getElementById('book-mobile'); if(!a)return;
     var on=w.nvAFreeThisWeek(events,Date.now());
     // 2026-09-30 U-12(대표 «권고대로»): «보기»라고 쓰고 아워로 이동했다 → 아워로 가는 버튼은 «예약»으로 시작
-    a.textContent=on?'A룸 예약 · 이번 주 빈 시간 있음 →':'A룸 예약 →';
+    a.textContent=on?'A룸 예약 · 이번 주 빈 시간 있음 →':'A룸 예약 →';   // «이번 주»는 좁은 화면에서도 한 줄로(줄바꿈 없는 공백)
     a.setAttribute('aria-label',on?'A룸 예약, 이번 주 빈 시간 있음 — 아워플레이스로 이동':'A룸 예약 — 아워플레이스로 이동');
     a.classList.toggle('wk',on);
   };

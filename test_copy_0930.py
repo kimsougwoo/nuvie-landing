@@ -42,7 +42,7 @@ def test_firstvisit_cards_start_open():
 
 def test_mobile_bar_week_label_starts_with_booking():
     html = _read("index.html")
-    assert "a.textContent=on?'A룸 예약 · 이번 주 빈 시간 있음 →':'A룸 예약 →';" in html
+    assert "a.textContent=on?'A룸 예약 · 이번 주 빈 시간 있음 →':'A룸 예약 →';" in html   # 줄바꿈 없는 공백(U+00A0) — 320px 두 줄 때 «이번 주» 안 갈림
     assert "이번 주 남은 시간 보기" not in html[html.index('<script id="aweek-js">'):html.index('<script id="aweek-js">') + 2000]
 
 

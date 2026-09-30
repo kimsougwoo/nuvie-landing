@@ -421,6 +421,9 @@ html{scroll-behavior:smooth}
   .btn:active,.book a:active,.btn.line:active,.nv-chip:active{transform:scale(.98)}
   .sticky-book a:active{transform:scale(.97)}
   .sticky-book a.wk{font-size:13px;letter-spacing:-.02em}
+  /* 2026-09-30: «A룸 예약 · 이번 주 빈 시간 있음 →»(대표 확정 문구)이 320px 에서 반 칸(약 148px)을 넘어 앞 글자가 잘렸다
+     → 좁은 화면에선 문구를 줄이지 않고 두 줄로 접는다(바 높이는 패딩을 줄여 그대로). */
+  @media(max-width:374px){.sticky-book a.wk{white-space:normal;text-wrap:balance;word-break:keep-all;text-align:center;line-height:1.25;padding:8px 6px}}
   a:focus-visible,button:focus-visible,[role="button"][tabindex]:focus-visible,summary:focus-visible,.fv-h:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
 
   /* 4) 캐러셀 화살표 호버(A룸 기존 + 신설 공통) — hover 시 배경 진해짐 */
