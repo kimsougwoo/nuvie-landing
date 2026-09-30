@@ -204,7 +204,8 @@
           <!-- 2026-08-04: 룸 뱃지는 이제 해당 룸 페이지로 직행한다(종전엔 둘 다 #rooms 앵커였다). -->
           <a href="/a" data-room-detail="a" data-room-detail-from="hero_badge" style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;white-space:nowrap;text-decoration:none">A룸 · 동양풍</a>
           <a href="/b" data-room-detail="b" data-room-detail-from="hero_badge" style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;white-space:nowrap;text-decoration:none">B룸 · 화이트 티타임 카페</a>
-          <a href="#rooms" id="heroReviewBadge" style="display:none;align-items:center;gap:5px;font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;white-space:nowrap;text-decoration:none"><span style="color:rgba(255,255,255,.72)" aria-hidden="true">★</span><span id="heroReviewText"></span></a>
+          <!-- 2026-09-30 U-13: 후기 칩인데 룸 소개(#rooms)로 갔다 → 후기 섹션으로. -->
+          <a href="#reviews" id="heroReviewBadge" style="display:none;align-items:center;gap:5px;font-family:var(--label-font);font-size:11.5px;letter-spacing:.06em;color:#EDEDEF;border:1px solid rgba(255,255,255,.28);padding:5px 12px;border-radius:999px;white-space:nowrap;text-decoration:none"><span style="color:rgba(255,255,255,.72)" aria-hidden="true">★</span><span id="heroReviewText"></span></a>
         </div>
         <div class="herocta" data-reveal style="display:flex;gap:11px;flex-wrap:wrap;margin-top:30px">
           <a href="#availability" id="hero-book" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);color:#FFFFFF;border:1px solid rgba(255,255,255,.5);font-weight:600;flex:none;white-space:nowrap;padding:15px 32px;border-radius:3px;font-size:15px;text-decoration:none;backdrop-filter:blur(4px)">예약 가능 시간 →</a>
@@ -1100,11 +1101,14 @@
     for(var i=0;i<totalCells;i++){
       var d=new Date(start.getFullYear(),start.getMonth(),start.getDate()+i);
       var key=keyOf(d), inMonth=d.getMonth()===vm, isToday=key===todayKey;
+      // 2026-09-30 U-11: 이번 달의 지난 날이 흐리지 않아 «비어 있는(예약 가능한) 날»처럼 보였다 → 흐리게.
+      //   (첫 화면 = 이번 달은 08-21 결정대로 유지)
+      var isPast=inMonth&&key<todayKey;
       var list=byDate[key]||[];
       var cell=document.createElement('div');
       cell.className='cell';
       cell.setAttribute('data-datekey',key);
-      cell.style.cssText='min-height:96px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 7px 9px;display:flex;flex-direction:column;gap:3px;overflow:hidden'+(inMonth?'':';opacity:.3')+(isToday?';background:color-mix(in srgb, var(--accent) 9%, transparent)':'');
+      cell.style.cssText='min-height:96px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 7px 9px;display:flex;flex-direction:column;gap:3px;overflow:hidden'+(inMonth?(isPast?';opacity:.45':''):';opacity:.3')+(isToday?';background:color-mix(in srgb, var(--accent) 9%, transparent)':'');
       // 선택일 표시는 cssText 대입 «뒤»에 준다 — 앞에 두면 cssText 가 통째로 덮어써 눌린 날 표시가 사라졌다(2026-09-29 실측).
       //   셀이 overflow:hidden 이라 바깥 outline 은 잘리므로 안쪽으로(offset -2px) 그린다.
       if(key===SELECTED_KEY){cell.style.outline='2px solid var(--accent)';cell.style.outlineOffset='-2px';}
