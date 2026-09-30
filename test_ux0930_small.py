@@ -32,6 +32,16 @@ def test_room_hero_booking_button_is_white_fill_except_frozen_b():
     assert "background:#f5f5f6" in body and "color:#0b0b0c" in body
 
 
+def test_hero_content_is_not_scroll_revealed_except_frozen_b():
+    """히어로 버튼 줄(.herocta)이 첫 화면에서 opacity 0.63~0.84 로 멈춰 있었다(2026-09-30 실측, 홈·/a·/b 모바일·PC).
+    스크롤 리빌(animation-range: entry 0% cover 24%)이 첫 화면 안 요소에는 끝나지 않는다 → 히어로 안은 리빌하지 않는다."""
+    css = _read("styles.css").replace(" ", "")
+    rule = re.search(r'body:not\(\[data-room="b"\]\)\.hero\[data-reveal\]\{([^}]*)\}', css)
+    assert rule, "히어로 리빌 해제 규칙이 없다(/b 제외)"
+    body = rule.group(1)
+    assert "animation:none" in body and "opacity:1" in body and "transform:none" in body
+
+
 def test_room_hero_booking_button_markup_unchanged():
     # 라벨·href·data-book 은 그대로(색만 CSS 로)
     assert '<a class="btn" data-book="{{SLUG}}" href="{{BOOKING_HREF}}" style="padding:15px 32px;font-size:15px">{{LABEL}} 예약하기</a>' in _read("room.template.html")
