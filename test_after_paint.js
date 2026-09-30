@@ -10,16 +10,20 @@ const assert = require('assert');
 const fs = require('fs');
 const vm = require('vm');
 
-function makeEnv(room) {
+function makeEnv(room, ua) {
   const rafQ = [];
   const timers = [];
   let now = 0;
   const docListeners = {};
+  const winListeners = {};   // { type: [{fn, capture}] }
   const window = {
     localStorage: { getItem: () => null, setItem: () => {} },
     location: { origin: 'https://nuvie.example', pathname: '/', search: '' },
+    navigator: { userAgent: ua || 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1' },
     requestAnimationFrame: (fn) => rafQ.push(fn),
     setTimeout: (fn, ms) => timers.push({ fn, at: now + (ms || 0) }),
+    addEventListener: (t, fn, cap) => { (winListeners[t] = winListeners[t] || []).push({ fn, capture: cap === true || !!(cap && cap.capture) }); },
+    removeEventListener: (t, fn) => { winListeners[t] = (winListeners[t] || []).filter((l) => l.fn !== fn); },
   };
   window.window = window;
   const document = {
@@ -28,13 +32,14 @@ function makeEnv(room) {
     addEventListener: (t, fn) => { (docListeners[t] = docListeners[t] || []).push(fn); },
     removeEventListener: (t, fn) => { docListeners[t] = (docListeners[t] || []).filter((f) => f !== fn); },
   };
-  const ctx = { window, document, URL, URLSearchParams, Date, Math, JSON, Object, String, Array,
+  const ctx = { window, document, navigator: window.navigator, URL, URLSearchParams, Date, Math, JSON, Object, String, Array,
     requestAnimationFrame: window.requestAnimationFrame, setTimeout: window.setTimeout };
   vm.runInNewContext(fs.readFileSync('attribution.js', 'utf8'), ctx, { filename: 'attribution.js' });
   return {
     A: window.NUVIE_ATTRIBUTION,
     window,
     docListeners,
+    winListeners,
     frame() { rafQ.splice(0).forEach((f) => f()); },
     advance(ms) {
       now += ms;
@@ -46,7 +51,10 @@ function makeEnv(room) {
         if (i >= 0) { const t = timers.splice(i, 1)[0]; t.fn(); ran = true; }
       }
     },
-    fire(type) { (docListeners[type] || []).slice().forEach((f) => f({ type })); },
+    fire(type) {
+      (winListeners[type] || []).slice().forEach((l) => l.fn({ type }));
+      (docListeners[type] || []).slice().forEach((f) => f({ type }));
+    },
   };
 }
 
@@ -90,7 +98,46 @@ const sameTab = { target: '' };
   E.fire('visibilitychange');
   assert.deepStrictEqual(log, ['a'], '탭이 숨겨지는 순간 바로 나가야 한다');
   E.frame(); E.advance(500); assert.deepStrictEqual(log, ['a']);
-  assert.strictEqual((E.docListeners.visibilitychange || []).length, 0, '실행 뒤 숨김 리스너를 걷어야 한다');
+  assert.strictEqual((E.winListeners.visibilitychange || []).length, 0, '실행 뒤 숨김 리스너를 걷어야 한다');
+  assert.strictEqual((E.winListeners.pagehide || []).length, 0, '실행 뒤 pagehide 리스너를 걷어야 한다');
+}
+
+// ② 페이지를 떠날 때(pagehide) — visibilitychange 없이 pagehide 만 오는 엔진에서도 즉시 나간다
+{
+  const E = makeEnv(null); const log = [];
+  E.A.afterPaint(blank, () => log.push('a'));
+  E.fire('pagehide');
+  assert.deepStrictEqual(log, ['a'], 'pagehide 에서 바로 나가야 한다');
+}
+
+// ② 숨김·떠남 리스너는 window «캡처» 단계 — gtag·픽셀·Clarity 가 로드 때 건 숨김 처리보다 먼저 돈다(새 눈 검수 09-30)
+{
+  const E = makeEnv(null);
+  E.A.afterPaint(blank, () => {});
+  for (const t of ['visibilitychange', 'pagehide']) {
+    const ls = E.winListeners[t] || [];
+    assert.strictEqual(ls.length, 1, t + ' 리스너 1개');
+    assert.ok(ls[0].capture, t + ' 는 캡처 단계여야 한다');
+  }
+}
+
+// 앱 안 브라우저(인스타·페북·카톡·안드로이드 웹뷰)는 새 탭 링크도 같은 화면에서 열 수 있다 → 종전처럼 바로 실행
+{
+  const inApp = [
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 350.0.0',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [FBAN/FBIOS;FBAV/480.0]',
+    'Mozilla/5.0 (Linux; Android 14; SM-S921N Build/UP1A; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/128.0 Mobile Safari/537.36',
+    'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Mobile Safari/537.36 KAKAOTALK 10.8.0',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 NAVER(inapp; search; 2000; 12.8.0)',
+  ];
+  for (const ua of inApp) {
+    const E = makeEnv(null, ua); const log = [];
+    E.A.afterPaint(blank, () => log.push('x'));
+    assert.deepStrictEqual(log, ['x'], '앱 안 브라우저는 바로 실행: ' + ua.slice(-40));
+  }
+  const C = makeEnv(null, 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Mobile Safari/537.36');
+  const l2 = []; C.A.afterPaint(blank, () => l2.push('y'));
+  assert.deepStrictEqual(l2, [], '일반 크롬은 미룬다');
 }
 
 // ④ 순서 유지 — 같은 클릭에 걸린 여러 계측이 등록 순서대로

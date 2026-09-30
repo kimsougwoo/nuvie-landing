@@ -12,6 +12,7 @@ const vm = require('vm');
 function makeEnv({ room = null, internal = false, readyState = 'complete' } = {}) {
   const injected = [];
   const winListeners = {};
+  const docListeners = {};
   const sent = [];
   const timers = [];
   const window = {
@@ -30,7 +31,7 @@ function makeEnv({ room = null, internal = false, readyState = 'complete' } = {}
     body: { getAttribute: (k) => (k === 'data-room' ? room : null) },
     head: { appendChild: (el) => injected.push(el) },
     createElement: (tag) => ({ tagName: tag.toUpperCase() }),
-    addEventListener: () => {},
+    addEventListener: (t, fn) => { (docListeners[t] = docListeners[t] || []).push(fn); },
     removeEventListener: () => {},
   };
   const ctx = { window, document, URL, URLSearchParams, Date, Math, JSON, Object, String, Array,
@@ -40,6 +41,7 @@ function makeEnv({ room = null, internal = false, readyState = 'complete' } = {}
     window, injected, sent, winListeners,
     runTimers() { timers.splice(0).forEach((f) => f()); },
     fireLoad() { (winListeners.load || []).forEach((f) => f()); },
+    fireDom() { (docListeners.DOMContentLoaded || []).forEach((f) => f()); },
   };
 }
 
@@ -56,13 +58,19 @@ const vitalsScripts = (E) => E.injected.filter((s) => /web-vitals/.test(s.src ||
   assert.ok(s[0].async, 'async');
 }
 
-// 로드 전이면 load 이벤트 뒤
+// 문서 해석 중이면 DOMContentLoaded 뒤 유휴 때 — load 까지 기다리면 로드 전 빠른 탭(104ms 미만)은 기록이 안 돼
+//   느린 탭만 남는다(새 눈 검수 09-30: 첫 탭이 많은 광고 방문에서 INP 가 위로 치우친다)
 {
   const E = makeEnv({ readyState: 'loading' });
   E.runTimers();
-  assert.strictEqual(vitalsScripts(E).length, 0, 'load 전에 불러오면 안 된다');
-  E.fireLoad(); E.runTimers();
-  assert.strictEqual(vitalsScripts(E).length, 1);
+  assert.strictEqual(vitalsScripts(E).length, 0, '문서 해석 중에 끼워 넣으면 안 된다');
+  E.fireDom(); E.runTimers();
+  assert.strictEqual(vitalsScripts(E).length, 1, 'DOMContentLoaded 뒤 유휴 때 불러와야 한다(load 를 기다리지 않는다)');
+}
+{
+  const E = makeEnv({ readyState: 'interactive' });
+  E.runTimers();
+  assert.strictEqual(vitalsScripts(E).length, 1, '이미 해석이 끝났으면 유휴 때 바로');
 }
 
 // ② 내부 방문 · ③ /b 동결 → 불러오지 않는다
@@ -84,7 +92,7 @@ const vitalsScripts = (E) => E.injected.filter((s) => /web-vitals/.test(s.src ||
   assert.strictEqual(typeof cb, 'function', 'onINP 를 등록해야 한다');
   const before = E.sent.length;
   cb({
-    name: 'INP', value: 344.4, rating: 'needs-improvement', id: 'v5-1', navigationType: 'navigate',
+    name: 'INP', value: 344.4, delta: 120.6, rating: 'needs-improvement', id: 'v5-1', navigationType: 'navigate',
     attribution: {
       interactionTarget: 'a#book-mobile.btn', interactionType: 'pointer',
       inputDelay: 10.2, processingDuration: 291.7, presentationDelay: 42.5,
@@ -97,6 +105,9 @@ const vitalsScripts = (E) => E.injected.filter((s) => /web-vitals/.test(s.src ||
   const p = ev[0].p;
   assert.strictEqual(p.metric_name, 'INP');
   assert.strictEqual(p.metric_value, 344);
+  // 같은 페이지에서 INP 가 커질 때마다 다시 보고된다 → 같은 id 로 묶어 최댓값만 쓰거나 delta 를 합한다(GA4 공식 방식)
+  assert.strictEqual(p.metric_id, 'v5-1', '중복 보고를 묶을 metric_id');
+  assert.strictEqual(p.metric_delta, 121, 'metric_delta');
   assert.strictEqual(p.metric_rating, 'needs-improvement');
   assert.strictEqual(p.interaction_target, 'a#book-mobile.btn');
   assert.strictEqual(p.interaction_type, 'pointer');
@@ -108,6 +119,19 @@ const vitalsScripts = (E) => E.injected.filter((s) => /web-vitals/.test(s.src ||
   assert.strictEqual(p.transport_type, 'beacon');
   assert.ok(!JSON.stringify(p).includes('@'), '개인정보 모양이 섞이면 안 된다');
   for (const k of Object.keys(p)) assert.ok(String(p[k]).length <= 100, k + ' 길이 100 이하(GA4 매개변수 한도)');
+}
+
+// 출처 없는 스크립트(인라인 등)는 loaf_script 를 비운다 — '/' 로 적으면 «홈페이지 스크립트»처럼 보인다
+{
+  const E = makeEnv();
+  E.runTimers();
+  let cb = null;
+  E.window.webVitals = { onINP: (f) => { cb = f; } };
+  vitalsScripts(E)[0].onload();
+  const before = E.sent.length;
+  cb({ name: 'INP', value: 80, delta: 80, rating: 'good', id: 'v5-2',
+    attribution: { interactionTarget: 'button#themeBtn', interactionType: 'pointer', longestScript: { entry: { sourceURL: '' } } } });
+  assert.strictEqual(E.sent[before].p.loaf_script, '');
 }
 
 // 한 페이지에서 web-vitals 가 여러 번 불러와지지 않는다
