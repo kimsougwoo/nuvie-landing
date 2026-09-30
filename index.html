@@ -1394,11 +1394,11 @@
   });
 })();
 /* U-16 (2026-09-30): on mobile (<=640px) hub and /a, hide the header + chip bar while scrolling down and show them on scroll up.
-   The bottom booking bar stays. /b is excluded (frozen until 11/11). Bars never hide during anchor jumps or hash entry
+   The bottom booking bar stays. Pages marked <body data-frozen> are excluded (/b joined on 10/1, owner option 1). Bars never hide during anchor jumps or hash entry
    (hold window: the 146px anchor margin assumes the bars are visible), near the top, or when keyboard focus enters them. */
 (function(){
   var body=document.body, de=document.documentElement;
-  if(!body||body.getAttribute('data-room')==='b')return;
+  if(!body||body.hasAttribute('data-frozen'))return;
   var side=document.querySelector('.side');
   if(!side)return;
   var mq=window.matchMedia('(max-width:640px)');

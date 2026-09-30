@@ -109,8 +109,8 @@ html{scroll-behavior:smooth}
   /* 2026-09-30 U-10: 룸 페이지 히어로 «A룸 예약하기»(실제 아워 이동)가 라이트 테마에서 검은 채움(--btnBg #000)이라
      어두운 히어로 사진 위에서 사라졌다(대비 1.03:1). 히어로는 두 테마 모두 어둡다 → 허브 규칙 «흰 채움은 실제 아워 이동에만»
      대로 두 테마 모두 흰 채움(다크 테마 값과 같다). 🧊 /b 는 11/11 동결(B_UNFREEZE_1111.md). */
-  body:not([data-room="b"]) .herocta .btn[data-book]{background:#F5F5F6;color:#0B0B0C}
-  body:not([data-room="b"]) .herocta .btn[data-book]:hover{background:#D9D9DC}
+  body:not([data-frozen]) .herocta .btn[data-book]{background:#F5F5F6;color:#0B0B0C}
+  body:not([data-frozen]) .herocta .btn[data-book]:hover{background:#D9D9DC}
   /* ── 룸 카드 그리드 (2026-08-04 정보구조 재편) ──────────────────────
      Stayfolio 홈은 **큰 사진 카드가 사진을 나르고** 별도 갤러리 섹션이 없다.
      허브는 「고르는 곳」이고 상세는 /a·/b 가 맡는다 — 그래서 카드는 사진·이름·한 줄·태그까지만.
@@ -222,9 +222,9 @@ html{scroll-behavior:smooth}
      그만큼 화면 밖으로 밀렸다(느린 4G scrollWidth 376~380 > 360). 패딩·간격만 줄여 약 30px 슬랙을 만든다.
      .book gap 은 인라인 style 이라 !important 필수. 🧊 /b 는 11/11 동결 → 홈·/a 만. */
   @media(max-width:380px){
-    body:not([data-room="b"]) .side{gap:6px;padding-left:14px;padding-right:14px}
-    body:not([data-room="b"]) .book{gap:6px!important}
-    body:not([data-room="b"]) .book a{padding:7px 11px}
+    body:not([data-frozen]) .side{gap:6px;padding-left:14px;padding-right:14px}
+    body:not([data-frozen]) .book{gap:6px!important}
+    body:not([data-frozen]) .book a{padding:7px 11px}
   }
   /* 2026-09-30: 320px 에서 테마 버튼이 화면 밖으로 2px 나가 페이지가 옆으로 8px 밀렸다(홈·/a·/b 모두, 변경 전부터).
      버튼 간격·좌우 여백만 줄인다(문구·크기 불변). /b 도 대표 지시(09-30 «세 페이지 가로 스크롤 0»)로 함께. */
@@ -427,10 +427,8 @@ html{scroll-behavior:smooth}
   /* 3) 버튼/CTA 피드백 — :active 미세 축소, :focus-visible 접근성 아웃라인(키보드만 노출→마우스 외관 불변) */
   .btn:active,.book a:active,.btn.line:active,.nv-chip:active{transform:scale(.98)}
   .sticky-book a:active{transform:scale(.97)}
-  .sticky-book a.wk{font-size:13px;letter-spacing:-.02em}
   /* 2026-09-30: «A룸 예약 · 이번 주 빈 시간 있음 →»(대표 확정 문구)이 320px 에서 반 칸(약 148px)을 넘어 앞 글자가 잘렸다
      → 좁은 화면에선 문구를 줄이지 않고 두 줄로 접는다(바 높이는 패딩을 줄여 그대로). */
-  @media(max-width:374px){.sticky-book a.wk{white-space:normal;text-wrap:balance;word-break:keep-all;text-align:center;line-height:1.25;padding:8px 6px}}
   a:focus-visible,button:focus-visible,[role="button"][tabindex]:focus-visible,summary:focus-visible,.fv-h:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
 
   /* 4) 캐러셀 화살표 호버(A룸 기존 + 신설 공통) — hover 시 배경 진해짐 */
@@ -490,23 +488,22 @@ html{scroll-behavior:smooth}
      상단 바(70px)에 목표 상단이 가린 채 도착했다(홈 #rooms·#reviews·#availability·#location·#faq 전부 -70px).
      ⇒ 모든 폭에 상단 바 높이 + 14px(=84px), 모바일은 헤더+칩바 합 + 22px(=146px). #allday 는 <details> 라
      section[id] 에 안 걸려 모바일에서 질문이 바 밑 66~69px 에 떨어졌다.
-     🧊 /b 는 11/11 동결이라 b 룸 페이지(body[data-room="b"])는 제외한다 — 기존 규칙(640px 이하 146px)만 그대로. */
-  body:not([data-room="b"]) section[id],
-  body:not([data-room="b"]) #firstvisit{scroll-margin-top:84px}
+     10/1 /b 1안(대표): B룸도 같게. 동결 표지(<body data-frozen>)가 붙은 페이지만 제외한다. */
+  body:not([data-frozen]) section[id],
+  body:not([data-frozen]) #firstvisit{scroll-margin-top:84px}
   /* #allday 는 data-reveal 조상(translateY 22px → none)이 아직 안 나타난 상태에서 스크롤 위치가 계산돼
      도착하면 22px 더 위로 올라간다(2026-09-29 실측: 모바일 0px·PC -8px). 애니메이션이 없는 브라우저에서도
      0~24px 안에 들어오도록 22px 를 절반쯤 얹는다(PC 98 → 6/28px, 모바일 152 → 6/28px — 애니메이션 유무 양쪽에서 가려지지 않게). */
-  body:not([data-room="b"]) #allday{scroll-margin-top:98px}
+  body:not([data-frozen]) #allday{scroll-margin-top:98px}
   @media(max-width:640px){
-    body:not([data-room="b"]) section[id],
-    body:not([data-room="b"]) #firstvisit{scroll-margin-top:146px}
-    body:not([data-room="b"]) #allday{scroll-margin-top:152px}
+    body:not([data-frozen]) section[id],
+    body:not([data-frozen]) #firstvisit{scroll-margin-top:146px}
+    body:not([data-frozen]) #allday{scroll-margin-top:152px}
     /* /a «요금·예약» 칩 → #booking(DIV) 은 section[id] 에 안 걸려 가격 줄이 상단 바 밑 85px 에 가렸다.
        칩바는 헤더 바로 아래(top=헤더 높이)에 붙는다 — JS(site.js wireChipbar)가 정확값을 넣고,
        JS 실행 전·차단 시에는 실측 헤더 높이 61px 를 대비값으로 쓴다. A룸 전용(/b 동결). */
-    body:not([data-room="b"]) #booking{scroll-margin-top:152px}
-    body[data-room="a"] .nv-chipbar{top:61px}
-    body[data-room="b"] .nv-chipbar{top:61px}
+    body:not([data-frozen]) #booking{scroll-margin-top:152px}
+    body:is([data-room="a"],[data-room="b"]) .nv-chipbar{top:61px}
   }
 
   /* 11) 로딩 스켈레톤 — 은은한 opacity 펄스(글로우/시머 아님), reduced-motion이면 정지 */
@@ -521,7 +518,7 @@ html{scroll-behavior:smooth}
   /* 2026-09-30: 히어로 버튼 줄(.herocta)이 첫 화면에서 opacity 0.63~0.84 로 멈춰 있었다(홈·/a·/b, 모바일·PC 실측) —
      위 리빌 범위(entry 0% cover 24%)는 첫 화면 안에 있는 요소에선 끝나지 않는다. 그래서 «예약하기» 글자가 회색으로
      흐려 보였다(U-10). 첫 화면인 히어로 안은 리빌하지 않는다. 🧊 /b 는 11/11 동결(B_UNFREEZE_1111.md). */
-  body:not([data-room="b"]) .hero [data-reveal]{animation:none;opacity:1;transform:none}
+  body:not([data-frozen]) .hero [data-reveal]{animation:none;opacity:1;transform:none}
 
   /* 7) 히어로 패럴랙스 — 데스크탑 전용(≥641px)·reduced-motion OFF·모바일 OFF. 래퍼에만 적용(img 켄번즈 scale과 비충돌). ≤8px */
   @supports (animation-timeline: scroll()){
@@ -612,8 +609,8 @@ a[data-hp$="|price_link"]::after,a[data-hp$="|directions_inquiry"]::after,detail
 .nv-count{display:none}
 @media(max-width:640px){#reviews .nv-count{display:block;text-align:center;margin-top:10px;font-family:var(--label-font);font-size:12px;letter-spacing:.06em;color:var(--dim);font-variant-numeric:tabular-nums;min-height:18px}}
 /* 2026-09-30 U-16: mobile hub and /a hide header + chip bar while scrolling down (JS sets data-nav=hidden). /b excluded (frozen). Bottom booking bar untouched. */
-@media(max-width:640px){body:not([data-room="b"]) .side,body:not([data-room="b"]) .nv-chipbar{transition:transform .25s ease}body:not([data-room="b"])[data-nav="hidden"] .side{transform:translateY(-100%)}body:not([data-room="b"])[data-nav="hidden"] .nv-chipbar{transform:translateY(calc(-100% - var(--nv-head-h,61px)))}}
-@media(prefers-reduced-motion:reduce){body:not([data-room="b"]) .side,body:not([data-room="b"]) .nv-chipbar{transition:none}}
+@media(max-width:640px){body:not([data-frozen]) .side,body:not([data-frozen]) .nv-chipbar{transition:transform .25s ease}body:not([data-frozen])[data-nav="hidden"] .side{transform:translateY(-100%)}body:not([data-frozen])[data-nav="hidden"] .nv-chipbar{transform:translateY(calc(-100% - var(--nv-head-h,61px)))}}
+@media(prefers-reduced-motion:reduce){body:not([data-frozen]) .side,body:not([data-frozen]) .nv-chipbar{transition:none}}
 /* 2026-09-30 fastest free slot label: two lines (room + 'fastest free slot' / date time) so it fits 320px half bars. Bar height unchanged (54px). */
 .sticky-book a.wk2{flex-direction:column;gap:1px;padding:8px 6px;line-height:1.2;white-space:nowrap}
 .sticky-book a.wk2 .fl1{font-size:12px;font-weight:600;opacity:.86;letter-spacing:-.02em}

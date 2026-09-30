@@ -97,9 +97,9 @@ def test_sticky_bars_collapse_on_scroll_down_mobile_hub_and_a_only():
     assert "holdUntil" in blk and "hashchange" in blk and 'a[href^="#"]' in blk and "6500" in blk
     assert "focusin" in blk, "키보드 초점이 숨은 막 안으로 들어가면 다시 보여야 함"
     assert "max-width:640px" in blk
-    css = re.search(r'body:not\(\[data-room="b"\]\)\[data-nav="hidden"\] \.side\{[^}]*transform:translateY\(-100%\)', CSS)
-    assert css, "헤더 숨김 규칙(/b 제외)"
-    assert re.search(r'body:not\(\[data-room="b"\]\)\[data-nav="hidden"\] \.nv-chipbar\{[^}]*--nv-head-h', CSS)
+    css = re.search(r'body:not\(\[data-frozen\]\)\[data-nav="hidden"\] \.side\{[^}]*transform:translateY\(-100%\)', CSS)
+    assert css, "헤더 숨김 규칙(동결 표지 페이지만 제외 · 10/1 /b 1안)"
+    assert re.search(r'body:not\(\[data-frozen\]\)\[data-nav="hidden"\] \.nv-chipbar\{[^}]*--nv-head-h', CSS)
     assert re.search(r"prefers-reduced-motion:reduce\)\{[^}]*\.side[^}]*\.nv-chipbar[^}]*transition:none", CSS)
     assert "--nv-head-h" in INDEX and "--nv-head-h" in (ROOT / "site.js").read_text(encoding="utf-8")
 
@@ -109,5 +109,5 @@ def test_b_chipbar_sits_below_header_like_a():
     (/a 는 224b5ab 에서 고쳤다). 문구 변화 없는 결함이라 대표 09-30 «B룸도 동일» 대상."""
     site = (ROOT / "site.js").read_text(encoding="utf-8")
     fn = site[site.find("function wireChipbar"):site.find("function init")]
-    assert "'a'" in fn and "'b'" in fn, "wireChipbar 가 /a·/b 둘 다 배선해야 함"
-    assert re.search(r'body\[data-room="b"\]\s+\.nv-chipbar\s*\{[^}]*top:\s*61px', CSS), "JS 전 대비값"
+    assert "/^[ab]$/" in fn, "wireChipbar 가 /a·/b 둘 다 배선해야 함"
+    assert re.search(r'body:is\(\[data-room="a"\],\[data-room="b"\]\)\s+\.nv-chipbar\s*\{[^}]*top:\s*61px', CSS), "JS 전 대비값"

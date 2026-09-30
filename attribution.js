@@ -132,7 +132,7 @@
   function onLeave() { flushPaintQ(); }
   function afterPaint(el, fn) {
     var sync = !el || el.target !== '_blank' || typeof window.requestAnimationFrame !== 'function';
-    try { sync = sync || document.body.getAttribute('data-room') === 'b'; } catch (e) {}
+    try { sync = sync || document.body.getAttribute('data-frozen') !== null; } catch (e) {}
     try { sync = sync || IN_APP.test(window.navigator.userAgent || ''); } catch (e) {}
     if (sync) {
       try { fn(); } catch (e) {}
@@ -204,7 +204,7 @@
   (function scheduleVitals() {
     try {
       var frozen = false;
-      try { frozen = document.body.getAttribute('data-room') === 'b'; } catch (e) {}
+      try { frozen = document.body.getAttribute('data-frozen') !== null; } catch (e) {}
       if (window.__nvInternal || frozen) return;
       // load 까지 기다리지 않는다 — 불러오기 전 상호작용은 104ms 이상만 버퍼에 남아, 로드 전 빠른 탭이 빠지고 느린 탭만 잡힌다
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { whenIdle(loadVitals); });

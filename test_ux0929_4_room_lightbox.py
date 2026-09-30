@@ -13,7 +13,7 @@ CSS = (ROOT / "styles.css").read_text(encoding="utf-8")
 INDEX = (ROOT / "index.html").read_text(encoding="utf-8")
 SITEJS = (ROOT / "site.js").read_text(encoding="utf-8")
 
-NOT_B = ':not([data-room="b"])'
+NOT_B = ':not([data-frozen])'   # 10/1 /b 1안: /b 제외 → 동결 표지 제외
 
 
 def _blocks(css):
@@ -63,4 +63,5 @@ def test_room_review_photos_open_in_site_lightbox():
 
 
 def test_room_review_lightbox_wiring_is_a_only():
-    assert re.search(r"data-room[^\n]{0,40}['\"]a['\"]", SITEJS)
+    """10/1 /b 1안: A·B 룸 모두(함수 이름은 이력 보존)."""
+    assert "/^[ab]$/.test(document.body.getAttribute('data-room')" in SITEJS

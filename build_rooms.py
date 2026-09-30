@@ -52,7 +52,7 @@ def booking_href(room: dict, catalog: dict) -> str:
 
 PRETENDARD_CDN = "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css"
 # 🧊 11/11 까지 동결된 룸 — 글꼴 head 를 옛 두 줄 그대로(b.html 바이트 동일). 동결이 풀리면 이 집합에서 뺀다.
-FONT_HEAD_FROZEN = {"b"}
+FONT_HEAD_FROZEN = set()   # 10/1 /b 1안(대표): B룸도 자체 호스팅 글꼴
 # 미리 받을 굵기 — 번갈아 실측으로 정한다(4종 모두는 첫 방문 FCP·LCP +0.4~0.9초). index.html head 도 같은 값으로 맞춘다.
 FONT_PRELOAD = ()   # 09-30 번갈아 실측: 미리 불러오기 없음이 FCP·CLS·느린 4G LCP 모두 가장 좋음(400·700 은 FCP +0.3~0.5초)
 

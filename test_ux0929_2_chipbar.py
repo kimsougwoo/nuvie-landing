@@ -13,7 +13,7 @@ CSS = (ROOT / "styles.css").read_text(encoding="utf-8")
 INDEX = (ROOT / "index.html").read_text(encoding="utf-8")
 SITEJS = (ROOT / "site.js").read_text(encoding="utf-8")
 
-NOT_B = ':not([data-room="b"])'
+NOT_B = ':not([data-frozen])'   # 10/1 /b 1안: /b 제외 → 동결 표지 제외
 
 
 def _blocks(css):
@@ -57,10 +57,10 @@ def _margin_px(body, prop="scroll-margin-top"):
 
 def test_a_chipbar_not_hidden_behind_header():
     """칩바가 top:0 인데 헤더 z-index(50) > 칩바(40) 라 스크롤 뒤 칩이 헤더 밑에 숨었다(오눌림 9건)."""
-    assert re.search(r"data-room[^\n]{0,40}['\"]a['\"]", SITEJS), "site.js 에 /a 전용 칩바 top 배선이 없다"
+    assert "/^[ab]$/.test(document.body.getAttribute('data-room')" in SITEJS, "site.js 에 룸 페이지 칩바 top 배선이 없다"   # 10/1 /b 1안
     assert "nv-chipbar" in SITEJS
     assert "getBoundingClientRect" in SITEJS[SITEJS.index("nv-chipbar"):]
-    assert re.search(r'body\[data-room="a"\]\s+\.nv-chipbar\s*\{[^}]*top:\s*\d+px', CSS), \
+    assert re.search(r'body:is\(\[data-room="a"\],\[data-room="b"\]\)\s+\.nv-chipbar\s*\{[^}]*top:\s*\d+px', CSS), \
         "JS 실행 전에도 칩바가 헤더 아래에 붙는 CSS 대비값이 없다"
 
 

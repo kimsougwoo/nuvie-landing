@@ -250,8 +250,7 @@
    *   스크롤 뒤에는 칩 대신 헤더 링크가 눌렸다(홈 상단 이동, 시나리오 9건).
    * 2026-09-30 D-4: /b had the same defect (chip tap hit the header). Non-copy fix, so /b is included now. */
   function wireChipbar() {
-    var room = document.body.getAttribute('data-room'), ok = room === 'a' || room === 'b';
-    if (!ok) return;
+    if (!/^[ab]$/.test(document.body.getAttribute('data-room') || '')) return;   // A·B 룸 모두(D-4 · 10/1 /b 1안)
     var bar = document.querySelector('.nv-chipbar'), side = document.querySelector('.side');
     if (!bar || !side) return;
     var mq = window.matchMedia('(max-width:640px)');
@@ -301,11 +300,11 @@
 })();
 
 /* U-16 (2026-09-30): on mobile (<=640px) hub and /a, hide the header + chip bar while scrolling down and show them on scroll up.
-   The bottom booking bar stays. /b is excluded (frozen until 11/11). Bars never hide during anchor jumps or hash entry
+   The bottom booking bar stays. Pages marked <body data-frozen> are excluded (/b joined on 10/1, owner option 1). Bars never hide during anchor jumps or hash entry
    (hold window: the 146px anchor margin assumes the bars are visible), near the top, or when keyboard focus enters them. */
 (function(){
   var body=document.body, de=document.documentElement;
-  if(!body||body.getAttribute('data-room')==='b')return;
+  if(!body||body.hasAttribute('data-frozen'))return;
   var side=document.querySelector('.side');
   if(!side)return;
   var mq=window.matchMedia('(max-width:640px)');

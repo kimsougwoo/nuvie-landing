@@ -84,9 +84,8 @@ def test_home_and_room_a_use_self_hosted_fonts():
 
 
 def test_room_b_keeps_frozen_cdn_font_lines():
-    head = _head(_read("b.html"))
-    assert '<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>\n<link rel="stylesheet" href="' + CDN + '">' in head
-    assert "nuvie-sans" not in head and "fonts.css" not in head
+    """10/1 /b 1안(대표): /b 도 자체 호스팅 글꼴(함수 이름은 이력 보존)."""
+    _assert_new_font_head(_read("b.html"), "b.html")
 
 
 def test_font_stacks_start_with_nuvie_sans_then_pretendard():

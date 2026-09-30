@@ -163,11 +163,13 @@ const sameTab = { target: '' };
   assert.deepStrictEqual(log, ['ok']);
 }
 
-// ⑤ /b 동결 — 새 탭이어도 바로 실행
+// ⑤ 10/1 /b 1안(대표): /b 도 A와 같다 — 새 탭이면 화면을 그린 뒤
 {
   const E = makeEnv('b'); const log = [];
   E.A.afterPaint(blank, () => log.push('b'));
-  assert.deepStrictEqual(log, ['b'], '/b 는 11/11 까지 종전 동작(바로 실행)');
+  assert.deepStrictEqual(log, [], '/b 도 새 탭 예약 클릭은 바로 실행하지 않는다');
+  E.frame(); E.advance(0);
+  assert.deepStrictEqual(log, ['b'], '그린 뒤에는 한 번 나간다');
 }
 
 // booking_intent 위임도 새 탭이면 미룬다(/a)

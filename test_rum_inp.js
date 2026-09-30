@@ -78,7 +78,7 @@ const vitalsScripts = (E) => E.injected.filter((s) => /web-vitals/.test(s.src ||
   const I = makeEnv({ internal: true }); I.runTimers(); I.fireLoad(); I.runTimers();
   assert.strictEqual(vitalsScripts(I).length, 0, '내부 방문은 불러오지 않는다');
   const B = makeEnv({ room: 'b' }); B.runTimers(); B.fireLoad(); B.runTimers();
-  assert.strictEqual(vitalsScripts(B).length, 0, '/b 는 11/11 동결');
+  assert.strictEqual(vitalsScripts(B).length, 1, '10/1 /b 1안: /b 도 실사용자 INP 를 모은다');
 }
 
 // ④⑤ 보낼 때 모양

@@ -13,7 +13,7 @@ CSS = (ROOT / "styles.css").read_text(encoding="utf-8")
 INDEX = (ROOT / "index.html").read_text(encoding="utf-8")
 SITEJS = (ROOT / "site.js").read_text(encoding="utf-8")
 
-NOT_B = ':not([data-room="b"])'
+NOT_B = ':not([data-frozen])'   # 10/1 /b 1안: /b 제외 → 동결 표지 제외
 
 
 def _blocks(css):

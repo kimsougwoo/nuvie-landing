@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 
 CSS = (Path(__file__).parent / "styles.css").read_text(encoding="utf-8")
-NOT_B = 'body:not([data-room="b"])'
+NOT_B = 'body:not([data-frozen])'   # 10/1 /b 1안
 
 
 def _media_380_body():
@@ -34,7 +34,7 @@ def _media_380_body():
 
 def test_narrow_header_gives_slack_for_font_swap():
     body = _media_380_body()
-    side = re.search(r'body:not\(\[data-room="b"\]\)\.side\{([^}]*)\}', body)
+    side = re.search(r'body:not\(\[data-frozen\]\)\.side\{([^}]*)\}', body)
     assert side, "홈·/a 한정 .side 규칙이 없다"
     pads = re.findall(r"padding(?:-left|-right)?:(\d+)px", side.group(1))
     assert pads and all(int(x) <= 14 for x in pads), f".side 좌우 패딩을 줄여야 한다: {pads}"
@@ -44,7 +44,7 @@ def test_narrow_header_gives_slack_for_font_swap():
 
 def test_narrow_header_book_buttons_are_tighter():
     body = _media_380_body()
-    m = re.search(r'body:not\(\[data-room="b"\]\)\.booka\{([^}]*)\}', body)
+    m = re.search(r'body:not\(\[data-frozen\]\)\.booka\{([^}]*)\}', body)
     assert m, "홈·/a 한정 .book a 규칙이 없다"
     pad = re.search(r"padding:\d+px(\d+)px", m.group(1))
     assert pad and int(pad.group(1)) <= 11, "예약 버튼 좌우 패딩을 줄여야 한다"

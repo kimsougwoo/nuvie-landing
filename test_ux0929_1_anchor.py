@@ -4,6 +4,7 @@
 브라우저 없이 소스 계약으로 잠근다(실제 화면 실측은 별도 Playwright 스크립트로 한다).
 🧊 /b 는 11/11 까지 동결이다 — 아래 테스트는 «홈·/a 만 바뀌고 b.html 은 안 바뀐다» 를 함께 지킨다.
 """
+import json
 import re
 import subprocess
 from pathlib import Path
@@ -13,7 +14,7 @@ CSS = (ROOT / "styles.css").read_text(encoding="utf-8")
 INDEX = (ROOT / "index.html").read_text(encoding="utf-8")
 SITEJS = (ROOT / "site.js").read_text(encoding="utf-8")
 
-NOT_B = ':not([data-room="b"])'
+NOT_B = ':not([data-frozen])'   # 10/1 /b 1안(대표): /b 제외 → 동결 표지 제외
 
 
 def _blocks(css):
@@ -88,20 +89,38 @@ def test_allday_anchor_has_pc_margin():
 
 
 
-def _b_frozen_view(text):
-    """09-30 대표 지시로 /b 동결 중 «줄바꿈»과 «후기 사진 배열»만 풀었다 — 그 둘을 걷어 낸 나머지는 그대로여야 한다."""
+def _b_copy_view(text):
+    """B룸 «고유» 문구·사진만 뽑는다 — 10/1 /b 1안(대표): 사용 경험(버튼·누름 영역·줄바꿈·후기 배열·글꼴·하단 바 등)은
+    A룸과 같게 맞추고, B룸 고유 내용(소개 문구·사진·B룸만의 안내)은 11/11 까지 그대로(결정 26 · B룸 카테고리 광고 판정)."""
     import re as _re
-    s = _re.sub(r'<section id="reviews">.*?</section>', "<section id=\"reviews\"></section>", text, flags=_re.S)
-    s = s.replace("<br>", " ")
-    return _re.sub(r"\s+", " ", s).strip()
+
+    def norm(x):
+        x = _re.sub(r"<br\s*/?>", " ", x)
+        x = _re.sub(r"<[^>]+>", " ", x)
+        return _re.sub(r"\s+", " ", x).strip()
+
+    def one(pat):
+        m = _re.search(pat, text, _re.S)
+        return norm(m.group(1)) if m else None
+
+    about = _re.search(r'<section id="about">(.*?)</section>', text, _re.S)
+    gal = _re.search(r'<div class="gal"[^>]*>(.*?)</div>\s*</section>', text, _re.S)
+    return {
+        "title": one(r"<title>(.*?)</title>"),
+        "description": one(r'<meta name="description" content="([^"]*)"'),
+        "og_image": one(r'<meta property="og:image" content="([^"]*)"'),
+        "hero_h1": one(r"<h1\b[^>]*>(.*?)</h1>"),
+        "hero_img": one(r'<div class="heroImgWrap"[^>]*><img[^>]*\bsrc="([^"]*)"'),
+        "hero_tags": one(r'<div class="herobadges"[^>]*>(.*?)</div>'),
+        "about": norm(about.group(1)) if about else None,
+        "gallery": [list(m) for m in _re.findall(r'<img[^>]*\bsrc="([^"]*)"[^>]*\balt="([^"]*)"', gal.group(1))] if gal else None,
+    }
 
 
-def test_b_html_unchanged_since_base():
-    """b.html 은 이 브랜치 시작 커밋(085d3c1) 이후 «줄바꿈·후기 사진 영역 말고는» 그대로여야 한다(11/11 동결).
-    ⚠️ 문구·버튼·링크·CSS 가드·글꼴 head 는 여전히 동결 — 줄바꿈(<br>)과 후기 섹션만 비교에서 뺀다."""
-    import pytest
-    if subprocess.run(["git", "cat-file", "-e", "085d3c1"], cwd=ROOT, capture_output=True).returncode != 0:
-        pytest.skip("기준 커밋 없음(얕은 클론)")
-    base = subprocess.run(["git", "show", "085d3c1:b.html"], cwd=ROOT, capture_output=True).stdout.decode("utf-8")
-    now = (ROOT / "b.html").read_text(encoding="utf-8")
-    assert _b_frozen_view(now) == _b_frozen_view(base), "b.html 이 줄바꿈·후기 사진 말고도 바뀌었다(11/11 동결)"
+def test_b_room_own_copy_and_photos_unchanged():
+    """10/1 /b 1안(대표): b.html 전체 대신 «B룸 고유 문구·사진»만 고정한다. 기준 = 1안 직전 배포본(65693db) b.html 에서 뽑은
+    test_b_copy_fixture.json. 소개 문구·제목·설명·히어로·태그·갤러리 사진이 바뀌면 RED(11/11 해제 때 이 픽스처를 새로 뽑는다)."""
+    fixture = json.loads((ROOT / "test_b_copy_fixture.json").read_text(encoding="utf-8"))
+    now = _b_copy_view((ROOT / "b.html").read_text(encoding="utf-8"))
+    assert all(v for v in now.values()), f"뽑지 못한 항목: {[k for k, v in now.items() if not v]}"
+    assert now == fixture, "B룸 고유 문구·사진이 바뀌었다(11/11 동결 · 결정 26)"
