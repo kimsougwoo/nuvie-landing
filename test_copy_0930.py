@@ -34,6 +34,32 @@ def test_a_hero_sub_is_self_directed_not_a_promise():
     assert NEW_SUB in a and "그 자리에서 원하는 그림이 나와요" not in a
 
 
+def test_rooms_intro_lines_split_by_topic():
+    """대표 09-30: 소개 문단 줄바꿈(문구 그대로) · 무드/인원/도어락 문단은 주제별 한 줄 + 사실은 정본대로
+    (가격정책 v6 §2 «5인째부터 +5,500원/인·시간» · 게스트 안내 §2 «00~08:59 시작 예약은 전날 저녁 선발송»)."""
+    html = _read("index.html")
+    assert "무인 코스프레 컨셉 렌탈 스튜디오입니다.<br>A룸(동양풍·블랙 호리존)과 B룸(화이트 티타임 카페·자연광)을 각각 따로 예약합니다.</p>" in html
+    m = re.search(r'<p class="desc" data-reveal style="margin:0 0 40px">(.*?)</p>', html)
+    lines = m.group(1).split("<br>")
+    assert lines[0] == "A룸과 B룸은 무드가 다릅니다."
+    # 권고안 A: 09-28 확정 문구 «기준 4인, 초과 시 인원요금, 단체는 문의» 그대로 한 줄 + 도어락 시점은 게스트 안내 정본대로
+    assert lines[1:] == ["기준 4인, 초과 시 인원요금, 단체는 문의", "예약 확정 후, 이용 당일 오전에 도어락 비밀번호를 보내드립니다(0시~8시 59분에 시작하는 예약은 전날 저녁)."]
+    assert "프라이빗" not in m.group(1)
+
+
+def test_faq_booking_answer_one_step_per_line():
+    html = _read("index.html")
+    assert "아니요, 문의 없이 바로 예약돼요.<br>① 캘린더에서 빈 시간 확인 →<br>② 아워플레이스에서 바로 결제 →<br>③ 이용 당일 아침, 주소·도어락·주차 안내 메시지 도착.<br>답장을 기다릴 일이 없습니다.</p>" in html
+
+
+def test_firstvisit_card2_drops_curtain_colour_line():
+    """대표 09-30 «이 문장 한 줄 지워 주세요» — 나머지 세 줄(스위치·소품과 천·커튼레일 위치)은 그대로."""
+    html = _read("index.html")
+    m = re.search(r'<p id="fv-body-2"[^>]*>(.*?)</p>', html)
+    assert m.group(1) == "조명·에어컨 스위치는 룸 안에 안내돼 있어요.<br>소품과 천은 자유롭게 꺼내 쓰세요.<br>월동문 위·문가벽 상단·블랙 호리존 천장에 커튼레일이 있어요."
+    assert "모르고 지나치시는 분이 많아요" not in html
+
+
 def test_firstvisit_cards_start_open():
     html = _read("index.html")
     heads = re.findall(r'<div class="fv-h"[^>]*aria-expanded="(true|false)"', html)
@@ -69,16 +95,17 @@ def test_allday_faq_contact_is_phone_and_group_answer_links_to_it():
     allday = html[html.index('<details id="allday"'):]
     allday = allday[:allday.index("</details>")]
     assert "x.com/nuvie_studio" not in allday
-    assert '전화(<a href="tel:07082111103" style="color:var(--accent)">070-8211-1103</a>)로 날짜·시간·인원을 알려 주세요.' in allday
+    assert '<br>올데이권은 아워플레이스 상품이 아니라 개별 문의로 잡아 드려요. 전화 <a href="tel:07082111103" style="color:var(--accent)">070-8211-1103</a>으로 날짜·시간·인원을 알려 주세요.' in allday
+    assert allday.count('<br>') == 4, '주제별 다섯 줄(무엇·가격·인원/9시간·미리 알 점·문의)'
     assert "문자" not in allday and 'href="sms:' not in html
     details = [d for d in re.findall(r"<details\b.*?</details>", html, re.S) if "몇 명까지 이용할 수 있나요?" in d]
     assert details and 'href="#allday"' in details[0] and "올데이권(12시간) 문의" in details[0]
     # 구조화 데이터(JSON-LD FAQ)도 같은 연락 방법
     ld = re.search(r'"name":"단체로 하루 종일 쓸 수 있나요\?","acceptedAnswer":\{"@type":"Answer","text":"([^"]+)"', html)
-    assert ld and "X @nuvie_studio" not in ld.group(1) and "전화(070-8211-1103)로 날짜·시간·인원을 알려 주세요." in ld.group(1)
+    assert ld and "X @nuvie_studio" not in ld.group(1) and "전화 070-8211-1103으로 날짜·시간·인원을 알려 주세요." in ld.group(1)
     assert "문자" not in ld.group(1)
     llms = _read("llms.txt")
-    assert "전화(070-8211-1103) 개별 문의" in llms
+    assert "개별 문의 — 전화 070-8211-1103으로 날짜·시간·인원을 알려 주세요." in llms
 
 
 def test_allday_phone_number_filled_before_push():

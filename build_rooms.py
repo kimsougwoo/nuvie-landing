@@ -108,7 +108,9 @@ def render_season_note(room: dict) -> str:
     js = ("(function(){var n=document.getElementById('seasonNote');if(!n)return;"
           "var today=new Date(Date.now()+9*3600*1000).toISOString().slice(0,10);if(today<n.dataset.until)n.hidden=false;})();")
     # 대표 09-30 «기간 줄바꿈 처리»: « · » 자리에서 줄을 바꿔 기간(«10월 31일까지»)을 둘째 줄에
-    body = "<br>".join(esc(part) for part in sn["text"].split(" · "))
+    parts = [esc(part) for part in sn["text"].split(" · ")]
+    # 대표 09-30 «강조표시»(A룸 상세 = 두 줄 모두): 굵고 조금 크게 — 새 색은 들이지 않는다. 홈 A룸 카드도 두 줄 모두.
+    body = '<strong style="font-weight:700;font-size:16.5px">' + "<br>".join(parts) + "</strong>"
     return (f'<p id="seasonNote" data-until="{esc(sn["until"])}" hidden style="{style}">{body}</p>'
             f'<script>{js}</script>')
 
