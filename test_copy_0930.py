@@ -58,7 +58,9 @@ def test_allday_note_on_home_rooms_section():
     assert m, "룸 소개 섹션에 올데이권 한 줄이 없다"
     body = m.group(1)
     assert "평일 60만 원, 주말·공휴일 75만 원(12시간·부가세 포함)" in body
-    assert 'href="tel:' in body and 'href="sms:' in body
+    assert "전화 070-8211-1103" in body and 'href="tel:07082111103"' in body
+    # 070 인터넷전화라 문자를 받을 수 없다(대표 09-30) — 문자 버튼·«문자» 말 없음
+    assert 'href="sms:' not in body and "문자" not in body
     assert "hourplace" not in body, "올데이권은 아워 밖 문의만(가격정책 v6 §1-0)"
 
 
@@ -66,12 +68,17 @@ def test_allday_faq_contact_is_phone_and_group_answer_links_to_it():
     html = _read("index.html")
     allday = html[html.index('<details id="allday"'):]
     allday = allday[:allday.index("</details>")]
-    assert "x.com/nuvie_studio" not in allday and 'href="tel:' in allday   # FAQ 답은 번호 링크(전화·문자 버튼은 홈 한 줄에)
+    assert "x.com/nuvie_studio" not in allday
+    assert '전화(<a href="tel:07082111103" style="color:var(--accent)">070-8211-1103</a>)로 날짜·시간·인원을 알려 주세요.' in allday
+    assert "문자" not in allday and 'href="sms:' not in html
     details = [d for d in re.findall(r"<details\b.*?</details>", html, re.S) if "몇 명까지 이용할 수 있나요?" in d]
     assert details and 'href="#allday"' in details[0] and "올데이권(12시간) 문의" in details[0]
     # 구조화 데이터(JSON-LD FAQ)도 같은 연락 방법
     ld = re.search(r'"name":"단체로 하루 종일 쓸 수 있나요\?","acceptedAnswer":\{"@type":"Answer","text":"([^"]+)"', html)
-    assert ld and "X @nuvie_studio" not in ld.group(1) and "전화·문자" in ld.group(1)
+    assert ld and "X @nuvie_studio" not in ld.group(1) and "전화(070-8211-1103)로 날짜·시간·인원을 알려 주세요." in ld.group(1)
+    assert "문자" not in ld.group(1)
+    llms = _read("llms.txt")
+    assert "전화(070-8211-1103) 개별 문의" in llms
 
 
 def test_allday_phone_number_filled_before_push():
