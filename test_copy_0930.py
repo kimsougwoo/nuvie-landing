@@ -46,6 +46,41 @@ def test_mobile_bar_week_label_starts_with_booking():
     assert "이번 주 남은 시간 보기" not in html[html.index('<script id="aweek-js">'):html.index('<script id="aweek-js">') + 2000]
 
 
+PHONE_PLACEHOLDER = "PHONE_TBD"
+
+
+def test_allday_note_on_home_rooms_section():
+    """U-06(대표 «전화·문자로 받기»): 올데이권이 FAQ 9번째(문서 82.7%) 안에만 있었다 → 룸 소개 아래 한 줄 + 전화·문자.
+    금액 = 가격정책 v6 §1-0(09-28 대표 확정). 아워 메시지 경로는 넣지 않는다(§1-0 금지)."""
+    html = _read("index.html")
+    rooms = html[html.index('<section id="rooms"'):html.index('<section id="reviews"')]
+    m = re.search(r'<div id="alldayNote"[^>]*>(.*?)</div>\s*<!-- /alldayNote -->', rooms, re.S)
+    assert m, "룸 소개 섹션에 올데이권 한 줄이 없다"
+    body = m.group(1)
+    assert "평일 60만 원, 주말·공휴일 75만 원(12시간·부가세 포함)" in body
+    assert 'href="tel:' in body and 'href="sms:' in body
+    assert "hourplace" not in body, "올데이권은 아워 밖 문의만(가격정책 v6 §1-0)"
+
+
+def test_allday_faq_contact_is_phone_and_group_answer_links_to_it():
+    html = _read("index.html")
+    allday = html[html.index('<details id="allday"'):]
+    allday = allday[:allday.index("</details>")]
+    assert "x.com/nuvie_studio" not in allday and 'href="tel:' in allday   # FAQ 답은 번호 링크(전화·문자 버튼은 홈 한 줄에)
+    details = [d for d in re.findall(r"<details\b.*?</details>", html, re.S) if "몇 명까지 이용할 수 있나요?" in d]
+    assert details and 'href="#allday"' in details[0] and "올데이권(12시간) 문의" in details[0]
+    # 구조화 데이터(JSON-LD FAQ)도 같은 연락 방법
+    ld = re.search(r'"name":"단체로 하루 종일 쓸 수 있나요\?","acceptedAnswer":\{"@type":"Answer","text":"([^"]+)"', html)
+    assert ld and "X @nuvie_studio" not in ld.group(1) and "전화·문자" in ld.group(1)
+
+
+def test_allday_phone_number_filled_before_push():
+    """🔒 push 가드: 대표 번호가 오기 전엔 자리표시가 남아 있고 이 테스트가 빨갛다(번호 없이 push 하지 않음 — 대표 09-30)."""
+    for f in ("index.html", "llms.txt"):
+        assert PHONE_PLACEHOLDER not in _read(f), f"{f}: 전화번호 자리표시가 남아 있다 — 대표 번호를 받은 뒤 채울 것"
+    assert "X @nuvie_studio 개별 문의" not in _read("llms.txt"), "llms.txt 올데이권 문의 길도 전화·문자로"
+
+
 def test_inquiry_button_names_its_destination():
     html = _read("index.html")
     m = re.search(r'data-hp="a\|inquiry_link"[^>]*>(.*?)</a>', html)
