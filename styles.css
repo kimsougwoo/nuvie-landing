@@ -617,3 +617,5 @@ a[data-hp$="|price_link"]::after,a[data-hp$="|directions_inquiry"]::after,detail
 .sticky-book a.wk2 .fl2{font-size:14px;font-weight:700;letter-spacing:-.01em}
 /* 2026-09-30 U-18: hub hero "공간 보기" goes to the same #rooms as "룸 · 요금 보기" -> hidden on PC too (mobile already hidden; id and tracking kept). Room pages keep theirs (#gallery). */
 body:not([data-room]) #hero-gallery{display:none!important}
+/* 2026-10-01 U-12: PC header B booking button only above 920px (below that the header folds; mobile books B from the bottom bar). It showed on 320-390px and pushed the theme button 55px off screen. */
+@media(max-width:920px){.book .book-b{display:none!important}}

@@ -43,9 +43,10 @@ def test_faq_set_question_on_screen_and_jsonld():
 
 
 def test_pc_header_b_booking_is_tracked_and_hidden_on_mobile():
-    assert re.search(r'<a class="book2 btn line" id="book-side-b"[^>]*>B룸 예약</a>', HUB)
+    assert re.search(r'<a class="book-b btn line" id="book-side-b"[^>]*>B룸 예약</a>', HUB)
     assert "['book-b','end-b','book-mobile-b','book-side-b'].forEach(" in HUB, "B_URL·trackBook 배선"
-    assert ".book .book2{display:none}" in CSS, "모바일 헤더에는 없다(320px 폭)"
+    # 10/01 최종 확인에서 잡힘: book2 는 모바일에서 다시 보여서 320~390px 헤더가 55px 넘쳤다 → 전용 클래스를 920px 이하에서 숨긴다.
+    assert "@media(max-width:920px){.book .book-b{display:none!important}}" in CSS, "920px 이하(모바일 포함) 헤더에는 없다"
 
 
 def test_pc_hero_duplicate_gallery_button_hidden_hub_only():
