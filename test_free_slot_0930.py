@@ -5,7 +5,7 @@
 ② 새벽 제외 — 근거: 정본(운영정책 §0·§2, 가격정책 v6 §5)은 새벽 포함 24시간 예약이라 시간대 제한 조항이 없다.
    그래서 실제 예약 시작 분포(예약 로그 138행, 취소 제외 126건: 1~7시 시작 0건, 0~8시 시작 A 5건 중 유료 2건)와
    09-30 대표 결정(도어락 «0시~8시 59분 시작»을 새벽으로 따로 묶음)을 근거로 9시 이후 시작만 센다.
-   마지막 시작은 22시(2시간이 같은 날 24시 안에 끝남 · 정시 입퇴실 가격정책 §5).
+   마지막 시작은 21시 — 같은 로그에서 유료 예약의 가장 늦은 시작이 21시(22시 시작 2건은 둘 다 0원 행).
 ③ 지금 이후만(오늘·내일 표기) ④ 빈 칸 없음·데이터 못 읽음·표시 범위 밖이면 원래 문구(거짓 안내 금지)
 ⑤ 320px 두 줄·aria-label 동시 변경. 시각은 전부 고정(Date.parse)이라 날짜가 지나도 깨지지 않는다.
 """
@@ -39,7 +39,7 @@ def ev(date, s, e, room="A", kind="booking"):
 
 def test_constants_pinned_with_evidence():
     assert re.search(r"DAY_START\s*=\s*9\b", JS), "새벽 제외 = 9시 이후 시작(근거는 이 파일 머리말)"
-    assert re.search(r"LAST_START\s*=\s*22\b", JS)
+    assert re.search(r"LAST_START\s*=\s*21\b", JS)
     assert re.search(r"MIN_H\s*=\s*2\b", JS)
     m = re.search(r"HORIZON_DAYS\s*=\s*(\d+)", JS)
     b = re.search(r"days=(\d+)\)", (ROOT / "build_availability.py").read_text(encoding="utf-8").split("horizon = today")[1])
@@ -64,10 +64,11 @@ def test_skips_gap_shorter_than_two_hours():
 
 
 def test_late_night_rolls_to_tomorrow():
-    # 21:30 KST → 오늘은 22시 시작만 가능(22~24). 22~24 가 막혀 있으면 내일 9시
-    now = "2026-10-01T12:30:00Z"
-    assert text([], now) == "오늘 22시"
-    assert text([ev("2026-10-01", 22, 24)], now) == "내일 9시"
+    # 20:30 KST → 오늘은 21시 시작만 가능. 21~23 이 막혀 있으면 내일 9시. 21:30 이면 오늘은 없음(마지막 시작 21시)
+    now = "2026-10-01T11:30:00Z"
+    assert text([], now) == "오늘 21시"
+    assert text([ev("2026-10-01", 21, 23)], now) == "내일 9시"
+    assert text([], "2026-10-01T12:30:00Z") == "내일 9시"
 
 
 def test_full_block_today_then_morning_booking_tomorrow():

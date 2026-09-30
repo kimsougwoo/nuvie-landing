@@ -611,7 +611,7 @@ a[data-hp$="|price_link"]::after,a[data-hp$="|directions_inquiry"]::after,detail
 /* 2026-09-30 U-16: mobile hub and /a hide header + chip bar while scrolling down (JS sets data-nav=hidden). /b excluded (frozen). Bottom booking bar untouched. */
 @media(max-width:640px){body:not([data-frozen]) .side,body:not([data-frozen]) .nv-chipbar{transition:transform .25s ease}body:not([data-frozen])[data-nav="hidden"] .side{transform:translateY(-100%)}body:not([data-frozen])[data-nav="hidden"] .nv-chipbar{transform:translateY(calc(-100% - var(--nv-head-h,61px)))}}
 @media(prefers-reduced-motion:reduce){body:not([data-frozen]) .side,body:not([data-frozen]) .nv-chipbar{transition:none}}
-/* 2026-09-30 fastest free slot label: two lines (room + 'fastest free slot' / date time) so it fits 320px half bars. Bar height unchanged (54px). */
-.sticky-book a.wk2{flex-direction:column;gap:1px;padding:8px 6px;line-height:1.2;white-space:nowrap}
+/* 2026-09-30 fastest free slot label: two lines (room + 'fastest free slot' / date time) so it fits 320px half bars. min-height keeps the bar at 54px so it does not jump when the label arrives. */
+.sticky-book a.wk2{flex-direction:column;gap:1px;padding:8px 6px;line-height:1.2;white-space:nowrap;min-height:54px}
 .sticky-book a.wk2 .fl1{font-size:12px;font-weight:600;opacity:.86;letter-spacing:-.02em}
 .sticky-book a.wk2 .fl2{font-size:14px;font-weight:700;letter-spacing:-.01em}

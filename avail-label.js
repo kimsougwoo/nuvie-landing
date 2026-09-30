@@ -4,11 +4,12 @@
    - DAY_START 9: no dawn starts. Policy (ops v1.3 sec 0/2, price v6 sec 5) allows 24h booking with no hour limit, so the
      cut comes from real data (booking log 138 rows, 126 non-cancelled: zero starts at 1-7h, 0-8h starts = A 5 rows, 2 paid)
      and the 09-30 owner rule that groups 0:00-8:59 starts as dawn (door code sent the evening before).
-   - LAST_START 22: a 2h slot must end by 24h the same day (whole-hour check-in/out, price v6 sec 5).
+   - LAST_START 21: latest paid start in the same booking log is 21h (the two 22h starts are both 0-won rows),
+     so later starts are not shown even though a 2h slot could end by 24h.
    - HORIZON_DAYS 14: well inside the 120 days build_availability.py fetches; beyond it the default label stays.
    No free slot, bad data or no data -> the original label (never claim a slot we cannot see). hrefs/ids/tracking untouched. */
 (function(w){
-  var DAY_START = 9, LAST_START = 22, MIN_H = 2, HORIZON_DAYS = 14;
+  var DAY_START = 9, LAST_START = 21, MIN_H = 2, HORIZON_DAYS = 14;
   var DOW = ['일', '월', '화', '수', '목', '금', '토'];
 
   w.nvFirstFree = function(events, nowMs, room){
