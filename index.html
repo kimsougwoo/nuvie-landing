@@ -638,7 +638,7 @@
 
     <section id="firstvisit" class="sec"><div class="inner">
       <div id="selfSelect" data-reveal style="margin:0 0 40px;padding:20px 22px;border-left:3px solid var(--ink);background:var(--panel);border-radius:0 6px 6px 0">
-        <p style="margin:0;font-size:15px;line-height:1.75;color:var(--ink)"><b style="font-weight:600">누비는 배경을 직접 꾸미는 스튜디오예요.</b><br>배경을 꾸미지 않고 찍으실 계획이라면, 세트가 완성된 스튜디오가 더 잘 맞으실 거예요.<br>누비는 꾸민 만큼 사진이 달라지는 곳이에요.</p>
+        <p style="margin:0;font-size:15px;line-height:1.75;color:var(--ink)"><b style="font-weight:600">누비는 배경을 직접 꾸미는 스튜디오예요.</b><br>소품과 천을 넉넉히 갖춰 두었어요.<br>배경을 꾸미지 않고 찍으실 계획이라면, 세트가 완성된 스튜디오가 더 잘 맞으실 거예요.<br>누비는 꾸민 만큼 사진이 달라지는 곳이에요.</p>
       </div>
       <div class="sechead" data-reveal style="margin-bottom:30px">
         <span class="snum" style="font-size:clamp(26px,3vw,42px)">＋</span>
@@ -1270,22 +1270,14 @@
   var nums=Array.prototype.slice.call(document.querySelectorAll('.info [data-count]'));
   if(!nums.length)return;
   if(reduce){nums.forEach(function(el){el.textContent=el.getAttribute('data-count');});return;}
-  function run(el){
-    var target=parseInt(el.getAttribute('data-count'),10)||0, dur=900, t0=null;
-    function step(ts){
-      if(!t0)t0=ts;
-      var p=Math.min((ts-t0)/dur,1), e=1-Math.pow(1-p,3);  // ease-out cubic
-      el.textContent=Math.round(e*target);
-      if(p<1)requestAnimationFrame(step); else el.textContent=String(target);
-    }
-    requestAnimationFrame(step);
-  }
+  /* 10-01: counting up from 0 showed wrong in-between values for facts (walk "9 min" instead of 10) -> show the final value, no counting */
+  function run(el){ el.textContent=el.getAttribute('data-count'); }
   /* ⚠️2026-07-29 P2: 종전엔 여기서 즉시 '0'으로 비워놨다. 통계바가 첫 화면에 걸리는 폭(393×727 등)에서는
      관찰이 발동하기 전 상태가 그대로 보여 "0H · 1–0인 · 0 ROOMS · 0분"으로 렌더됐고,
      JS가 죽거나 IntersectionObserver가 끝내 발동하지 않으면 0이 영구히 남았다.
      ⇒ HTML의 최종값(data-count와 동일)을 그대로 두고, 0 리셋은 뷰 진입 직전에만 한다.
         JS 미실행·관찰 미발동이면 정상 숫자가 보이는 것이 기본값이 된다. */
-  function resetAndRun(){ nums.forEach(function(el){el.textContent='0';}); nums.forEach(run); }
+  function resetAndRun(){ nums.forEach(run); }
   var section=document.querySelector('.info');
   try{
     var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){resetAndRun();io.disconnect();}});},{threshold:.4});

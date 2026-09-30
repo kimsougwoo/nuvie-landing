@@ -33,6 +33,7 @@ def test_firstvisit_first_ten_minutes_and_self_select_block():
     assert j < i < HUB.index("처음이세요? 막막하지 않게"), "선언은 «처음이세요» 제목 바로 앞 한 번"
     blk = HUB[i:i + 600]
     assert "누비는 배경을 직접 꾸미는 스튜디오예요." in blk and SELF in blk and "누비는 꾸민 만큼 사진이 달라지는 곳이에요." in blk
+    assert "스튜디오예요.</b><br>소품과 천을 넉넉히 갖춰 두었어요.<br>" in blk, "대표 10-01: 소품이 많다는 걸 말하기(첫 문장 바로 뒤)"
 
 
 def test_faq_set_question_on_screen_and_jsonld():
@@ -58,3 +59,10 @@ def test_a_booking_card_faq_links_and_b_untouched():
     for href, label in (("/#faq-refund", "취소·환불"), ("/#faq-pax", "인원"), ("/#allday", "단체·올데이권")):
         assert re.search(r'<a class="btn line" href="%s" style="min-height:44px[^"]*">%s</a>' % (re.escape(href), label), A)
     assert 'class="faqlinks"' not in B, "B룸 페이지에는 없다(faqLinks 는 A룸 데이터에만)"
+
+
+def test_stat_numbers_do_not_count_through_wrong_values():
+    """10-01: 0부터 세어 올리면 «까치산역 도보 9분» 같은 틀린 중간값이 보였다 → 최종값만."""
+    i = HUB.index("function run(el)")
+    assert "function run(el){ el.textContent=el.getAttribute('data-count'); }" in HUB[i - 200:i + 200]
+    assert "el.textContent='0'" not in HUB
