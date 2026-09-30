@@ -72,3 +72,42 @@ def test_far_anchor_jumps_are_instant_on_hub_and_room_pages():
         assert "scrollBehavior='auto'" in blk.replace(" ", ""), name
         assert "getElementById" in blk, f"{name}: 해시는 id 로만 찾는다(선택자 해석 금지)"
         assert "defaultPrevented" in blk, f"{name}: 다른 핸들러가 막은 클릭은 건드리지 않는다"
+
+
+def _block(src, tag):
+    i = src.find("/* " + tag)
+    j = src.find("})();", i)
+    return src[i:j + 5] if i >= 0 and j > i else ""
+
+
+def test_duplicated_hub_and_room_snippets_are_identical():
+    """U-15·U-16 은 index.html(홈)과 site.js(룸 페이지)에 같은 코드를 둔다 — 한쪽만 고치는 드리프트 방지."""
+    site = (ROOT / "site.js").read_text(encoding="utf-8")
+    for tag in ("U-15", "U-16"):
+        a, b = _block(INDEX, tag), _block(site, tag)
+        assert a and a == b, f"{tag} 블록이 두 파일에서 다르다"
+
+
+def test_sticky_bars_collapse_on_scroll_down_mobile_hub_and_a_only():
+    """U-16: 모바일 고정 막 3겹(헤더 61 + 칩 바 63 + 하단 바 54 = 화면 21~28%). 아래로 스크롤하면 헤더·칩 바를 숨기고
+    위로 올리면 다시 보인다. 하단 예약 바는 그대로. /b 는 11/11 동결이라 제외(행동 변경)."""
+    blk = _block(INDEX, "U-16")
+    assert blk, "U-16 블록 없음"
+    # 앵커 이동(즉시·부드러움)·해시 첫 진입 재정렬 동안은 숨기지 않는다 — 146px 도착 여백이 막이 보이는 상태를 전제로 한다.
+    assert "holdUntil" in blk and "hashchange" in blk and 'a[href^="#"]' in blk and "6500" in blk
+    assert "focusin" in blk, "키보드 초점이 숨은 막 안으로 들어가면 다시 보여야 함"
+    assert "max-width:640px" in blk
+    css = re.search(r'body:not\(\[data-room="b"\]\)\[data-nav="hidden"\] \.side\{[^}]*transform:translateY\(-100%\)', CSS)
+    assert css, "헤더 숨김 규칙(/b 제외)"
+    assert re.search(r'body:not\(\[data-room="b"\]\)\[data-nav="hidden"\] \.nv-chipbar\{[^}]*--nv-head-h', CSS)
+    assert re.search(r"prefers-reduced-motion:reduce\)\{[^}]*\.side[^}]*\.nv-chipbar[^}]*transition:none", CSS)
+    assert "--nv-head-h" in INDEX and "--nv-head-h" in (ROOT / "site.js").read_text(encoding="utf-8")
+
+
+def test_b_chipbar_sits_below_header_like_a():
+    """D-4(09-30 저녁 라이브): /b 칩 바가 top:0 에 붙어 헤더(z-index 50) 밑에 깔렸다 — 스크롤 뒤 칩을 누르면 헤더가 눌린다
+    (/a 는 224b5ab 에서 고쳤다). 문구 변화 없는 결함이라 대표 09-30 «B룸도 동일» 대상."""
+    site = (ROOT / "site.js").read_text(encoding="utf-8")
+    fn = site[site.find("function wireChipbar"):site.find("function init")]
+    assert "'a'" in fn and "'b'" in fn, "wireChipbar 가 /a·/b 둘 다 배선해야 함"
+    assert re.search(r'body\[data-room="b"\]\s+\.nv-chipbar\s*\{[^}]*top:\s*61px', CSS), "JS 전 대비값"

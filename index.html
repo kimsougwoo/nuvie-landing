@@ -1426,6 +1426,48 @@
     setTimeout(function(){ de.style.scrollBehavior=prev; },60);
   });
 })();
+/* U-16 (2026-09-30): on mobile (<=640px) hub and /a, hide the header + chip bar while scrolling down and show them on scroll up.
+   The bottom booking bar stays. /b is excluded (frozen until 11/11). Bars never hide during anchor jumps or hash entry
+   (hold window: the 146px anchor margin assumes the bars are visible), near the top, or when keyboard focus enters them. */
+(function(){
+  var body=document.body, de=document.documentElement;
+  if(!body||body.getAttribute('data-room')==='b')return;
+  var side=document.querySelector('.side');
+  if(!side)return;
+  var mq=window.matchMedia('(max-width:640px)');
+  var holdUntil=(location.hash&&location.hash.length>1)?Date.now()+6500:0;
+  var lastY=Math.max(0,window.scrollY||0), acc=0, hidden=false, raf=0;
+  function setH(){ de.style.setProperty('--nv-head-h',Math.round(side.getBoundingClientRect().height)+'px'); }
+  function show(){ if(hidden){ hidden=false; body.removeAttribute('data-nav'); } }
+  function hide(){ if(!hidden){ hidden=true; body.setAttribute('data-nav','hidden'); } }
+  function hold(ms){ holdUntil=Date.now()+ms; acc=0; show(); }
+  function tick(){
+    raf=0;
+    var y=Math.max(0,window.scrollY||0), d=y-lastY;
+    lastY=y;
+    if(!mq.matches||y<10){ acc=0; show(); return; }
+    if(Date.now()<holdUntil){ acc=0; return; }
+    if((d>0&&acc<0)||(d<0&&acc>0))acc=0;
+    acc+=d;
+    if(acc>12&&y>200)hide();
+    else if(acc<-12)show();
+  }
+  window.addEventListener('scroll',function(){ if(!raf)raf=requestAnimationFrame(tick); },{passive:true});
+  document.addEventListener('click',function(e){
+    var a=e.target&&e.target.closest?e.target.closest('a[href^="#"]'):null;
+    if(a)hold(1000);
+  });
+  window.addEventListener('hashchange',function(){ hold(1000); });
+  document.addEventListener('focusin',function(e){
+    var t=e.target;
+    if(t&&t.closest&&t.closest('.side,.nv-chipbar'))show();
+  });
+  setH();
+  window.addEventListener('resize',setH);
+  window.addEventListener('load',setH);
+  try{ if(window.ResizeObserver)new ResizeObserver(setH).observe(side); }catch(err){}
+  if(mq.addEventListener)mq.addEventListener('change',function(){ if(!mq.matches)show(); });
+})();
 </script>
 
 <!-- UGC 이용권 안내 팝업 = 제거됨 (2026-09-03: UGC 제도를 «자사몰 이후»로 연기 — 대표 결정).

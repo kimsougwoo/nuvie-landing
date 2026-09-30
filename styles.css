@@ -506,6 +506,7 @@ html{scroll-behavior:smooth}
        JS 실행 전·차단 시에는 실측 헤더 높이 61px 를 대비값으로 쓴다. A룸 전용(/b 동결). */
     body:not([data-room="b"]) #booking{scroll-margin-top:152px}
     body[data-room="a"] .nv-chipbar{top:61px}
+    body[data-room="b"] .nv-chipbar{top:61px}
   }
 
   /* 11) 로딩 스켈레톤 — 은은한 opacity 펄스(글로우/시머 아님), reduced-motion이면 정지 */
@@ -610,3 +611,6 @@ a[data-hp$="|price_link"]::after,a[data-hp$="|directions_inquiry"]::after,detail
 /* 2026-09-30 U-14: mobile review carousel position counter (numbers only, carousel is mobile-only) */
 .nv-count{display:none}
 @media(max-width:640px){#reviews .nv-count{display:block;text-align:center;margin-top:10px;font-family:var(--label-font);font-size:12px;letter-spacing:.06em;color:var(--dim);font-variant-numeric:tabular-nums;min-height:18px}}
+/* 2026-09-30 U-16: mobile hub and /a hide header + chip bar while scrolling down (JS sets data-nav=hidden). /b excluded (frozen). Bottom booking bar untouched. */
+@media(max-width:640px){body:not([data-room="b"]) .side,body:not([data-room="b"]) .nv-chipbar{transition:transform .25s ease}body:not([data-room="b"])[data-nav="hidden"] .side{transform:translateY(-100%)}body:not([data-room="b"])[data-nav="hidden"] .nv-chipbar{transform:translateY(calc(-100% - var(--nv-head-h,61px)))}}
+@media(prefers-reduced-motion:reduce){body:not([data-room="b"]) .side,body:not([data-room="b"]) .nv-chipbar{transition:none}}

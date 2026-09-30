@@ -247,9 +247,11 @@
 
   /* 모바일 섹션 칩바(.nv-chipbar) 스티키 top 을 상단 헤더(.side) 높이로 맞춘다 — 허브(index.html)와 같은 방식.
    * 2026-09-29 UX 실측: /a 는 이 배선이 없어 칩바가 top:0 에 붙었고, 헤더(z-index 50)가 칩바(40)를 덮어
-   *   스크롤 뒤에는 칩 대신 헤더 링크가 눌렸다(홈 상단 이동, 시나리오 9건). 🧊 /b 는 11/11 동결 → A룸 전용. */
+   *   스크롤 뒤에는 칩 대신 헤더 링크가 눌렸다(홈 상단 이동, 시나리오 9건).
+   * 2026-09-30 D-4: /b had the same defect (chip tap hit the header). Non-copy fix, so /b is included now. */
   function wireChipbar() {
-    if (document.body.getAttribute('data-room') !== 'a') return;
+    var room = document.body.getAttribute('data-room'), ok = room === 'a' || room === 'b';
+    if (!ok) return;
     var bar = document.querySelector('.nv-chipbar'), side = document.querySelector('.side');
     if (!bar || !side) return;
     var mq = window.matchMedia('(max-width:640px)');
@@ -296,4 +298,47 @@
     de.style.scrollBehavior='auto';
     setTimeout(function(){ de.style.scrollBehavior=prev; },60);
   });
+})();
+
+/* U-16 (2026-09-30): on mobile (<=640px) hub and /a, hide the header + chip bar while scrolling down and show them on scroll up.
+   The bottom booking bar stays. /b is excluded (frozen until 11/11). Bars never hide during anchor jumps or hash entry
+   (hold window: the 146px anchor margin assumes the bars are visible), near the top, or when keyboard focus enters them. */
+(function(){
+  var body=document.body, de=document.documentElement;
+  if(!body||body.getAttribute('data-room')==='b')return;
+  var side=document.querySelector('.side');
+  if(!side)return;
+  var mq=window.matchMedia('(max-width:640px)');
+  var holdUntil=(location.hash&&location.hash.length>1)?Date.now()+6500:0;
+  var lastY=Math.max(0,window.scrollY||0), acc=0, hidden=false, raf=0;
+  function setH(){ de.style.setProperty('--nv-head-h',Math.round(side.getBoundingClientRect().height)+'px'); }
+  function show(){ if(hidden){ hidden=false; body.removeAttribute('data-nav'); } }
+  function hide(){ if(!hidden){ hidden=true; body.setAttribute('data-nav','hidden'); } }
+  function hold(ms){ holdUntil=Date.now()+ms; acc=0; show(); }
+  function tick(){
+    raf=0;
+    var y=Math.max(0,window.scrollY||0), d=y-lastY;
+    lastY=y;
+    if(!mq.matches||y<10){ acc=0; show(); return; }
+    if(Date.now()<holdUntil){ acc=0; return; }
+    if((d>0&&acc<0)||(d<0&&acc>0))acc=0;
+    acc+=d;
+    if(acc>12&&y>200)hide();
+    else if(acc<-12)show();
+  }
+  window.addEventListener('scroll',function(){ if(!raf)raf=requestAnimationFrame(tick); },{passive:true});
+  document.addEventListener('click',function(e){
+    var a=e.target&&e.target.closest?e.target.closest('a[href^="#"]'):null;
+    if(a)hold(1000);
+  });
+  window.addEventListener('hashchange',function(){ hold(1000); });
+  document.addEventListener('focusin',function(e){
+    var t=e.target;
+    if(t&&t.closest&&t.closest('.side,.nv-chipbar'))show();
+  });
+  setH();
+  window.addEventListener('resize',setH);
+  window.addEventListener('load',setH);
+  try{ if(window.ResizeObserver)new ResizeObserver(setH).observe(side); }catch(err){}
+  if(mq.addEventListener)mq.addEventListener('change',function(){ if(!mq.matches)show(); });
 })();
