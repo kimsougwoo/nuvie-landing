@@ -95,8 +95,8 @@ def test_allday_faq_contact_is_phone_and_group_answer_links_to_it():
     allday = html[html.index('<details id="allday"'):]
     allday = allday[:allday.index("</details>")]
     assert "x.com/nuvie_studio" not in allday
-    assert '<br>올데이권은 아워플레이스 상품이 아니라 개별 문의로 잡아 드려요. 전화 <a href="tel:07082111103" style="color:var(--accent)">070-8211-1103</a>으로 날짜·시간·인원을 알려 주세요.' in allday
-    assert allday.count('<br>') == 4, '주제별 다섯 줄(무엇·가격·인원/9시간·미리 알 점·문의)'
+    assert '<br>올데이권은 아워플레이스 상품이 아니라 개별 문의로 잡아 드려요.<br>전화 <a href="tel:07082111103" style="color:var(--accent)">070-8211-1103</a>으로 날짜·시간·인원을 알려 주세요.' in allday
+    assert allday.count('<br>') == 7, '주제별 다섯 줄 + 한 줄 안 두 문장은 문장 끝에서 한 번 더(대표 «전부 줄바꿈»)'
     assert "문자" not in allday and 'href="sms:' not in html
     details = [d for d in re.findall(r"<details\b.*?</details>", html, re.S) if "몇 명까지 이용할 수 있나요?" in d]
     assert details and 'href="#allday"' in details[0] and "올데이권(12시간) 문의" in details[0]
@@ -118,4 +118,4 @@ def test_allday_phone_number_filled_before_push():
 def test_inquiry_button_names_its_destination():
     html = _read("index.html")
     m = re.search(r'data-hp="a\|inquiry_link"[^>]*>(.*?)</a>', html)
-    assert m and m.group(1) == "아워플레이스 예약 페이지에서 문의 &rarr;", m and m.group(1)
+    assert m and m.group(1) == "아워플레이스 예약 페이지에서 문의&nbsp;&rarr;", m and m.group(1)   # 320px 에서 화살표만 다음 줄로 가지 않게
