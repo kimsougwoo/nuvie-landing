@@ -67,9 +67,11 @@ def test_firstvisit_cards_start_open():
 
 
 def test_mobile_bar_week_label_starts_with_booking():
-    html = _read("index.html")
-    assert "a.textContent=on?'A룸 예약 · 이번 주 빈 시간 있음 →':'A룸 예약 →';" in html   # 줄바꿈 없는 공백(U+00A0) — 320px 두 줄 때 «이번 주» 안 갈림
-    assert "이번 주 남은 시간 보기" not in html[html.index('<script id="aweek-js">'):html.index('<script id="aweek-js">') + 2000]
+    """09-30 U-12 «아워로 가는 버튼은 «예약»으로 시작»은 그대로 지킨다. 같은 날 저녁 대표 결정으로 문구가
+    «이번 주 빈 시간 있음» → «가장 빠른 빈 시간»(avail-label.js)으로 바뀌어 새 문구 기준으로 확인한다(상세 = test_free_slot_0930.py)."""
+    js = _read("avail-label.js")
+    assert "label + ' 예약 · 빠른 빈 시간'" in js, "하단 바 문구는 «○룸 예약»으로 시작"
+    assert "남은 시간 보기" not in js and "남은 시간 보기" not in _read("index.html")
 
 
 PHONE_PLACEHOLDER = "PHONE_TBD"

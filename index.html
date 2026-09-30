@@ -750,41 +750,8 @@
     <a href="#" id="book-mobile-b" target="_blank" rel="noopener" aria-label="B룸 예약 — 아워플레이스로 이동">B룸 예약 →</a>
   </div>
 </div>
-<!-- 2026-09-28: 모바일 하단 바 A 버튼 문구. availability.json 에 A룸 빈 칸(2시간 이상)이 이번 주(한국 시간, 일요일까지)
-     실제로 남아 있을 때만 «A룸 이번 주 남은 시간 보기 →». 데이터가 없거나 빈 칸이 없으면 원래 문구 그대로.
-     href·계측(book-mobile → A_URL·trackBook)은 바꾸지 않는다. B 버튼은 B 무변경 창이라 그대로.
-     ⚠️ availability.json 의 updated 는 «마지막 변경» 시각이라 신선도 판정에 쓸 수 없다(예약이 안 바뀌면 안 바뀐다).
-     테스트 = test_push_batch_0928b.py -->
-<script id="aweek-js">
-(function(w){
-  w.nvAFreeThisWeek=function(events,nowMs){
-    if(!Array.isArray(events))return false;
-    var k=new Date(nowMs+9*3600*1000), dow=k.getUTCDay(), left=dow===0?0:7-dow;
-    var hourNow=k.getUTCHours()+k.getUTCMinutes()/60;
-    for(var i=0;i<=left;i++){
-      var day=new Date(Date.UTC(k.getUTCFullYear(),k.getUTCMonth(),k.getUTCDate()+i)).toISOString().slice(0,10);
-      var busy=events.filter(function(e){return e&&e.room==='A'&&e.date===day;})
-        .map(function(e){return [Number(e.start),Number(e.end)];})
-        .sort(function(a,b){return a[0]-b[0];});
-      var cur=i===0?hourNow:0;
-      for(var j=0;j<busy.length;j++){
-        if(busy[j][0]-cur>=2)return true;
-        if(busy[j][1]>cur)cur=busy[j][1];
-      }
-      if(24-cur>=2)return true;
-    }
-    return false;
-  };
-  w.nvApplyWeekLabel=function(events){
-    var a=document.getElementById('book-mobile'); if(!a)return;
-    var on=w.nvAFreeThisWeek(events,Date.now());
-    // 2026-09-30 U-12(대표 «권고대로»): «보기»라고 쓰고 아워로 이동했다 → 아워로 가는 버튼은 «예약»으로 시작
-    a.textContent=on?'A룸 예약 · 이번 주 빈 시간 있음 →':'A룸 예약 →';   // «이번 주»는 좁은 화면에서도 한 줄로(줄바꿈 없는 공백)
-    a.setAttribute('aria-label',on?'A룸 예약, 이번 주 빈 시간 있음 — 아워플레이스로 이동':'A룸 예약 — 아워플레이스로 이동');
-    a.classList.toggle('wk',on);
-  };
-})(window);
-</script>
+<!-- 2026-09-30: 하단 바 «가장 빠른 빈 시간»(대표 결정) = /avail-label.js (룸 페이지와 같은 파일). 옛 «이번 주 빈 시간 있음» 스크립트 은퇴. 테스트 = test_free_slot_0930.py -->
+<script src="/avail-label.js"></script>
 
 <script src="/attribution.js"></script>
 <script src="/webmcp.js" defer></script>
@@ -1188,7 +1155,7 @@
       .then(function(r){if(!r.ok)throw new Error('fetch failed');return r.json();})
       .then(function(d){
         var fetchedAt=new Date();
-        if(d&&Array.isArray(d.events)){EVENTS=d.events;renderCal();setLastChecked(d.updated,fetchedAt);try{if(window.nvApplyWeekLabel)window.nvApplyWeekLabel(d.events);}catch(e){}}
+        if(d&&Array.isArray(d.events)){EVENTS=d.events;renderCal();setLastChecked(d.updated,fetchedAt);try{if(window.nvApplyFreeLabels)window.nvApplyFreeLabels(d.events);}catch(e){}}
         availRetried=false;
         setFetchWarn(false);
       })

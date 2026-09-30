@@ -76,51 +76,8 @@ def test_privacy_says_interest_form_is_not_offered_now():
 
 
 # ── 5) 모바일 하단 바 A 문구 ───────────────────────────────────
-def _week_js():
-    html = _read("index.html")
-    m = re.search(r'<script id="aweek-js">(.*?)</script>', html, re.S)
-    assert m, "모바일 하단 바 A 문구 스크립트(#aweek-js)가 없다"
-    return m.group(1)
-
-
-def _free(events, now_iso):
-    """node 로 nvAFreeThisWeek(events, nowMs) 를 실제로 돌린다."""
-    js = _week_js() + (
-        "\nprocess.stdout.write(JSON.stringify(window.nvAFreeThisWeek("
-        + json.dumps(events) + ", Date.parse(" + json.dumps(now_iso) + "))));"
-    )
-    out = subprocess.run(["node", "-e", "var window={};var document=undefined;" + js],
-                         capture_output=True, text=True, encoding="utf-8", timeout=30)
-    assert out.returncode == 0, out.stderr
-    return json.loads(out.stdout)
-
-
-def test_week_label_true_when_a_has_free_window():
-    # 2026-10-01(목) 12:00 KST. 이번 주 = 10/1~10/4(일).
-    assert _free([], "2026-10-01T03:00:00Z") is True
-
-
-def test_week_label_false_when_rest_of_week_full():
-    now = "2026-10-03T13:00:00Z"   # 10/3(토) 22:00 KST → 오늘 남은 2시간, 일요일 하루
-    full = [
-        {"date": "2026-10-03", "start": 22.0, "end": 24.0, "room": "A", "kind": "booking"},
-        {"date": "2026-10-04", "start": 0, "end": 24, "room": "A", "kind": "block"},
-    ]
-    assert _free(full, now) is False
-    # B 가 차 있어도 A 판정에는 영향 없음
-    assert _free([dict(e, room="B") for e in full], now) is True
-
-
-def test_week_label_needs_two_hours_and_ignores_past_hours():
-    now = "2026-10-04T12:00:00Z"   # 10/4(일) 21:00 KST — 남은 3시간 중 22~24 예약 → 1시간뿐
-    ev = [{"date": "2026-10-04", "start": 22.0, "end": 24.0, "room": "A", "kind": "booking"}]
-    assert _free(ev, now) is False
-    # 월요일 0시 KST 에는 새 주가 시작된다
-    assert _free(ev, "2026-10-04T15:00:00Z") is True
-
-
-def test_week_label_false_on_bad_data():
-    assert _free(None, "2026-10-01T03:00:00Z") is False
+# 2026-09-30: «이번 주 빈 시간 있음»(nvAFreeThisWeek) 은 «가장 빠른 빈 시간»(avail-label.js)으로 바뀌어 그 테스트 4개는
+#   test_free_slot_0930.py 로 옮겼다(시각 고정·경계 포함).
 
 
 def test_mobile_bar_default_label_and_href_wiring_unchanged():
@@ -130,4 +87,4 @@ def test_mobile_bar_default_label_and_href_wiring_unchanged():
     assert "['book-side','book-a','end-a','book-mobile']" in html, "A_URL·trackBook 배선이 그대로여야 한다"
     b = re.search(r'<a\b[^>]*id="book-mobile-b"[^>]*>(.*?)</a>', html, re.S)
     assert b and b.group(1).strip() == "B룸 예약 →"
-    assert "nvApplyWeekLabel" in html[html.index("function loadAvailability"):], "예약현황 로드 뒤 문구를 갱신해야 한다"
+    assert "nvApplyFreeLabels" in html[html.index("function loadAvailability"):], "예약현황 로드 뒤 문구를 갱신해야 한다"
