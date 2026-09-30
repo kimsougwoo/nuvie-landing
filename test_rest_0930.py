@@ -99,9 +99,19 @@ def test_sticky_bars_collapse_on_scroll_down_mobile_hub_and_a_only():
     assert "max-width:640px" in blk
     css = re.search(r'body:not\(\[data-frozen\]\)\[data-nav="hidden"\] \.side\{[^}]*transform:translateY\(-100%\)', CSS)
     assert css, "헤더 숨김 규칙(동결 표지 페이지만 제외 · 10/1 /b 1안)"
-    assert re.search(r'body:not\(\[data-frozen\]\)\[data-nav="hidden"\] \.nv-chipbar\{[^}]*--nv-head-h', CSS)
+    assert re.search(r'body:not\(\[data-frozen\]\)\[data-nav="hidden"\]\[data-chip="stuck"\] \.nv-chipbar\{[^}]*--nv-head-h', CSS)
     assert re.search(r"prefers-reduced-motion:reduce\)\{[^}]*\.side[^}]*\.nv-chipbar[^}]*transition:none", CSS)
     assert "--nv-head-h" in INDEX and "--nv-head-h" in (ROOT / "site.js").read_text(encoding="utf-8")
+
+
+def test_chipbar_hides_only_when_stuck():
+    """10-01 라이브 점검(9a 발견·7f 재현): 칩 바가 아직 붙지 않은 흐름 안 위치(홈 첫 화면 아래)에서 헤더가 숨으면,
+    숨김 이동(−124px)이 칩 바를 위쪽 «A룸 보기/B룸 보기» 버튼 위로 끌어올렸다(칩 682~745px · 버튼 722~789px).
+    칩 바 바로 앞에 높이 0 표지(sentinel)를 두고, 표지가 헤더 아래 선을 지나 칩 바가 실제로 붙었을 때만 data-chip="stuck"."""
+    blk = _block(INDEX, "U-16")
+    assert "data-chip" in blk and "sentinel" in blk.lower()
+    assert "insertBefore" in blk, "표지는 칩 바 바로 앞(흐름 안)에 둔다 — 붙음 판정은 표지 위치로(칩 바 자신은 sticky·transform 이라 못 믿는다)"
+    assert not re.search(r'\[data-nav="hidden"\] \.nv-chipbar\{', CSS), "붙지 않은 칩 바를 숨김 이동하는 옛 규칙이 남아 있다"
 
 
 def test_b_chipbar_sits_below_header_like_a():
