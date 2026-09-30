@@ -629,3 +629,5 @@ body{word-break:keep-all;overflow-wrap:break-word}
 #calToday{white-space:nowrap}
 /* 320~374px: the month row (44px prev/next + title + today) is wider than the card; let "이번 달" drop to its own line instead of overflowing (touch targets stay 44px) */
 @media(max-width:374px){div:has(> #calPrev){flex-wrap:wrap;row-gap:8px}#calToday{margin-left:0!important}}
+/* 2026-10-01 review carousel (mobile): the 52px side inset was only there to keep the side arrows off the cards; arrows now sit in the counter row -> first card starts at the panel text edge and the next card peeks on the right */
+@media(max-width:640px){#reviewCards{padding-left:20px!important;padding-right:20px!important;scroll-padding-left:20px;scroll-padding-right:20px}#reviewCards>div{flex:0 0 84%!important;scroll-snap-align:start!important}}

@@ -31,6 +31,17 @@ def _run_len(s):
 def glue_text(t):
     if not t.strip():
         return t
+    # R0  문장이 «요/다»로 끝난 뒤 « · »로 이어지면 가운뎃점 대신 그 자리에서 줄을 바꾼다(10-01 9a: 줄 끝에 «·»가 남음)
+    #     줄을 바꾼 뒤에는 조각마다 따로 다듬는다(태그 뒤 첫 낱말도 한 번에 묶이게 — 다시 돌려도 같은 결과).
+    t = re.sub(r"(?<=[요다])[  ]· ", "<br>", t)
+    if "<br>" in t:
+        return "<br>".join(_glue_plain(p) for p in t.split("<br>"))
+    return _glue_plain(t)
+
+
+def _glue_plain(t):
+    if not t.strip():
+        return t
     t = re.sub(r"(?<=\d) / (?=\d)", NB + "/" + NB, t)   # R2b «5.0 / 5» 통째로
     t = t.replace(" · ", NB + "· ").replace(" / ", NB + "/ ")
     # R5  공백 없이 붙은 가운뎃점(«주말·공휴일»·«12시간·부가세») 앞뒤는 브라우저가 줄바꿈 자리로 본다 → 보이지 않는 연결 문자(U+2060)
