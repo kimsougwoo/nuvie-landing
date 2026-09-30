@@ -21,11 +21,16 @@ def _reviews_section(html):
     return html[html.index('<section id="reviews">'):html.index("</section>", html.index('<section id="reviews">'))]
 
 
-def test_review_cards_share_row_height():
+def test_review_cards_masonry_on_desktop_only():
+    """대표 09-30 «후기 저게 맞아요?»: 줄 높이 맞춤(stretch)은 짧은 카드 아래가 크게 비었다 → PC(641px 이상)는 벽돌형(다단),
+    모바일은 한 줄 그리드 그대로. 다단은 모바일에서 만들지 않는다(홈 #reviewCards 핀치줌 버그와 같은 규칙·같은 분기점)."""
     for page in ("a.html", "b.html"):
         sec = _reviews_section(_read(page))
-        grid = re.search(r'<div data-reveal style="display:grid;grid-template-columns:repeat\(auto-fill,minmax\(240px,1fr\)\);gap:14px;align-items:(\w+)">', sec)
-        assert grid and grid.group(1) == "stretch", f"{page}: 같은 줄 카드 높이를 맞춰야 한다"
+        assert '<div class="room-reviews" data-reveal style="display:grid;' in sec, page
+    css = _read("styles.css").replace(" ", "")
+    m = re.search(r"@media\(min-width:641px\)\{\.room-reviews\{([^}]*)\}\.room-reviews>div\{([^}]*)\}\}", css)
+    assert m and "column-width:260px" in m.group(1) and "break-inside:avoid" in m.group(2)
+    assert ".room-reviews{" not in css.replace(m.group(0), ""), "다단 규칙은 데스크탑 미디어쿼리 안에만"
 
 
 def test_review_thumbs_use_small_copies_at_build_time():

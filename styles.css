@@ -226,6 +226,13 @@ html{scroll-behavior:smooth}
     body:not([data-room="b"]) .book{gap:6px!important}
     body:not([data-room="b"]) .book a{padding:7px 11px}
   }
+  /* 2026-09-30: 320px 에서 테마 버튼이 화면 밖으로 2px 나가 페이지가 옆으로 8px 밀렸다(홈·/a·/b 모두, 변경 전부터).
+     버튼 간격·좌우 여백만 줄인다(문구·크기 불변). /b 도 대표 지시(09-30 «세 페이지 가로 스크롤 0»)로 함께. */
+  @media(max-width:340px){
+    .side{gap:4px!important;padding-left:10px!important;padding-right:10px!important}
+    .book{gap:4px!important}
+    .book a{padding:7px 9px!important}
+  }
   @media(max-width:760px){.room{grid-template-columns:1fr!important}.room .rimg{min-height:300px!important}.roomwrap{direction:ltr!important}}
   @media(max-width:560px){.gal{grid-template-columns:1fr!important}.specs{grid-template-columns:1fr!important}.specs .it{border-right:none!important}.info{grid-template-columns:1fr 1fr!important}.sechead{flex-wrap:wrap}}
 
@@ -586,3 +593,8 @@ html{scroll-behavior:smooth}
 /* 2026-09-30 moblie orphan guard (text unchanged): last-line single word / balanced headings */
 main p, main dd, main li, footer p{text-wrap:pretty}
 main h2, main h3{text-wrap:balance}
+
+/* 2026-09-30 room review masonry (desktop >=641px, same technique/breakpoint as hub #reviewCards; mobile stays 1 column grid) */
+@media(min-width:641px){.room-reviews{display:block!important;column-width:260px;column-gap:14px}.room-reviews>div{break-inside:avoid;margin:0 0 14px}}
+/* 2026-09-30 calendar header 8px overflow at 320px: narrow title min-width only (text unchanged) */
+@media(max-width:340px){#calTitle{min-width:96px!important}}
