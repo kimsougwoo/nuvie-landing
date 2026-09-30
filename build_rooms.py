@@ -107,7 +107,9 @@ def render_season_note(room: dict) -> str:
     style = "margin:14px 0 0;color:#FFFFFF;font-size:14.5px;font-weight:600;line-height:1.6"
     js = ("(function(){var n=document.getElementById('seasonNote');if(!n)return;"
           "var today=new Date(Date.now()+9*3600*1000).toISOString().slice(0,10);if(today<n.dataset.until)n.hidden=false;})();")
-    return (f'<p id="seasonNote" data-until="{esc(sn["until"])}" hidden style="{style}">{esc(sn["text"])}</p>'
+    # 대표 09-30 «기간 줄바꿈 처리»: « · » 자리에서 줄을 바꿔 기간(«10월 31일까지»)을 둘째 줄에
+    body = "<br>".join(esc(part) for part in sn["text"].split(" · "))
+    return (f'<p id="seasonNote" data-until="{esc(sn["until"])}" hidden style="{style}">{body}</p>'
             f'<script>{js}</script>')
 
 

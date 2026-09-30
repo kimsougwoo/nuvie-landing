@@ -23,18 +23,24 @@ def _rooms():
     return {x["slug"]: x for x in rooms} if isinstance(rooms, list) else rooms
 
 
+def _lines(text):
+    """대표 09-30 «기간 줄바꿈 처리»: rooms.json 은 « · » 로 한 문장, 화면은 « · » 자리에서 줄을 바꾼다."""
+    return text.split(" · ")
+
+
 def test_a_season_note_matches_home_card_sentence():
-    home = re.search(r'<p id="seasonNoteA" data-until="([^"]+)"[^>]*>([^<]+)</p>', _read("index.html"))
+    home = re.search(r'<p id="seasonNoteA" data-until="([^"]+)"[^>]*>(.*?)</p>', _read("index.html"))
     sn = _rooms()["a"]["seasonNote"]
-    assert sn["text"] == home.group(2), "홈 카드와 같은 문장이어야 한다(새 문구 금지)"
+    assert home.group(2) == "<br>".join(_lines(sn["text"])), "홈 카드와 같은 문장·같은 줄바꿈이어야 한다(새 문구 금지)"
     assert sn["until"] == home.group(1)
+    assert _lines(sn["text"])[-1] == "10월 31일까지", "기간이 둘째 줄"
 
 
 def test_a_html_shows_season_note_under_hero_sub_with_auto_hide():
     a = _read("a.html")
-    m = re.search(r'<p id="seasonNote" data-until="(\d{4}-\d{2}-\d{2})" hidden[^>]*>([^<]+)</p><script>(.*?)</script>', a, re.S)
+    m = re.search(r'<p id="seasonNote" data-until="(\d{4}-\d{2}-\d{2})" hidden[^>]*>(.*?)</p><script>(.*?)</script>', a, re.S)
     assert m, "a.html 에 시즌 안내가 없다"
-    assert m.group(2) == _rooms()["a"]["seasonNote"]["text"]
+    assert m.group(2) == "<br>".join(_lines(_rooms()["a"]["seasonNote"]["text"])), "« · » 자리에서 줄바꿈"
     js = m.group(3)
     assert "9*3600*1000" in js and "n.hidden=false" in js, "KST 기준 until 전만 보이게"
     hero_sub_end = a.index("</p>", a.index("{{SUB}}") if "{{SUB}}" in a else a.index('text-wrap:pretty">'))
