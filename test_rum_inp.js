@@ -104,7 +104,7 @@ const vitalsScripts = (E) => E.injected.filter((s) => /web-vitals/.test(s.src ||
   assert.strictEqual(p.processing_duration, 292);
   assert.strictEqual(p.presentation_delay, 43);
   assert.strictEqual(p.loaf_script, 'connect.facebook.net/en_US/fbevents.js', '스크립트는 호스트+경로만(쿼리 제거)');
-  assert.strictEqual(p.page_path, '/a', '페이지는 경로만(쿼리 제거)');
+  assert.ok(!('page_path' in p), '페이지는 GA4 기본 페이지 경로로 본다 — 쿼리가 섞일 수 있는 별도 매개변수를 싣지 않는다');
   assert.strictEqual(p.transport_type, 'beacon');
   assert.ok(!JSON.stringify(p).includes('@'), '개인정보 모양이 섞이면 안 된다');
   for (const k of Object.keys(p)) assert.ok(String(p[k]).length <= 100, k + ' 길이 100 이하(GA4 매개변수 한도)');

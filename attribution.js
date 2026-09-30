@@ -146,7 +146,9 @@
    * 왜: Clarity INP 는 조회 11회 표본이라 한두 건에 p75 가 1.6초로 튀었고 어느 버튼이 느린지도 몰랐다(09-29 조사).
    *   web-vitals 6.2.2(Apache-2.0, /vendor/ 자체 호스팅)의 onINP 가 «느린 상호작용 대상·구간»을 알려 준다.
    * 페이지가 다 뜬 뒤 유휴 때 불러온다 · 내부 방문·/b(11/11 동결)는 불러오지 않는다 · 대상은 태그·id·class 모양,
-   *   스크립트·페이지는 경로만(쿼리 제거) · 계약 = test_rum_inp.js */
+   *   스크립트는 경로만(쿼리 제거) · 계약 = test_rum_inp.js
+   * GA4 보고서용 맞춤 정의(배포 뒤 등록): 측정기준 metric_name·metric_rating·interaction_target·interaction_type·loaf_script,
+   *   측정항목 metric_value·input_delay·processing_duration·presentation_delay(밀리초) */
   var VITALS_SRC = '/vendor/web-vitals-6.2.2.attribution.iife.js';
   var vitalsLoaded = false;
   function pathOnly(url) {
@@ -165,8 +167,7 @@
         input_delay: Math.round(a.inputDelay || 0),
         processing_duration: Math.round(a.processingDuration || 0),
         presentation_delay: Math.round(a.presentationDelay || 0),
-        loaf_script: ls ? pathOnly(ls.sourceURL || '') : '',
-        page_path: clip(window.location.pathname, 100),
+        loaf_script: ls ? pathOnly(ls.sourceURL || '') : '',   // 페이지는 GA4 기본 «페이지 경로»로 본다(별도 매개변수 없음)
         transport_type: 'beacon'
       });
     } catch (e) {}
