@@ -98,6 +98,19 @@ def render_info_cells(room: dict) -> str:
     return "".join(out)
 
 
+def render_season_note(room: dict) -> str:
+    """시즌 안내(2026-09-30 U-01) — rooms.json seasonNote {text, until}. 없으면 빈 문자열(b.html 바이트 불변).
+    until(KST 날짜)부터 스스로 숨는다 — 홈 룸 카드 #seasonNoteA 와 같은 방식·같은 문장."""
+    sn = room.get("seasonNote")
+    if not sn:
+        return ""
+    style = "margin:14px 0 0;color:#FFFFFF;font-size:14.5px;font-weight:600;line-height:1.6"
+    js = ("(function(){var n=document.getElementById('seasonNote');if(!n)return;"
+          "var today=new Date(Date.now()+9*3600*1000).toISOString().slice(0,10);if(today<n.dataset.until)n.hidden=false;})();")
+    return (f'<p id="seasonNote" data-until="{esc(sn["until"])}" hidden style="{style}">{esc(sn["text"])}</p>'
+            f'<script>{js}</script>')
+
+
 def render_hero_tags(room: dict) -> str:
     # ⚠️ 히어로는 테마와 무관하게 항상 어두운 사진 위다 → 테마 토큰을 쓰면 라이트에서 글자가 사라진다.
     #    고정 라이트 값으로 못박는다(2026-08-04 Stayfolio 전환 시 실제로 밟은 함정).
@@ -334,6 +347,7 @@ def build_page(room: dict, other: dict, catalog: dict, reviews_doc: dict, templa
         "H1_1": esc(hero["h1"][0]),
         "H1_2": esc(hero["h1"][1]),
         "SUB": hero["sub"],  # <br> 허용 필드
+        "SEASON_NOTE": render_season_note(room),
         "HERO_IMG": esc(hero["image"]),
         "HERO_ALT": esc(hero["alt"]),
         "HERO_TAGS": render_hero_tags(room),
