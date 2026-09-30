@@ -615,3 +615,5 @@ a[data-hp$="|price_link"]::after,a[data-hp$="|directions_inquiry"]::after,detail
 .sticky-book a.wk2{flex-direction:column;gap:1px;padding:8px 6px;line-height:1.2;white-space:nowrap;min-height:54px}
 .sticky-book a.wk2 .fl1{font-size:12px;font-weight:600;opacity:.86;letter-spacing:-.02em}
 .sticky-book a.wk2 .fl2{font-size:14px;font-weight:700;letter-spacing:-.01em}
+/* 2026-09-30 U-18: hub hero "공간 보기" goes to the same #rooms as "룸 · 요금 보기" -> hidden on PC too (mobile already hidden; id and tracking kept). Room pages keep theirs (#gallery). */
+body:not([data-room]) #hero-gallery{display:none!important}

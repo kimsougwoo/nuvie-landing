@@ -99,6 +99,7 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"예약하려면 문의해야 하나요?","acceptedAnswer":{"@type":"Answer","text":"아니요, 문의 없이 바로 예약돼요. ① 캘린더에서 빈 시간 확인 → ② 아워플레이스에서 바로 결제 → ③ 이용 당일 아침, 주소·도어락·주차 안내 메시지 도착. 답장을 기다릴 일이 없습니다."}},
+{"@type":"Question","name":"완성된 세트가 있어서 그대로 찍기만 해도 되나요?","acceptedAnswer":{"@type":"Answer","text":"기본 세트와 소품은 출발점이에요. 천과 소품, 가구를 옮겨서 원하는 배경을 만드시는 곳이고, 꾸민 만큼 사진이 달라져요. 배경을 꾸미지 않고 찍으실 계획이라면, 세트가 완성된 스튜디오가 더 잘 맞으실 거예요."}},
 {"@type":"Question","name":"스튜디오 주소가 어디인가요?","acceptedAnswer":{"@type":"Answer","text":"서울 강서구 곰달래로 184, 4층 (화곡동 874-12 남양빌딩)이에요. 5호선 까치산역 2번 출구에서 도보 약 10분(594m) 거리입니다. 건물 자체 주차장은 없어서, 근처 배다리동길 노상 공영주차장(도보 약 5분)을 이용해 주세요."}},
 {"@type":"Question","name":"예약은 어떻게 하나요?","acceptedAnswer":{"@type":"Answer","text":"A룸과 B룸 모두 아워플레이스에서 예약하실 수 있어요. 각 룸 버튼을 누르면 아워플레이스로 이동합니다. 문의는 아워플레이스 메시지로 보내주세요."}},
 {"@type":"Question","name":"무인으로 운영되나요?","acceptedAnswer":{"@type":"Answer","text":"네, 무인 운영입니다. 예약 확정 후 이용 당일 오전에 현관문 비밀번호와 이용하시는 룸의 비밀번호, 주차 위치를 메시지로 보내드려요."}},
@@ -138,6 +139,7 @@
            스티키바(P0-5)와 같은 결함이라 같은 클래스로 함께 고친다. 헤더는 폭이 좁아 2분할이 무리이므로
            라벨만 목적지에 맞춘다. id·href·book_click·room:'a' 배선은 전부 불변(계측 연속성 유지). -->
       <a class="btn" id="book-side" href="#" target="_blank" rel="noopener" style="width:100%">A룸 예약</a>
+      <a class="book2 btn line" id="book-side-b" href="#" target="_blank" rel="noopener" style="width:100%">B룸 예약</a>
       <a class="book2 btn line" href="#rooms" style="width:100%">룸 둘러보기</a>
     </div>
     <div class="sidefoot" style="margin-top:auto;padding-top:26px;color:var(--faint);font-size:12px;line-height:1.9">
@@ -635,6 +637,9 @@
     </div></section>
 
     <section id="firstvisit" class="sec"><div class="inner">
+      <div id="selfSelect" data-reveal style="margin:0 0 40px;padding:20px 22px;border-left:3px solid var(--ink);background:var(--panel);border-radius:0 6px 6px 0">
+        <p style="margin:0;font-size:15px;line-height:1.75;color:var(--ink)"><b style="font-weight:600">누비는 배경을 직접 꾸미는 스튜디오예요.</b><br>배경을 꾸미지 않고 찍으실 계획이라면, 세트가 완성된 스튜디오가 더 잘 맞으실 거예요.<br>누비는 꾸민 만큼 사진이 달라지는 곳이에요.</p>
+      </div>
       <div class="sechead" data-reveal style="margin-bottom:30px">
         <span class="snum" style="font-size:clamp(26px,3vw,42px)">＋</span>
         <div><div class="skick">First Visit</div><h2>처음이세요? 막막하지 않게</h2></div>
@@ -651,7 +656,7 @@
         </div>
         <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:24px 22px">
           <div class="fv-h" role="button" tabindex="0" aria-expanded="true" aria-controls="fv-body-3" style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">03 촬영<span class="fv-ico" aria-hidden="true" style="display:none">＋</span></div>
-          <p id="fv-body-3" class="fv-body" style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">정해진 한 스팟이 아니라, 배치를 바꿔가며 나만의 컷을 만드시면 됩니다.</p>
+          <p id="fv-body-3" class="fv-body" style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">정해진 한 스팟이 아니라, 배치를 바꿔가며 나만의 컷을 만드시면 됩니다.<br>먼저 찍고 싶은 한 컷을 정하고, 그 뒤에 둘 것 하나부터 옮겨 보세요.<br>진열 선반 하나만 세워도 배경이 달라져요.</p>
         </div>
         <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:24px 22px">
           <div class="fv-h" role="button" tabindex="0" aria-expanded="true" aria-controls="fv-body-4" style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">04 퇴실<span class="fv-ico" aria-hidden="true" style="display:none">＋</span></div>
@@ -685,6 +690,7 @@
              읽는 순서 = 좌열 위→아래, 그다음 우열(HTML 순서와 시각 순서가 일치). -->
         <div>
           <details style="border-top:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">예약하려면 문의해야 하나요?<span style="color:var(--accent);font-weight:400">+</span></summary><p style="color:var(--dim);margin:14px 0 0;font-size:14.5px;line-height:1.75">아니요, 문의 없이 바로 예약돼요.<br>① 캘린더에서 빈 시간 확인 →<br>② 아워플레이스에서 바로 결제 →<br>③ 이용 당일 아침, 주소·도어락·주차 안내 메시지 도착.<br>답장을 기다릴 일이 없습니다.</p></details>
+          <details id="faq-set" style="border-top:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">완성된 세트가 있어서 그대로 찍기만 해도 되나요?<span style="color:var(--accent);font-weight:400">+</span></summary><p style="color:var(--dim);margin:14px 0 0;font-size:14.5px;line-height:1.75">기본 세트와 소품은 출발점이에요. 천과 소품, 가구를 옮겨서 원하는 배경을 만드시는 곳이고, 꾸민 만큼 사진이 달라져요. 배경을 꾸미지 않고 찍으실 계획이라면, 세트가 완성된 스튜디오가 더 잘 맞으실 거예요.</p></details>
           <details style="border-top:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">스튜디오 주소가 어디인가요?<span style="color:var(--accent);font-weight:400">+</span></summary><p style="color:var(--dim);margin:14px 0 0;font-size:14.5px;line-height:1.75"><b style="color:var(--ink);font-weight:600">서울 강서구 곰달래로 184, 4층 (화곡동 874-12 남양빌딩)</b>이에요.<br>5호선 까치산역 2번 출구에서 도보 약 10분(594m) 거리입니다.<br>건물 자체 주차장은 없어서, 근처 배다리동길 노상 공영주차장(도보 약 5분)을 이용해 주세요.</p></details>
           <details style="border-top:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">예약은 어떻게 하나요?<span style="color:var(--accent);font-weight:400">+</span></summary><p style="color:var(--dim);margin:14px 0 0;font-size:14.5px;line-height:1.75">A룸과 B룸 모두 아워플레이스에서 예약하실 수 있어요.<br>각 룸 버튼을 누르면 아워플레이스로 이동합니다.<br>문의는 아워플레이스 메시지로 보내주세요.</p></details>
           <details style="border-top:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">무인으로 운영되나요?<span style="color:var(--accent);font-weight:400">+</span></summary><p style="color:var(--dim);margin:14px 0 0;font-size:14.5px;line-height:1.75">네, 무인 운영입니다.<br>예약 확정 후 이용 당일 오전에 현관문 비밀번호와 이용하시는 룸의 비밀번호, 주차 위치를 메시지로 보내드려요.</p></details>
@@ -692,11 +698,11 @@
         </div>
         <div>
           <details style="border-top:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">B룸 커피머신을 쓸 수 있나요?<span style="color:var(--accent);font-weight:400">+</span></summary><p style="color:var(--dim);margin:14px 0 0;font-size:14.5px;line-height:1.75">커피머신은 촬영 소품이라 사용하실 수 없습니다.<br>공간 안에서 음식물 취식은 안 되고, 뚜껑이 단단히 닫히는 음료는 가지고 들어오실 수 있어요.</p></details>
-          <details style="border-top:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">몇 명까지 이용할 수 있나요?<span style="color:var(--accent);font-weight:400">+</span></summary><p style="color:var(--dim);margin:14px 0 0;font-size:14.5px;line-height:1.75">기준 4인, 초과 시 인원요금, 단체는 문의해 주세요.<br>최소 대여 가능 시간은 2시간이에요.<br><a href="#allday" style="color:var(--accent)">하루 종일 쓰는 단체는 올데이권(12시간) 문의 →</a></p></details>
+          <details id="faq-pax" style="border-top:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">몇 명까지 이용할 수 있나요?<span style="color:var(--accent);font-weight:400">+</span></summary><p style="color:var(--dim);margin:14px 0 0;font-size:14.5px;line-height:1.75">기준 4인, 초과 시 인원요금, 단체는 문의해 주세요.<br>최소 대여 가능 시간은 2시간이에요.<br><a href="#allday" style="color:var(--accent)">하루 종일 쓰는 단체는 올데이권(12시간) 문의 →</a></p></details>
           <details style="border-top:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">요금은 얼마인가요?<span style="color:var(--accent);font-weight:400">+</span></summary><p style="color:var(--dim);margin:14px 0 0;font-size:14.5px;line-height:1.75"><b style="color:var(--ink);font-weight:600">(2026년 9월 기준) 평일 40,000원 / 주말 45,000원</b> (시간당·최소 2시간·4인 기준, 부가세 포함)이에요.<br>5인째부터 시간당 5,500원이 자동 추가됩니다.<br>일부 조명 액세서리는 개당 10,000원(대관 1회당, 이용 시간과 무관)이 추가될 수 있습니다.<br>주말은 토·일·공휴일 기준이에요.<br>실제 결제 금액과 예약 가능 시간은 아워플레이스 예약 페이지에서 확인하실 수 있습니다.</p></details>
           <details id="allday" style="border-top:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">단체로 하루 종일 쓸 수 있나요?<span style="color:var(--accent);font-weight:400">+</span></summary><p style="color:var(--dim);margin:14px 0 0;font-size:14.5px;line-height:1.75">네, A룸과 B룸 두 곳을 12시간 통째로 쓰는 <b style="color:var(--ink);font-weight:600">올데이권</b>이 있어요.<br><b style="color:var(--ink);font-weight:600">평일 600,000원 / 주말·공휴일 750,000원</b> (12시간·부가세 포함)이고,<br>인원 추가요금은 없습니다.<br>9시간 이상 쓰시면 올데이권으로 계산돼요.<br>미리 알아 두실 점: 엘리베이터가 없는 4층이고 건물 주차장이 없어요.<br>블랙 호리존에서 신발을 신고 찍으실 땐 신발 바닥에 마스킹테이프를 붙여 주세요(스튜디오에 준비돼 있어요).<br>올데이권은 아워플레이스 상품이 아니라 개별 문의로 잡아 드려요.<br>전화 <a href="tel:07082111103" style="color:var(--accent)">070-8211-1103</a>으로 날짜·시간·인원을 알려 주세요.</p></details>
           <details style="border-top:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">실내 흡연이 가능한가요?<span style="color:var(--accent);font-weight:400">+</span></summary><p style="color:var(--dim);margin:14px 0 0;font-size:14.5px;line-height:1.75">실내 흡연은 금지입니다(CCTV 녹화).<br>가구·소품 파손 시 보상이 있을 수 있어요.</p></details>
-          <details style="border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">취소·환불은 어떻게 되나요?<span style="color:var(--accent);font-weight:400">+</span></summary><div style="margin:14px 0 0"><ul style="color:var(--dim);margin:0;padding-left:18px;font-size:14.5px;line-height:1.85"><li>이용 <b style="color:var(--ink);font-weight:600">4일 전까지</b> 취소 → 전액 환불</li><li>이용 <b style="color:var(--ink);font-weight:600">3일 이내</b> 취소 → 환불 불가</li><li>결제 후 <b style="color:var(--ink);font-weight:600">2시간 안</b>에 취소 → 전액 환불 (당일 예약은 제외)</li></ul><p style="color:var(--faint);margin:10px 0 0;font-size:13px;line-height:1.7">정확한 적용은 아워플레이스 예약 정책 기준이에요.<br>예약 페이지에서도 확인하실 수 있어요.</p></div></details>
+          <details id="faq-refund" style="border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:20px 0"><summary style="cursor:pointer;font-size:16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--ink)">취소·환불은 어떻게 되나요?<span style="color:var(--accent);font-weight:400">+</span></summary><div style="margin:14px 0 0"><ul style="color:var(--dim);margin:0;padding-left:18px;font-size:14.5px;line-height:1.85"><li>이용 <b style="color:var(--ink);font-weight:600">4일 전까지</b> 취소 → 전액 환불</li><li>이용 <b style="color:var(--ink);font-weight:600">3일 이내</b> 취소 → 환불 불가</li><li>결제 후 <b style="color:var(--ink);font-weight:600">2시간 안</b>에 취소 → 전액 환불 (당일 예약은 제외)</li></ul><p style="color:var(--faint);margin:10px 0 0;font-size:13px;line-height:1.7">정확한 적용은 아워플레이스 예약 정책 기준이에요.<br>예약 페이지에서도 확인하실 수 있어요.</p></div></details>
         </div>
       
       </div>
@@ -823,7 +829,7 @@
   ['book-side','book-a','end-a','book-mobile'].forEach(function(id){var e=document.getElementById(id);if(e){e.href=A_URL;e.addEventListener('click',trackBook('a'));}});
   // book-mobile-b = 2분할 스티키바의 B룸 버튼(2026-07-29). 같은 trackBook('b')를 타므로
   // book_click 정의는 그대로이고 GA4 커스텀 측정기준 room 의 a/b 분해도 그대로 작동한다.
-  ['book-b','end-b','book-mobile-b'].forEach(function(id){var e=document.getElementById(id);if(e){e.href=B_URL;e.addEventListener('click',trackBook('b'));}});
+  ['book-b','end-b','book-mobile-b','book-side-b'].forEach(function(id){var e=document.getElementById(id);if(e){e.href=B_URL;e.addEventListener('click',trackBook('b'));}});
   // 히어로 CTA 2개 계측 신설 — 종전엔 id도 핸들러도 없어 클릭이 전부 소멸했다.
   // ⚠️ 별도 이벤트명(hero_cta_click). book_click 은 광고 파일럿 사전등록 지표라 여기서 발화 금지.
   ['hero-rooms','hero-gallery','hero-book'].forEach(function(id){

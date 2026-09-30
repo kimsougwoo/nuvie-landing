@@ -128,6 +128,20 @@ def render_hero_tags(room: dict) -> str:
     )
 
 
+def render_faq_links(room):
+    """U-09(2026-09-30): 룸 페이지 예약 카드 아래 홈 FAQ 바로가기. faqLinks 가 없는 룸은 빈 문자열(= 기존 HTML 그대로)."""
+    links = room.get("faqLinks") or []
+    if not links:
+        return ""
+    items = "".join(
+        f'<a class="btn line" href="{esc(href)}" style="min-height:44px;padding:8px 14px;font-size:13px">{esc(label)}</a>'
+        for label, href in links
+    )
+    return ('<div class="faqlinks" style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">'
+            '<div style="color:var(--dim);font-size:12.5px;margin-bottom:10px">자주 묻는 질문</div>'
+            f'<div style="display:flex;flex-wrap:wrap;gap:8px">{items}</div></div>')
+
+
 def render_blocks(room: dict) -> str:
     """소개 본문. head 는 액센트 강조, body 는 rooms.json 카피 그대로."""
     out = []
@@ -378,6 +392,7 @@ def build_page(room: dict, other: dict, catalog: dict, reviews_doc: dict, templa
         "PRICE_CONDITIONS": price_conditions,
         "BOOKING_HREF": booking_href(room, catalog),
         "BOOKING_NOTE": booking_note,
+        "FAQ_LINKS": render_faq_links(room),
         "OTHER_LABEL": esc(other["label"]),
         "OTHER_NAME": esc(other["name"]),
         "OTHER_SLUG": other["slug"],
