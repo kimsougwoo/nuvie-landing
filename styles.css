@@ -619,3 +619,13 @@ a[data-hp$="|price_link"]::after,a[data-hp$="|directions_inquiry"]::after,detail
 body:not([data-room]) #hero-gallery{display:none!important}
 /* 2026-10-01 U-12: PC header B booking button only above 920px (below that the header folds; mobile books B from the bottom bar). It showed on 320-390px and pushed the theme button 55px off screen. */
 @media(max-width:920px){.book .book-b{display:none!important}}
+/* 2026-10-01 mobile line breaks (owner: fix all line breaks): Korean words never split mid-word; only very long tokens wrap. Pairs that read badly when split are joined with U+00A0 at build time (ko_glue.py). */
+body{word-break:keep-all;overflow-wrap:break-word}
+/* 2026-10-01 review carousel (mobile): arrows sat on top of card text -> move them into the counter row under the cards */
+@media(max-width:640px){#reviews .nv-carwrap{padding-bottom:2px}#reviews .nv-arrow{top:auto;bottom:-8px;transform:none;width:44px!important;height:44px!important}#reviews .nv-arrow:active{transform:scale(.92)}#reviews .nv-arrow.prev{left:calc(50% - 96px)}#reviews .nv-arrow.next{right:calc(50% - 96px)}#reviews .nv-count{min-height:44px;line-height:44px;margin-top:4px}}
+/* 2026-10-01 first-visit cards start open on mobile; the rotated + read as a close (x) button -> hide the icon (label still toggles) */
+@media(max-width:640px){.fv-h[aria-expanded="true"] .fv-ico{display:none!important}}
+/* 2026-10-01 keep-all made the calendar "이번 달" button wrap to two lines at 320px -> keep button labels on one line */
+#calToday{white-space:nowrap}
+/* 320~374px: the month row (44px prev/next + title + today) is wider than the card; let "이번 달" drop to its own line instead of overflowing (touch targets stay 44px) */
+@media(max-width:374px){div:has(> #calPrev){flex-wrap:wrap;row-gap:8px}#calToday{margin-left:0!important}}

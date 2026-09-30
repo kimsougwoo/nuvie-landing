@@ -30,7 +30,7 @@ def _load_spec():
 
 
 def _read(name):
-    return open(os.path.join(HERE, name), encoding="utf-8").read()
+    return open(os.path.join(HERE, name), encoding="utf-8").read().replace("\u00a0", " ").replace("\u2060", "")  # 10-01 ko_glue: 본문 공백 일부 U+00A0·가운뎃점 연결 U+2060
 
 
 def _money_values(html_text):

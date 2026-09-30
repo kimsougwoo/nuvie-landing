@@ -14,7 +14,7 @@ ROOT = Path(__file__).parent
 
 
 def _read(n):
-    return (ROOT / n).read_text(encoding="utf-8")
+    return (ROOT / n).read_text(encoding="utf-8").replace(" ", " ").replace("\u2060", "")  # 10-01 줄바꿈 다듬기(ko_glue): 본문 공백 일부가 U+00A0 — 화면 글자는 같으니 보통 공백으로 바꿔 비교
 
 
 def _rooms():

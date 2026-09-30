@@ -12,6 +12,7 @@
    가격·최소시간·정원은 이미 결제 모듈이 그대로 먹을 수 있는 형태로 rooms.json 에 있다.
 """
 from __future__ import annotations
+from ko_glue import glue_html, _glue_inner
 
 import html
 import json
@@ -348,6 +349,7 @@ def build_page(room: dict, other: dict, catalog: dict, reviews_doc: dict, templa
     )
     # ⚠️ 룸 간 가격 비교 금지(대표 2026-07-26): 이 페이지엔 이 룸 값만 적는다.
     #    다른 룸 카드(OTHER_*)에 가격을 넣지 않는 것도 같은 이유다.
+    price_line = _glue_inner(price_line)   # 10-01 가격 줄은 문단(<p>) 밖이라 따로 다듬는다(«주말 / 45,000원»·«최소 / 2시간» 끊김)
     booking_note = (
         "예약·결제는 아워플레이스에서 진행돼요.<br>예약한 룸은 그 팀만 단독으로 사용해요."
         if catalog["fulfillment"]["mode"] == "external"
@@ -403,6 +405,7 @@ def build_page(room: dict, other: dict, catalog: dict, reviews_doc: dict, templa
     if "{{" in out:
         leftover = out[out.index("{{") : out.index("{{") + 40]
         raise SystemExit(f"[build_rooms] 치환 안 된 자리표시자: {leftover}")
+    out = glue_html(out)   # 10-01 한국어 줄바꿈 다듬기(ko_glue.py · 글자 불변)
     return out
 
 

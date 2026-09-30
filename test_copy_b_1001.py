@@ -7,9 +7,9 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).parent
-HUB = (ROOT / "index.html").read_text(encoding="utf-8")
-A = (ROOT / "a.html").read_text(encoding="utf-8")
-B = (ROOT / "b.html").read_text(encoding="utf-8")
+HUB = (ROOT / "index.html").read_text(encoding="utf-8").replace(" ", " ").replace("\u2060", "")
+A = (ROOT / "a.html").read_text(encoding="utf-8").replace(" ", " ").replace("\u2060", "")
+B = (ROOT / "b.html").read_text(encoding="utf-8").replace(" ", " ").replace("\u2060", "")
 CSS = (ROOT / "styles.css").read_text(encoding="utf-8")
 SELF = "배경을 꾸미지 않고 찍으실 계획이라면, 세트가 완성된 스튜디오가 더 잘 맞으실 거예요."
 

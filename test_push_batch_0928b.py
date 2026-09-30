@@ -19,7 +19,7 @@ NEW_PAX = "기준 4인, 초과 시 인원요금, 단체는 문의"
 
 
 def _read(name):
-    return open(os.path.join(HERE, name), encoding="utf-8").read()
+    return open(os.path.join(HERE, name), encoding="utf-8").read().replace(" ", " ").replace("\u2060", "")  # 10-01 ko_glue: 본문 공백 일부 U+00A0
 
 
 # ── 1) 오시는 길 문의 링크 ─────────────────────────────────────

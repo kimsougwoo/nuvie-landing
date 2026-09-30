@@ -197,7 +197,7 @@
                 ④차별화 주체 = 손님. 근거 원문 = 리뷰 06-19 «촬영자의 의도에 따라 다양한 분위기를».
                 a.html·rooms.json 에는 이 문구가 없다(09-28 grep) — 허브 h1 만 바뀐다. OG(og.jpg)는 build_og.py 가 이 h1 을 읽어 다시 만든다. -->
         <h1 data-reveal style="font-weight:700;font-size:clamp(42px,7vw,92px);line-height:.98;letter-spacing:-.035em;margin:16px 0 0;color:#FFFFFF">내 의도대로 찍는<br><span style="color:rgba(255,255,255,.68)">코스프레 스튜디오</span></h1>
-        <p data-reveal style="margin:22px 0 0;color:#D8D8DA;max-width:480px;font-size:16px;line-height:1.7">소품과 천을 직접 옮겨 배치하고, 천장 레일에 드레이핑까지.<br>동양풍 A룸, 자연광 B룸 두 컨셉.<br>까치산역 10분, 무인 운영.</p>
+        <p data-reveal style="margin:22px 0 0;color:#D8D8DA;max-width:480px;font-size:16px;line-height:1.7">소품과 천을 직접 옮겨 배치하고, 천장 레일에 드레이핑까지.<br>동양풍 A룸, 자연광 B룸 두 컨셉.<br>까치산역 10분, 무인 운영.</p>
         <div class="herobadges" data-reveal style="display:flex;gap:8px;flex-wrap:wrap;margin-top:24px">
           <!-- 2026-07-29 P0: 뱃지 3개가 링크도 핸들러도 없는 죽은 <span>이었다(A룸 뱃지에만 15클릭이 그대로 소멸).
                태그만 <a href="#rooms">로 바꾼다 — 인라인 style이라 시각 변화 0, text-decoration:none만 추가.
@@ -311,8 +311,8 @@
         <span class="snum">01</span>
         <div><div class="skick">Rooms</div><h2>두 개의 컨셉룸</h2></div>
       </div>
-      <p class="desc" data-reveal style="margin:0 0 22px">누비 스튜디오는 서울 강서구 까치산역 도보 10분(화곡동 874-12 남양빌딩 4층)에 있는 무인 코스프레 컨셉 렌탈 스튜디오입니다.<br>A룸(동양풍·블랙 호리존)과 B룸(화이트 티타임 카페·자연광)을 각각 따로 예약합니다.</p>
-      <p class="desc" data-reveal style="margin:0 0 40px">A룸과 B룸은 무드가 다릅니다.<br>기준 4인, 초과 시 인원요금, 단체는 문의<br>예약 확정 후, 이용 당일 오전에 도어락 비밀번호를 보내드립니다(0시~8시 59분에 시작하는 예약은 전날 저녁).</p>
+      <p class="desc" data-reveal style="margin:0 0 22px">누비 스튜디오는 서울 강서구 까치산역 도보 10분(화곡동 874-12 남양빌딩 4층)에 있는 무인 코스프레 컨셉 렌탈 스튜디오입니다.<br>A룸(동양풍⁠·⁠블랙 호리존)과 B룸(화이트 티타임 카페⁠·⁠자연광)을 각각 따로 예약합니다.</p>
+      <p class="desc" data-reveal style="margin:0 0 40px">A룸과 B룸은 무드가 다릅니다.<br>기준 4인, 초과 시 인원요금, 단체는 문의<br>예약 확정 후, 이용 당일 오전에 도어락 비밀번호를 보내드립니다(0시~8시 59분에 시작하는 예약은 전날 저녁).</p>
       <div class="roomcards" data-reveal>
         <div class="room-column">
           <a class="roomcard" href="/a" data-room-detail="a" data-room-detail-from="card">
@@ -320,7 +320,7 @@
             <div class="roomcard-body">
               <span class="roomcard-kick">A ROOM</span>
               <h3>동양풍 &amp; 블랙 호리존</h3>
-              <p>월동문 너머로 펼쳐지는 동양풍, 그리고 블랙 호리존.</p>
+              <p>월동문 너머로 펼쳐지는 동양풍, 그리고 블랙 호리존.</p>
               <div class="roomcard-tags"><span>월동문</span><span>블랙 호리존</span><span>한 룸, 두 컨셉</span></div>
             </div>
           </a>
@@ -328,12 +328,12 @@
             <h3 id="roomInfoTitleA">예약 전 확인</h3>
             <!-- 2026-09-28: 시즌 한 줄. 기본 hidden, 한국 시간 오늘이 data-until 전일 때만 보인다(11/1 자동 제거·치울 사람 불필요).
                  11월 이후 문장은 넣지 않는다. 테스트 = test_halloween_until_1031.py -->
-            <p id="seasonNoteA" data-until="2026-11-01" hidden style="color:var(--accent)"><strong style="color:var(--ink);font-weight:700">지금 A룸 블랙 호리존에는 할로윈 세팅이 있습니다<br>10월 31일까지</strong></p>
+            <p id="seasonNoteA" data-until="2026-11-01" hidden style="color:var(--accent)"><strong style="color:var(--ink);font-weight:700">지금 A룸 블랙 호리존에는 할로윈 세팅이 있습니다<br>10월 31일까지</strong></p>
             <script>(function(){var n=document.getElementById('seasonNoteA');if(!n)return;var today=new Date(Date.now()+9*3600*1000).toISOString().slice(0,10);if(today<n.dataset.until)n.hidden=false;})();</script>
-            <p>평일 40,000원 / 주말 45,000원 (시간당·4인 기준) · 최소 2시간 · <a href="https://www.hourplace.co.kr/place/61823" target="_blank" rel="noopener" data-hp="a|price_link" style="color:var(--accent);font-weight:600;white-space:nowrap">A룸 예약 &rarr;</a><br>준비·정리 시간도 이용 시간에 포함됩니다.</p>
-            <p>조명은 비치된 것 전부 무료입니다 — 지속광 3대 · 순간광 2대(동조기 포함) · 모디파이어 6종 · 스탠드 8대<br>유료는 두 가지뿐입니다 — FC-60B 세트 10,000원 · 파보튜브 15C 10,000원 (각 대관 1회당)</p>
-            <p>가구·소품은 자유롭게 옮겨 쓰셔도 됩니다.<br>퇴실 때 제자리로만 돌려주세요.</p>
-            <p>개인 천·소품 반입 가능 · 건물 주차장은 없습니다</p>
+            <p>평일 40,000원 / 주말 45,000원 (시간당⁠·⁠4인 기준) · 최소 2시간 · <a href="https://www.hourplace.co.kr/place/61823" target="_blank" rel="noopener" data-hp="a|price_link" style="color:var(--accent);font-weight:600;white-space:nowrap">A룸 예약 &rarr;</a><br>준비⁠·⁠정리 시간도 이용 시간에 포함됩니다.</p>
+            <p>조명은 비치된 것 전부 무료입니다 —<br>지속광 3대 · 순간광 2대(동조기 포함) · 모디파이어 6종 · 스탠드 8대<br>유료는 두 가지뿐입니다 —<br>FC-60B 세트 10,000원 · 파보튜브 15C 10,000원 (각 대관 1회당)</p>
+            <p>가구⁠·⁠소품은 자유롭게 옮겨 쓰셔도 됩니다.<br>퇴실 때 제자리로만 돌려주세요.</p>
+            <p>개인 천⁠·⁠소품 반입 가능 · 건물 주차장은 없습니다</p>
             <a id="roomInfoBookA" class="btn room-booking-cta" href="#availability" data-book="a">A룸 예약 가능 시간 확인</a>
           </div>
         </div>
@@ -343,16 +343,16 @@
             <div class="roomcard-body">
               <span class="roomcard-kick">B ROOM</span><span class="roomcard-new">NEW</span>
               <h3>화이트 티타임 카페</h3>
-              <p>오후 5시부터 노을까지, 통창으로 자연광이 드는 화이트 톤 공간.</p>
+              <p>오후 5시부터 노을까지, 통창으로 자연광이 드는 화이트 톤 공간.</p>
               <div class="roomcard-tags"><span>통창 자연광</span><span>화이트 톤</span><span>티세트</span><span>약 11평</span></div>
             </div>
           </a>
           <div class="room-booking-info" aria-labelledby="roomInfoTitleB">
             <h3 id="roomInfoTitleB">예약 전 확인</h3>
-            <p>평일 40,000원 / 주말 45,000원 (시간당·4인 기준) · 최소 2시간 · <a href="https://www.hourplace.co.kr/place/62341" target="_blank" rel="noopener" data-hp="b|price_link" style="color:var(--accent);font-weight:600;white-space:nowrap">B룸 예약 &rarr;</a><br>준비·정리 시간도 이용 시간에 포함됩니다.</p>
-            <p>조명은 비치된 것 전부 무료입니다 — 지속광 1대 · 팔각 소프트박스 · 스탠드 4대<br>※ 유료 조명 대여는 A룸에서만 가능합니다.</p>
-            <p>가구·소품은 자유롭게 옮겨 쓰셔도 됩니다.<br>퇴실 때 제자리로만 돌려주세요.</p>
-            <p>개인 천·소품 반입 가능 · 건물 주차장은 없습니다<br>커피머신은 촬영 소품이라 사용은 어렵습니다.</p>
+            <p>평일 40,000원 / 주말 45,000원 (시간당⁠·⁠4인 기준) · 최소 2시간 · <a href="https://www.hourplace.co.kr/place/62341" target="_blank" rel="noopener" data-hp="b|price_link" style="color:var(--accent);font-weight:600;white-space:nowrap">B룸 예약 &rarr;</a><br>준비⁠·⁠정리 시간도 이용 시간에 포함됩니다.</p>
+            <p>조명은 비치된 것 전부 무료입니다 —<br>지속광 1대 · 팔각 소프트박스 · 스탠드 4대<br>※ 유료 조명 대여는 A룸에서만 가능합니다.</p>
+            <p>가구⁠·⁠소품은 자유롭게 옮겨 쓰셔도 됩니다.<br>퇴실 때 제자리로만 돌려주세요.</p>
+            <p>개인 천⁠·⁠소품 반입 가능 · 건물 주차장은 없습니다<br>커피머신은 촬영 소품이라 사용은 어렵습니다.</p>
             <a id="roomInfoBookB" class="btn room-booking-cta" href="#availability" data-book="b">B룸 예약 가능 시간 확인</a>
           </div>
         </div>
@@ -360,7 +360,7 @@
       <!-- 2026-09-30 U-06(대표 «전화로 받기» · 070 번호라 문자 불가): 올데이권이 FAQ 9번째 안에만 있었다 → 룸 소개 아래 한 줄.
            금액 = 가격정책 v6 1-0절. 올데이권은 아워 상품이 아니라 아워 메시지 경로는 넣지 않는다. -->
       <div id="alldayNote" data-reveal style="margin-top:28px;padding:18px 20px;border:1px solid var(--line);border-radius:6px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between">
-        <p style="margin:0;color:var(--ink);font-size:15px;line-height:1.7">두 룸을 하루 종일 함께 쓰는 올데이권도 있어요 · 평일 60만 원, 주말·공휴일 75만 원(12시간·부가세 포함)<br><span style="color:var(--dim);font-size:14px">전화 070-8211-1103</span></p>
+        <p style="margin:0;color:var(--ink);font-size:15px;line-height:1.7">두 룸을 하루 종일 함께 쓰는 올데이권도 있어요 · 평일 60만 원, 주말⁠·⁠공휴일 75만 원(12시간⁠·⁠부가세 포함)<br><span style="color:var(--dim);font-size:14px">전화 070-8211-1103</span></p>
         <a class="btn line" href="tel:07082111103" style="min-height:44px;padding:11px 18px;font-size:14px">전화 문의</a>
       </div>
       <!-- /alldayNote -->
@@ -379,7 +379,7 @@
           <span style="font-family:var(--label-font);font-weight:700;font-size:18px;color:var(--ink);letter-spacing:-.01em">★ 5.0</span>
           <span style="font-size:13px;color:var(--dim)"><span id="reviewCount">23</span>개 후기 · 아워플레이스</span>
         </div>
-        <p style="margin:-6px 0 16px;color:var(--dim);font-size:13.5px;line-height:1.7">이미 누비에서 찍고 가신 분들의 후기예요.</p>
+        <p style="margin:-6px 0 16px;color:var(--dim);font-size:13.5px;line-height:1.7">이미 누비에서 찍고 가신 분들의 후기예요.</p>
         <div class="nv-carwrap">
           <button type="button" class="nv-arrow prev" aria-label="이전 후기">&#8249;</button>
           <button type="button" class="nv-arrow next" aria-label="다음 후기">&#8250;</button>
@@ -428,7 +428,7 @@
           <div class="nv-count" id="reviewCount2" aria-live="polite" aria-atomic="true"></div>
         </div>
         <!-- 2026-08-05: --faint(#8A8A8E) 는 흰 배경에서 3.21:1 로 AA(4.5) 미달이었다. 출처 표기는 신뢰 정보라 흐리면 안 된다. -->
-        <p style="margin:14px 0 0;font-size:11.5px;color:var(--dim)">출처: 아워플레이스 A룸·B룸 후기 · 전체 <span id="reviewTotal">23</span>건 ★5.0</p>
+        <p style="margin:14px 0 0;font-size:11.5px;color:var(--dim)">출처: 아워플레이스 A룸⁠·⁠B룸 후기 · 전체 <span id="reviewTotal">23</span>건 ★5.0</p>
       </div>
       <!-- 후기 사진 확대 라이트박스(썸네일 클릭 시) -->
       <div id="reviewLightbox" role="dialog" aria-modal="true" aria-label="사진 확대" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.86);align-items:center;justify-content:center;padding:24px">
@@ -567,7 +567,7 @@
         <span class="snum">03</span>
         <div><div class="skick">Availability</div><h2>예약 현황</h2></div>
       </div>
-      <p class="desc" data-reveal style="margin:0 0 40px">월간 예약 현황.<br>확정 예약은 아워플레이스에서.</p>
+      <p class="desc" data-reveal style="margin:0 0 40px">월간 예약 현황.<br>확정 예약은 아워플레이스에서.</p>
       <div data-reveal style="border:1px solid var(--line);border-radius:6px;padding:22px 22px 20px;background:var(--panel)">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap">
           <div style="display:flex;align-items:center;gap:6px">
@@ -598,7 +598,7 @@
         </div>
         <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px">
           <a id="availBookA" class="btn" href="https://www.hourplace.co.kr/place/61823" target="_blank" rel="noopener" style="padding:13px 24px;font-size:14.5px">A룸 예약 &rarr;</a><a id="availBookB" class="btn" href="https://www.hourplace.co.kr/place/62341" target="_blank" rel="noopener" style="padding:13px 24px;font-size:14.5px">B룸 예약 &rarr;</a>
-          <p style="margin:0;font-size:12px;color:var(--faint)">예약 현황(참고용) · 30분마다 갱신 · 확정은 아워플레이스에서 확인해 주세요.</p>
+          <p style="margin:0;font-size:12px;color:var(--faint)">예약 현황(참고용) · 30분마다 갱신 · 확정은 아워플레이스에서 확인해 주세요.</p>
         </div>
       </div>
     </div></section>
@@ -609,16 +609,16 @@
         <div><div class="skick">Location</div><h2>오시는 길</h2></div>
       </div>
       <div class="specs" data-reveal style="display:grid;grid-template-columns:repeat(2,1fr);border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--bg)">
-        <div class="it" style="padding:30px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">위치</div><h3 style="font-size:17px;font-weight:600;margin:0 0 6px">까치산역 도보 10분</h3><p style="color:var(--dim);font-size:13.5px;margin:0">5호선 까치산역 2번 출구에서 약 594m.<br>의상·장비 이동이 편한 거리예요.</p></div>
-        <div class="it" style="padding:30px;border-bottom:1px solid var(--line)"><div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">입실</div><h3 style="font-size:17px;font-weight:600;margin:0 0 6px">무인 운영</h3><p style="color:var(--dim);font-size:13.5px;margin:0">당일 오전 비밀번호·주차를 안내드립니다.</p></div>
-        <div class="it" style="padding:30px;border-right:1px solid var(--line)"><div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">주소</div><h3 style="font-size:17px;font-weight:600;margin:0 0 6px">서울 강서구 화곡동 874-12</h3><p style="color:var(--dim);font-size:13.5px;margin:0">남양빌딩 4층 · 현관·룸 비밀번호는 당일 오전에 안내드려요.</p></div>
-        <div class="it" style="padding:30px"><div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">문의</div><h3 style="font-size:17px;font-weight:600;margin:0 0 6px"><a href="https://www.hourplace.co.kr/place/61823" target="_blank" rel="noopener" data-hp="a|directions_inquiry" style="color:inherit;text-decoration:underline;text-underline-offset:3px">아워플레이스 메시지 &rarr;</a></h3><p style="color:var(--dim);font-size:13.5px;margin:0">예약 페이지에서 문의해 주세요.</p></div>
+        <div class="it" style="padding:30px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">위치</div><h3 style="font-size:17px;font-weight:600;margin:0 0 6px">까치산역 도보 10분</h3><p style="color:var(--dim);font-size:13.5px;margin:0">5호선 까치산역 2번 출구에서 약 594m.<br>의상⁠·⁠장비 이동이 편한 거리예요.</p></div>
+        <div class="it" style="padding:30px;border-bottom:1px solid var(--line)"><div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">입실</div><h3 style="font-size:17px;font-weight:600;margin:0 0 6px">무인 운영</h3><p style="color:var(--dim);font-size:13.5px;margin:0">당일 오전 비밀번호⁠·⁠주차를 안내드립니다.</p></div>
+        <div class="it" style="padding:30px;border-right:1px solid var(--line)"><div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">주소</div><h3 style="font-size:17px;font-weight:600;margin:0 0 6px">서울 강서구 화곡동 874-12</h3><p style="color:var(--dim);font-size:13.5px;margin:0">남양빌딩 4층 · 현관⁠·⁠룸 비밀번호는 당일 오전에 안내드려요.</p></div>
+        <div class="it" style="padding:30px"><div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">문의</div><h3 style="font-size:17px;font-weight:600;margin:0 0 6px"><a href="https://www.hourplace.co.kr/place/61823" target="_blank" rel="noopener" data-hp="a|directions_inquiry" style="color:inherit;text-decoration:underline;text-underline-offset:3px">아워플레이스 메시지 &rarr;</a></h3><p style="color:var(--dim);font-size:13.5px;margin:0">예약 페이지에서 문의해 주세요.</p></div>
       </div>
       <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:14px">
         <div style="background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:26px 24px">
           <div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">지도</div>
           <h3 style="font-size:17px;font-weight:600;margin:0 0 6px">네이버 지도·카카오맵에 등록돼 있어요</h3>
-          <p style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">두 지도 모두 <b style="color:var(--ink);font-weight:600">누비 스튜디오</b>로 검색하면 나와요.<br>아래 버튼으로 바로 열 수도 있어요.</p>
+          <p style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">두 지도 모두 <b style="color:var(--ink);font-weight:600">누비 스튜디오</b>로 검색하면 나와요.<br>아래 버튼으로 바로 열 수도 있어요.</p>
           <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px">
             <a class="btn line" id="naverMap" href="https://naver.me/GM334mVo" target="_blank" rel="noopener" style="padding:10px 18px;font-size:13px">네이버 지도에서 열기 &rarr;</a>
             <a class="btn line" id="kakaoMap" href="https://place.map.kakao.com/918861206" target="_blank" rel="noopener" style="padding:10px 18px;font-size:13px">카카오맵에서 열기 &rarr;</a>
@@ -628,9 +628,9 @@
         <div style="background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:26px 24px">
           <div style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">주차</div>
           <h3 style="font-size:17px;font-weight:600;margin:0 0 6px">건물 주차장은 없어요</h3>
-          <p style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">근처 공영주차장을 이용해 주세요.<br>도보 약 5분 거리예요.</p>
+          <p style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">근처 공영주차장을 이용해 주세요.<br>도보 약 5분 거리예요.</p>
           <ul style="color:var(--dim);margin:10px 0 0;padding-left:18px;font-size:14px;line-height:1.8">
-            <li>배다리동길 노상 공영주차장</li>
+            <li>배다리동길 노상 공영주차장</li>
           </ul>
         </div>
       </div>
@@ -638,7 +638,7 @@
 
     <section id="firstvisit" class="sec"><div class="inner">
       <div id="selfSelect" data-reveal style="margin:0 0 40px;padding:20px 22px;border-left:3px solid var(--ink);background:var(--panel);border-radius:0 6px 6px 0">
-        <p style="margin:0;font-size:15px;line-height:1.75;color:var(--ink)"><b style="font-weight:600">누비는 배경을 직접 꾸미는 스튜디오예요.</b><br>배경을 꾸미지 않고 찍으실 계획이라면, 세트가 완성된 스튜디오가 더 잘 맞으실 거예요.<br>누비는 꾸민 만큼 사진이 달라지는 곳이에요.</p>
+        <p style="margin:0;font-size:15px;line-height:1.75;color:var(--ink)"><b style="font-weight:600">누비는 배경을 직접 꾸미는 스튜디오예요.</b><br>배경을 꾸미지 않고 찍으실 계획이라면, 세트가 완성된 스튜디오가 더 잘 맞으실 거예요.<br>누비는 꾸민 만큼 사진이 달라지는 곳이에요.</p>
       </div>
       <div class="sechead" data-reveal style="margin-bottom:30px">
         <span class="snum" style="font-size:clamp(26px,3vw,42px)">＋</span>
@@ -648,22 +648,22 @@
       <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
         <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:24px 22px">
           <div class="fv-h" role="button" tabindex="0" aria-expanded="true" aria-controls="fv-body-1" style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">01 예약 확정<span class="fv-ico" aria-hidden="true" style="display:none">＋</span></div>
-          <p id="fv-body-1" class="fv-body" style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">이용 당일 오전, 현관문·룸 비밀번호와 주차 위치를 메시지로 보내드려요.</p>
+          <p id="fv-body-1" class="fv-body" style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">이용 당일 오전, 현관문⁠·⁠룸 비밀번호와 주차 위치를 메시지로 보내드려요.</p>
         </div>
         <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:24px 22px">
           <div class="fv-h" role="button" tabindex="0" aria-expanded="true" aria-controls="fv-body-2" style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">02 입실<span class="fv-ico" aria-hidden="true" style="display:none">＋</span></div>
-          <p id="fv-body-2" class="fv-body" style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">조명·에어컨 스위치는 룸 안에 안내돼 있어요.<br>소품과 천은 자유롭게 꺼내 쓰세요.<br>월동문 위·문가벽 상단·블랙 호리존 천장에 커튼레일이 있어요.</p>
+          <p id="fv-body-2" class="fv-body" style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">조명⁠·⁠에어컨 스위치는 룸 안에 안내돼 있어요.<br>소품과 천은 자유롭게 꺼내 쓰세요.<br>월동문 위⁠·⁠문가벽 상단⁠·⁠블랙 호리존 천장에 커튼레일이 있어요.</p>
         </div>
         <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:24px 22px">
           <div class="fv-h" role="button" tabindex="0" aria-expanded="true" aria-controls="fv-body-3" style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">03 촬영<span class="fv-ico" aria-hidden="true" style="display:none">＋</span></div>
-          <p id="fv-body-3" class="fv-body" style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">정해진 한 스팟이 아니라, 배치를 바꿔가며 나만의 컷을 만드시면 됩니다.<br>먼저 찍고 싶은 한 컷을 정하고, 그 뒤에 둘 것 하나부터 옮겨 보세요.<br>진열 선반 하나만 세워도 배경이 달라져요.</p>
+          <p id="fv-body-3" class="fv-body" style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">정해진 한 스팟이 아니라, 배치를 바꿔가며 나만의 컷을 만드시면 됩니다.<br>먼저 찍고 싶은 한 컷을 정하고, 그 뒤에 둘 것 하나부터 옮겨 보세요.<br>진열 선반 하나만 세워도 배경이 달라져요.</p>
         </div>
         <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:24px 22px">
           <div class="fv-h" role="button" tabindex="0" aria-expanded="true" aria-controls="fv-body-4" style="font-family:var(--label-font);color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:9px">04 퇴실<span class="fv-ico" aria-hidden="true" style="display:none">＋</span></div>
-          <p id="fv-body-4" class="fv-body" style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">소품 원위치, 쓰레기 정리, 조명·에어컨 OFF.<br>그게 전부예요.</p>
+          <p id="fv-body-4" class="fv-body" style="margin:0;color:var(--dim);font-size:14px;line-height:1.75">소품 원위치, 쓰레기 정리, 조명⁠·⁠에어컨 OFF.<br>그게 전부예요.</p>
         </div>
       </div>
-      <p data-reveal style="color:var(--faint);font-size:12.5px;margin-top:16px;line-height:1.7">처음이라 헷갈리면 아워플레이스 메시지로 언제든 물어보세요.<br>답을 드립니다.</p>
+      <p data-reveal style="color:var(--faint);font-size:12.5px;margin-top:16px;line-height:1.7">처음이라 헷갈리면 아워플레이스 메시지로 언제든 물어보세요.<br>답을 드립니다.</p>
     </div></section>
 
     <section id="faq" class="sec"><div class="inner">
@@ -716,7 +716,7 @@
            (심사 상태 같은 내부 사정은 여기 적지 않는다. HTML 주석은 view-source 로 공개된다.) -->
       <div data-reveal style="margin-top:34px;padding:22px;border:1px solid var(--line);border-radius:2px">
         <div style="font-size:15px;font-weight:600;color:var(--ink)">여기서 답을 못 찾으셨나요?</div>
-        <p style="color:var(--dim);margin:8px 0 16px;font-size:14.5px;line-height:1.75">편하신 곳으로 물어봐 주세요.<br>확인하는 대로 답변드립니다.</p>
+        <p style="color:var(--dim);margin:8px 0 16px;font-size:14.5px;line-height:1.75">편하신 곳으로 물어봐 주세요.<br>확인하는 대로 답변드립니다.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <a class="btn line" href="https://www.hourplace.co.kr/place/61823" target="_blank" rel="noopener" data-hp="a|inquiry_link" style="padding:11px 18px;font-size:14px">아워플레이스 예약 페이지에서 문의&nbsp;&rarr;</a>
           <a class="btn line" href="https://x.com/nuvie_studio" target="_blank" rel="noopener" style="padding:11px 18px;font-size:14px">X @nuvie_studio &rarr;</a>
@@ -729,7 +729,7 @@
       <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none"><span style="font-family:var(--label-font);font-weight:700;font-size:clamp(120px,22vw,300px);color:var(--accent);opacity:.05;letter-spacing:-.04em;line-height:1">NUVIE</span></div>
       <div class="inner" style="position:relative">
         <h2 data-reveal style="font-weight:700;font-size:clamp(30px,4.4vw,52px);letter-spacing:-.03em;margin:0 0 12px">촬영, NUVIE에서.</h2>
-        <p data-reveal style="color:var(--dim);margin:0 0 30px;font-size:15px">A룸과 B룸 모두 아워플레이스에서 바로 예약할 수 있어요.</p>
+        <p data-reveal style="color:var(--dim);margin:0 0 30px;font-size:15px">A룸과 B룸 모두 아워플레이스에서 바로 예약할 수 있어요.</p>
         <div data-reveal style="display:flex;gap:11px;justify-content:center;flex-wrap:wrap">
           <a class="btn" id="end-a" href="#" target="_blank" rel="noopener" style="padding:15px 30px;font-size:14.5px">A룸 예약</a>
           <a class="btn line" id="end-b" href="#" target="_blank" rel="noopener" style="padding:15px 30px;font-size:14.5px">B룸 예약</a>

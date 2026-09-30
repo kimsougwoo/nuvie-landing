@@ -89,7 +89,7 @@ def test_main_badge_count_is_a_plus_b():
     b = json.load(open(os.path.join(HERE, "reviews_b.json"), encoding="utf-8"))
     main = json.load(open(MAIN_REVIEWS, encoding="utf-8"))
     assert main["count"] == a["count"] + b["count"] == len(a["reviews"]) + len(b["reviews"])
-    html = open(os.path.join(HERE, "index.html"), encoding="utf-8").read()
+    html = open(os.path.join(HERE, "index.html"), encoding="utf-8").read().replace("\u00a0", " ").replace("\u2060", "")  # 10-01 ko_glue
     assert "출처: 아워플레이스 A룸·B룸 후기" in html
 
 
