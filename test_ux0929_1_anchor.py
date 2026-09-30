@@ -88,10 +88,20 @@ def test_allday_anchor_has_pc_margin():
 
 
 
+def _b_frozen_view(text):
+    """09-30 대표 지시로 /b 동결 중 «줄바꿈»과 «후기 사진 배열»만 풀었다 — 그 둘을 걷어 낸 나머지는 그대로여야 한다."""
+    import re as _re
+    s = _re.sub(r'<section id="reviews">.*?</section>', "<section id=\"reviews\"></section>", text, flags=_re.S)
+    s = s.replace("<br>", " ")
+    return _re.sub(r"\s+", " ", s).strip()
+
+
 def test_b_html_unchanged_since_base():
-    """b.html 은 이 브랜치 시작 커밋(085d3c1) 이후 바이트가 그대로여야 한다."""
+    """b.html 은 이 브랜치 시작 커밋(085d3c1) 이후 «줄바꿈·후기 사진 영역 말고는» 그대로여야 한다(11/11 동결).
+    ⚠️ 문구·버튼·링크·CSS 가드·글꼴 head 는 여전히 동결 — 줄바꿈(<br>)과 후기 섹션만 비교에서 뺀다."""
     import pytest
     if subprocess.run(["git", "cat-file", "-e", "085d3c1"], cwd=ROOT, capture_output=True).returncode != 0:
         pytest.skip("기준 커밋 없음(얕은 클론)")
-    r = subprocess.run(["git", "diff", "--quiet", "085d3c1", "--", "b.html"], cwd=ROOT)
-    assert r.returncode == 0, "b.html 이 바뀌었다(11/11 동결)"
+    base = subprocess.run(["git", "show", "085d3c1:b.html"], cwd=ROOT, capture_output=True).stdout.decode("utf-8")
+    now = (ROOT / "b.html").read_text(encoding="utf-8")
+    assert _b_frozen_view(now) == _b_frozen_view(base), "b.html 이 줄바꿈·후기 사진 말고도 바뀌었다(11/11 동결)"

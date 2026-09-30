@@ -160,6 +160,19 @@ def render_gallery(room: dict) -> str:
     return "".join(out)
 
 
+_REVIEW_MAP = None
+
+
+def review_thumb(src: str) -> str:
+    """후기 사진 원본 주소 → 축소본(reviews/img/map.json 의 thumb). 매핑이 없으면 원본 그대로."""
+    global _REVIEW_MAP
+    if _REVIEW_MAP is None:
+        p = ROOT / "reviews" / "img" / "map.json"
+        _REVIEW_MAP = json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+    ent = _REVIEW_MAP.get(src) or {}
+    return ent.get("thumb") or src
+
+
 def render_reviews(room: dict, reviews_doc: dict) -> str:
     """A룸 후기 — 빌드 시점 정적 렌더(상품 페이지 SEO 목적. JS 렌더는 색인에 안 잡힌다)."""
     if not room.get("showReviews"):
@@ -185,10 +198,12 @@ def render_reviews(room: dict, reviews_doc: dict) -> str:
         photos = [p for p in (r.get("photos") or []) if p][:2]
         pg = ""
         if photos:
+            # 2026-09-30: 축소본(reviews/img/map.json thumb)이 있으면 처음부터 그걸 쓴다 — /b 는 원본(최대 약 24MB)을 받고 있었다.
+            #   href 는 원본 그대로(라이트박스가 href 로 축소 확대본을 찾고, JS 가 없으면 새 탭 원본).
             cells = "".join(
                 f'<a href="{esc(src)}" target="_blank" rel="noopener" '
                 f'aria-label="후기 사진 크게 보기" style="display:block;min-width:0">'
-                f'<img loading="lazy" decoding="async" src="{esc(src)}" '
+                f'<img loading="lazy" decoding="async" src="{esc(review_thumb(src))}" '
                 f'alt="{esc(label)} 후기 사진" '
                 'style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:4px;display:block"></a>'
                 for src in photos
@@ -227,7 +242,7 @@ def render_reviews(room: dict, reviews_doc: dict) -> str:
       <!-- ⚠️ column-width(멀티컬럼)를 쓰지 않는다 — 이 사이트에서 핀치줌 가로넘침 버그의
            근본원인으로 특정돼 데스크탑 전용으로 격리된 기법이다(styles.css #reviewCards 주석).
            auto-fill 그리드는 같은 매이슨리 느낌을 내면서 그 버그 계열을 통째로 피하고 JS 도 필요 없다. -->
-      <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;align-items:start">{''.join(cards)}</div>
+      <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;align-items:stretch">{''.join(cards)}</div>
     </section>"""
 
 

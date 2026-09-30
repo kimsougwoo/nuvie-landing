@@ -164,8 +164,8 @@
       // 2026-09-29 UX 실측 U-07: /a 후기 사진은 <a target=_blank href=아워 CDN 원본> 이라 눌러도 사이트 안에서 안 커지고
       //   새 탭에 원본(최대 24.8MB)이 열렸다. 홈(index.html)과 같은 방식으로 이 페이지의 라이트박스로 연다 —
       //   reviews/img/map.json 의 thumb(흐린 자리표시)→full(축소 WebP)을 쓰고, 매핑이 없으면 원본으로 폴백한다.
-      //   🧊 /b 는 11/11 동결이라 A룸에서만 배선한다(href 는 그대로 둬서 JS 실패 시엔 종전대로 새 탭).
-      if (document.body.getAttribute('data-room') === 'a') {
+      //   09-30 대표 지시로 /b 후기 사진도 같게(B룸 동결 중 이 항목만 해제). href 는 그대로라 JS 실패 시엔 종전대로 새 탭.
+      if (/^[ab]$/.test(document.body.getAttribute('data-room') || '')) {
         var rvLinks = root.querySelectorAll('#reviews a[href^="https://img.hourplace.co.kr/"]');
         var rvOpenedAt = 0, rvMap = {};
         lb.addEventListener('click', function (e) {   // 로딩 중 «반응 없는 클릭» 이 곧바로 닫기로 처리되는 것 방지(홈과 동일 300ms)
