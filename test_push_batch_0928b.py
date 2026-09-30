@@ -47,9 +47,14 @@ def test_room_a_price_has_tracked_booking_link():
     assert "A룸 예약" in m.group(1)
 
 
-def test_room_b_booking_info_untouched():
+def test_room_b_booking_info_has_same_shortcut_as_a():
+    """09-30 대표 «A룸 예약 바로가기 … B룸 예약 전 확인에도 추가» — 종전 «B 무변경 창» 단정을 대표 지시로 바꾼다.
+    A 와 같은 모양·위치, 주소는 랜딩이 이미 쓰는 B룸 예약 주소(B_URL, place/62341), 계측은 같은 data-hp 위임(HourplaceClick room=b)."""
     info = _booking_info(_read("index.html"), "B")
-    assert "hourplace.co.kr" not in info and "data-hp" not in info
+    m = re.search(r'<a\b[^>]*data-hp="b\|price_link"[^>]*>(.*?)</a>', info, re.S)
+    assert m and "B룸 예약" in m.group(1)
+    assert 'href="https://www.hourplace.co.kr/place/62341"' in m.group(0)
+    assert "B_URL='https://www.hourplace.co.kr/place/62341'" in _read("index.html"), "B 링크 주소 정본은 B_URL"
 
 
 # ── 3) 인원 문구 ───────────────────────────────────────────────
