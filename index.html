@@ -372,7 +372,7 @@
       <!-- A룸·B룸 아워플레이스 후기 합계 (reviews_all.json 데이터 기반 렌더 · 09-28 JSON-LD 별점은 구글 규칙상 뺐다) -->
       <div data-reveal style="border:1px solid var(--line);border-radius:6px;padding:28px 32px;background:var(--panel);margin-bottom:18px">
         <h3 class="sr-only">고객 후기</h3>
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+        <div class="rev-sumhead" style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
           <span style="font-family:var(--label-font);font-size:11px;letter-spacing:.18em;color:var(--accent);border:1px solid var(--line);padding:3px 10px;border-radius:999px">A · B ROOMS · 후기</span>
           <span style="font-family:var(--label-font);font-weight:700;font-size:18px;color:var(--ink);letter-spacing:-.01em">★ 5.0</span>
           <span style="font-size:13px;color:var(--dim)"><span id="reviewCount">23</span>개 후기 · 아워플레이스</span>
@@ -423,6 +423,7 @@
         <div role="listitem" style="background:var(--elev);border-radius:5px;padding:18px 20px;border:1px solid var(--line);break-inside:avoid;-webkit-column-break-inside:avoid;margin-bottom:14px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span aria-hidden="true" style="color:var(--accent);font-size:13px">★★★★★</span><span class="sr-only">5점 만점에 5점</span><span style="font-family:var(--label-font);font-size:12px;color:var(--dim)">cc*** · 2026-06-19</span></div><p style="margin:0;font-size:13.5px;color:var(--ink);line-height:1.75;white-space:pre-line">"좋습니다 사진잘나와요 ~"</p></div>
         <!-- REVIEWS:STATIC:END -->
           </div>
+          <div class="nv-count" id="reviewCount2" aria-live="polite" aria-atomic="true"></div>
         </div>
         <!-- 2026-08-05: --faint(#8A8A8E) 는 흰 배경에서 3.21:1 로 AA(4.5) 미달이었다. 출처 표기는 신뢰 정보라 흐리면 안 된다. -->
         <p style="margin:14px 0 0;font-size:11.5px;color:var(--dim)">출처: 아워플레이스 A룸·B룸 후기 · 전체 <span id="reviewTotal">23</span>건 ★5.0</p>
@@ -619,7 +620,7 @@
           <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px">
             <a class="btn line" id="naverMap" href="https://naver.me/GM334mVo" target="_blank" rel="noopener" style="padding:10px 18px;font-size:13px">네이버 지도에서 열기 &rarr;</a>
             <a class="btn line" id="kakaoMap" href="https://place.map.kakao.com/918861206" target="_blank" rel="noopener" style="padding:10px 18px;font-size:13px">카카오맵에서 열기 &rarr;</a>
-            <button type="button" class="btn line" id="copyAddr" style="padding:10px 18px;font-size:13px;cursor:pointer;font-family:inherit">주소 복사</button>
+            <button type="button" class="btn line" id="copyAddr" style="padding:10px 18px;font-size:13px;cursor:pointer;font-family:inherit;min-height:44px">주소 복사</button>
           </div>
         </div>
         <div style="background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:26px 24px">
@@ -1339,6 +1340,26 @@
   // ⚠️ querySelector(단수)면 A룸 갤러리만 배선되고 B룸 화살표는 죽는다(2026-07-26 B룸 6장 확장 시 발견).
   Array.prototype.slice.call(document.querySelectorAll('.gal')).forEach(wire);
   wire(document.getElementById('reviewCards'));
+  /* U-14 (2026-09-30): position counter "3 / 23" for the mobile review carousel (numbers only). */
+  var rc=document.getElementById('reviewCards'), cnt=document.getElementById('reviewCount2');
+  if(rc&&cnt){
+    var raf=0;
+    var paint=function(){
+      raf=0;
+      var n=rc.children.length, first=rc.children[0];
+      if(!n||!first){cnt.textContent='';return;}
+      var step=first.getBoundingClientRect().width+12;
+      var i=step>0?Math.round(rc.scrollLeft/step):0;
+      if(rc.scrollLeft+rc.clientWidth>=rc.scrollWidth-2)i=n-1;
+      i=Math.max(0,Math.min(n-1,i));
+      cnt.textContent=(i+1)+' / '+n;
+    };
+    var queue=function(){if(!raf)raf=requestAnimationFrame(paint);};
+    rc.addEventListener('scroll',queue,{passive:true});
+    window.addEventListener('resize',queue);
+    if(window.MutationObserver)new MutationObserver(queue).observe(rc,{childList:true});
+    paint();
+  }
 })();
 
 /* 9) 모바일 섹션 앵커칩 바 — 스티키 top을 상단 헤더(.side) 높이로 설정해 겹침 방지(≤640px에서만). */
@@ -1383,6 +1404,27 @@
   });
   ro.observe(document.body);
   setTimeout(stop,LIMIT_MS+500);
+})();
+</script>
+<script>
+/* U-15 (2026-09-30): same-page anchor farther than 2 screens jumps instantly instead of smooth-scrolling
+   (hero -> calendar was 4,143px and took 4.9s while the page was still loading). Near jumps stay smooth.
+   Hash is resolved by id only. Clicks already handled (defaultPrevented) or with modifier keys are left alone. */
+(function(){
+  var de=document.documentElement;
+  document.addEventListener('click',function(e){
+    if(e.defaultPrevented||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+    var a=e.target&&e.target.closest?e.target.closest('a[href^="#"]'):null;
+    if(!a)return;
+    var h=a.getAttribute('href'), el=null;
+    if(!h||h.length<2)return;
+    try{ el=document.getElementById(decodeURIComponent(h.slice(1))); }catch(err){ return; }
+    if(!el)return;
+    if(Math.abs(el.getBoundingClientRect().top)<=innerHeight*2)return;
+    var prev=de.style.scrollBehavior;
+    de.style.scrollBehavior='auto';
+    setTimeout(function(){ de.style.scrollBehavior=prev; },60);
+  });
 })();
 </script>
 

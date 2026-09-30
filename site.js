@@ -277,3 +277,23 @@
     init();
   }
 })();
+
+/* U-15 (2026-09-30): same-page anchor farther than 2 screens jumps instantly instead of smooth-scrolling
+   (hero -> calendar was 4,143px and took 4.9s while the page was still loading). Near jumps stay smooth.
+   Hash is resolved by id only. Clicks already handled (defaultPrevented) or with modifier keys are left alone. */
+(function(){
+  var de=document.documentElement;
+  document.addEventListener('click',function(e){
+    if(e.defaultPrevented||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+    var a=e.target&&e.target.closest?e.target.closest('a[href^="#"]'):null;
+    if(!a)return;
+    var h=a.getAttribute('href'), el=null;
+    if(!h||h.length<2)return;
+    try{ el=document.getElementById(decodeURIComponent(h.slice(1))); }catch(err){ return; }
+    if(!el)return;
+    if(Math.abs(el.getBoundingClientRect().top)<=innerHeight*2)return;
+    var prev=de.style.scrollBehavior;
+    de.style.scrollBehavior='auto';
+    setTimeout(function(){ de.style.scrollBehavior=prev; },60);
+  });
+})();

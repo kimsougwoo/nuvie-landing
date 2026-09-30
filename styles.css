@@ -479,6 +479,9 @@ html{scroll-behavior:smooth}
     .nv-chip{flex:0 0 auto;white-space:nowrap;font-family:var(--label-font);font-size:12.5px;color:var(--dim);
       text-decoration:none;border:1px solid color-mix(in srgb, var(--ink) 50%, transparent);border-radius:999px;padding:6px 14px;background:var(--bg);
       transition:color .2s,border-color .2s,transform .15s}
+    /* 09-30 저녁 라이브 320px: 칩 5개 합(약 371px)이 화면보다 넓어 마지막 칩이 잘렸다(스크롤은 되지만 표시 없음).
+       좁은 폰에서는 칩 사이·안쪽 여백만 줄여 5개가 한 화면에 들어오게 한다. 누름 높이 44px 은 그대로. */
+    @media(max-width:374px){.nv-chipbar{gap:5px;padding:9px 8px}.nv-chip{padding:6px 9px}}
     /* 실측 고정 스택 = 헤더(.side) + 칩바(.nv-chipbar). 104px은 실제 스택보다 37px 부족해
        앵커 도착 시 섹션 제목이 칩바 아래로 파묻혔다(클릭 1위 「공간 보기」가 정통으로 맞음). */
     section[id],#firstvisit{scroll-margin-top:146px}
@@ -598,3 +601,12 @@ main h2, main h3{text-wrap:balance}
 @media(min-width:641px){.room-reviews{display:block!important;column-width:260px;column-gap:14px}.room-reviews>div{break-inside:avoid;margin:0 0 14px}}
 /* 2026-09-30 calendar header 8px overflow at 320px: narrow title min-width only (text unchanged) */
 @media(max-width:340px){#calTitle{min-width:96px!important}}
+/* 2026-09-30 evening live 320px: review summary badge and card author/date wrapped into 3 lines -> wrap whole units instead (text unchanged) */
+.rev-sumhead{flex-wrap:wrap;row-gap:6px}.rev-sumhead>span{white-space:nowrap}
+#reviewCards>[role=listitem]>div:first-child{flex-wrap:wrap;row-gap:2px}#reviewCards>[role=listitem]>div:first-child>span{white-space:nowrap}
+/* 2026-09-30 U-25: inline CTA links (price line A/B booking, directions inquiry, FAQ allday/tel) were 15-20px tall. Invisible ::after widens the tap area to 44px+ without changing text or line layout */
+a[data-hp$="|price_link"],a[data-hp$="|directions_inquiry"],details a[href^="tel:"],details a[href="#allday"]{position:relative}
+a[data-hp$="|price_link"]::after,a[data-hp$="|directions_inquiry"]::after,details a[href^="tel:"]::after,details a[href="#allday"]::after{content:"";position:absolute;inset:-14px -6px}
+/* 2026-09-30 U-14: mobile review carousel position counter (numbers only, carousel is mobile-only) */
+.nv-count{display:none}
+@media(max-width:640px){#reviews .nv-count{display:block;text-align:center;margin-top:10px;font-family:var(--label-font);font-size:12px;letter-spacing:.06em;color:var(--dim);font-variant-numeric:tabular-nums;min-height:18px}}
