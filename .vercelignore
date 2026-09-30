@@ -4,6 +4,7 @@
 # 빌드·검사 스크립트와 테스트
 *.py
 test_*
+pytest.ini
 __pycache__/
 .pytest_cache/
 # 운영 문서·내부 보고서
