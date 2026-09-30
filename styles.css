@@ -446,7 +446,9 @@ html{scroll-behavior:smooth}
   @media(prefers-reduced-motion:no-preference){
     #calGrid .cell{animation:nvCellIn .34s ease-out both}
   }
-  @keyframes nvCellIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  /* 2026-09-30: 끝값이 opacity:1 이면 fill both 가 그걸 붙들어 칸의 인라인 opacity(다른 달 .3·지난 날 .45)가 한 번도 안 먹었다
+     → 끝값을 칸마다 정한 --op 로(index.html renderCal). 움직임 줄이기에선 애니메이션이 꺼져 인라인 opacity 가 산다. */
+  @keyframes nvCellIn{from{opacity:0;transform:translateY(6px)}to{opacity:var(--op,1);transform:none}}
 
   /* 8) nav 활성 인디케이터(데스크탑 좌측 nav) — 활성 항목 좌측 슬라이드 바 */
   .side a.nav{position:relative}

@@ -47,6 +47,16 @@ def test_room_hero_booking_button_markup_unchanged():
     assert '<a class="btn" data-book="{{SLUG}}" href="{{BOOKING_HREF}}" style="padding:15px 32px;font-size:15px">{{LABEL}} 예약하기</a>' in _read("room.template.html")
 
 
+def test_calendar_cell_animation_keeps_intended_opacity():
+    """nvCellIn 이 opacity:1 로 끝나며 fill both 로 붙들어, 인라인 opacity(다른 달 .3·지난 날 .45)가 한 번도 안 먹었다(09-30 캡처).
+    애니메이션 끝값을 칸마다 정한 --op 로 둔다(움직임 줄이기 설정에선 애니메이션이 꺼져 인라인 opacity 가 그대로 산다)."""
+    css = _read("styles.css").replace(" ", "")
+    kf = re.search(r"@keyframesnvCellIn\{from\{([^}]*)\}to\{([^}]*)\}\}", css)
+    assert kf and "opacity:var(--op,1)" in kf.group(2), kf and kf.group(2)
+    src = _read("index.html")
+    assert "--op:.45" in src and "--op:.3" in src and "--op:.65" in src   # 지난 날 · 지난 다른 달 · 다음 달 앞날(약하게)
+
+
 def test_calendar_dims_past_days_but_keeps_current_month_default():
     src = _read("index.html")
     assert re.search(r"isPast\s*=\s*inMonth\s*&&\s*key\s*<\s*todayKey", src), "지난 날 판정이 없다"
