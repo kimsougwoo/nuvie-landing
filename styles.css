@@ -641,3 +641,20 @@ body{word-break:keep-all;overflow-wrap:break-word}
 @media(max-width:760px){[data-hero-tone="light"][data-hero-hub] .heroScrim{background:linear-gradient(180deg,rgba(6,6,7,.08) 0%,rgba(6,6,7,.56) 9%,rgba(6,6,7,.64) 30%,rgba(6,6,7,.76) 56%,rgba(6,6,7,.92) 100%)!important}}   /* 홈은 첫 화면이 길어 키커가 위 10% 지점 */
 [data-hero-tone="light"] .herotop{color:#FFFFFF!important}   /* 반투명(.8) 흰 글자는 밝은 사진 위에서 대비가 모자란다 */
 [data-hero-tone="light"] .btn,[data-hero-tone="light"] .btn *{text-shadow:none!important}   /* 흰 버튼 안 검은 글자에는 그림자를 주지 않는다 */
+/* 2026-10-01 /b 모바일 첫 화면 = «사진 띠 + 글자 판»(9a 중계, 대표 «어두워보입니다 모두»). 모바일에선 글자가 첫 화면의 86%를 덮어
+   그라디언트만으로는 사진이 밝아지지 않았다 → 위쪽 사진 띠(필터 없음·원본 밝기, 42svh — 390px 에서 예약 버튼이 아래 고정 바에 안 가리게)와 그 아래 페이지 배경 위 글자 판으로 나눈다.
+   문구·순서·버튼은 그대로(B 문구 동결), 바뀌는 건 배치·색뿐. 홈(A·B 공용 첫 화면, data-hero-hub)은 제외. */
+@media(max-width:760px){
+  header.hero[data-hero-tone="light"]:not([data-hero-hub]){height:auto!important;min-height:0!important;display:block!important;padding-top:0!important;overflow:visible!important;background:var(--bg)}
+  header.hero[data-hero-tone="light"]:not([data-hero-hub])>div:first-child{display:none!important}
+  header.hero[data-hero-tone="light"]:not([data-hero-hub]) .heroImgWrap{position:relative!important;inset:auto!important;height:42svh;min-height:240px;overflow:hidden}
+  header.hero[data-hero-tone="light"]:not([data-hero-hub]) .heroScrim{display:none!important}
+  header.hero[data-hero-tone="light"]:not([data-hero-hub]) .heroin{padding-top:24px!important;padding-bottom:28px!important}
+  header.hero[data-hero-tone="light"]:not([data-hero-hub]) *{text-shadow:none!important}
+  header.hero[data-hero-tone="light"]:not([data-hero-hub]) .heroin>div[data-reveal]:first-child{color:var(--dim)!important}
+  header.hero[data-hero-tone="light"]:not([data-hero-hub]) h1{color:var(--ink)!important}
+  header.hero[data-hero-tone="light"]:not([data-hero-hub]) h1 span{color:var(--dim)!important}
+  header.hero[data-hero-tone="light"]:not([data-hero-hub]) .heroin>p{color:var(--ink)!important}
+  header.hero[data-hero-tone="light"]:not([data-hero-hub]) .herobadges>*{color:var(--ink)!important;border-color:var(--line)!important;background:transparent!important}
+  header.hero[data-hero-tone="light"]:not([data-hero-hub]) .herocta .btn[data-book]{background:var(--ink)!important;color:var(--bg)!important;border-color:var(--ink)!important}
+}
