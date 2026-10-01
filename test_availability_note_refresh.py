@@ -40,7 +40,7 @@ def _init(repo, note):
 
 def _run(monkeypatch, repo, called):
     monkeypatch.setattr(B, "load_env", lambda p: {})
-    monkeypatch.setattr(B, "compute_events", lambda env, today, old: (list(EVENTS), 2, 0))
+    monkeypatch.setattr(B, "compute_events", lambda env, today, old, **kw: (list(EVENTS), 2, 0))
     monkeypatch.setattr(B, "_update_history", lambda *a, **k: None)
     monkeypatch.setattr(B, "push_changes", lambda repo, n: called.append(n))
     B.main(["x", "--push"], repo=repo)

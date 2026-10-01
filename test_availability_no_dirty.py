@@ -42,7 +42,7 @@ def test_no_change_leaves_working_tree_clean(tmp_path, monkeypatch):
     repo = str(tmp_path)
     _init_repo(repo, EVENTS)
     monkeypatch.setattr(B, "load_env", lambda p: {})
-    monkeypatch.setattr(B, "compute_events", lambda env, today, old: (list(EVENTS), 2, 0))
+    monkeypatch.setattr(B, "compute_events", lambda env, today, old, **kw: (list(EVENTS), 2, 0))
     called = []
     monkeypatch.setattr(B, "push_changes", lambda *a, **k: called.append(1))
 
@@ -64,7 +64,7 @@ def test_no_change_cleans_preexisting_dirty(tmp_path, monkeypatch):
     assert _git(repo, "status", "--porcelain").stdout.strip() != ""  # 지금은 dirty
 
     monkeypatch.setattr(B, "load_env", lambda p: {})
-    monkeypatch.setattr(B, "compute_events", lambda env, today, old: (list(EVENTS), 2, 0))
+    monkeypatch.setattr(B, "compute_events", lambda env, today, old, **kw: (list(EVENTS), 2, 0))
     monkeypatch.setattr(B, "push_changes", lambda *a, **k: None)
     B.main(["x", "--push"], repo=repo)
 
@@ -77,7 +77,7 @@ def test_change_writes_and_pushes(tmp_path, monkeypatch):
     dst = _init_repo(repo, EVENTS)
     new_events = EVENTS + [{"date": "2026-07-31", "start": 10.0, "end": 12.0, "room": "B"}]
     monkeypatch.setattr(B, "load_env", lambda p: {})
-    monkeypatch.setattr(B, "compute_events", lambda env, today, old: (list(new_events), 2, 0))
+    monkeypatch.setattr(B, "compute_events", lambda env, today, old, **kw: (list(new_events), 2, 0))
     called = []
     monkeypatch.setattr(B, "push_changes", lambda repo, n: called.append(n))
 
@@ -94,7 +94,7 @@ def test_fetch_fail_does_not_touch_file(tmp_path, monkeypatch):
     dst = _init_repo(repo, EVENTS)
     before = open(dst, encoding="utf-8").read()
     monkeypatch.setattr(B, "load_env", lambda p: {})
-    monkeypatch.setattr(B, "compute_events", lambda env, today, old: ([], 0, 2))
+    monkeypatch.setattr(B, "compute_events", lambda env, today, old, **kw: ([], 0, 2))
     monkeypatch.setattr(B, "_alert_fetch_fail", lambda msg: None)
     monkeypatch.setattr(B, "push_changes", lambda *a, **k: (_ for _ in ()).throw(AssertionError("push 금지")))
 

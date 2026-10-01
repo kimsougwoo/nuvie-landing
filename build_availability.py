@@ -49,7 +49,11 @@ def fetch(url):
         return None
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "nuvie-availability/1.0"})
-        return urllib.request.urlopen(req, timeout=20).read().decode("utf-8", "ignore")
+        body = urllib.request.urlopen(req, timeout=20).read().decode("utf-8", "ignore")
+        if "BEGIN:VCALENDAR" not in body:
+            print("  fetch 실패: 응답 본문에 BEGIN:VCALENDAR 없음")
+            return None
+        return body
     except Exception as e:
         print("  fetch 실패:", e)
         return None
@@ -113,7 +117,7 @@ def _split_across_days(start, end, room, kind):
     return _mark_continuation(segs)
 
 
-def parse_events(ics, room, kind="booking"):
+def parse_events(ics, room, kind="booking", stats=None):
     """VEVENT → [{date,start,end,room,kind}] (KST, 시각 hour 소수). 이름/UID/SUMMARY 무시.
 
     🔒 **여기서 버리는 것이 개인정보 방어선이다.** 이 산출물은 공개 레포에 커밋된다.
@@ -129,11 +133,15 @@ def parse_events(ics, room, kind="booking"):
         ds = re.search(r"DTSTART[^:]*:([0-9T]+Z?)", ev)
         de = re.search(r"DTEND[^:]*:([0-9T]+Z?)", ev)
         if not ds:
+            if stats is not None:
+                stats["skipped"] = stats.get("skipped", 0) + 1
             continue
         try:
             start = _to_dt(ds.group(1))
             end = _to_dt(de.group(1)) if de else start
         except Exception:
+            if stats is not None:
+                stats["skipped"] = stats.get("skipped", 0) + 1
             continue
         timed = "T" in ds.group(1)
         if timed:
@@ -343,7 +351,7 @@ def _update_history(old_events, today, path=None):
         print(f"  history: 과거예약 {added}건 누적(repo 밖 · 총 {len(existing)}건)")
 
 
-def compute_events(env, today, old_events):
+def compute_events(env, today, old_events, problems=None):
     """iCal 페치 → 최종 events + (fetched_ok, fetch_failed) 카운트.
 
     ⚠️ 2026-07-17(3R 🔴HIGH): fetch()가 실패하면 None을 준다. **페치 실패 룸은 빈 []로
@@ -374,6 +382,8 @@ def compute_events(env, today, old_events):
                 if e.get("room") == room and (e.get("kind") or "booking") == kind]
         if not url:
             print(f"{key} ({label}): 없음 — 미설정(직전 {len(prev)}건 유지)")
+            if problems is not None:
+                problems.append(("config", f"{key} 없음 — {label} 직전 {len(prev)}건으로 동결"))
             events += prev
             continue
         ics = fetch(url)
@@ -381,12 +391,18 @@ def compute_events(env, today, old_events):
             if kind == "booking":
                 fetch_failed += 1
             print(f"{key} ({label}): 있음 — ❌ FETCH FAIL, 직전 {len(prev)}건 유지(빈값 덮어쓰기 금지)")
+            if problems is not None:
+                problems.append(("feed", f"{label} 조회 실패 — 직전 {len(prev)}건 유지"))
             events += prev
         else:
             if kind == "booking":
                 fetched_ok += 1
             print(f"{key} ({label}): 있음 — OK")
-            events += parse_events(ics, room, kind)
+            stats = {}
+            parsed = parse_events(ics, room, kind, stats=stats)
+            if problems is not None and stats.get("skipped", 0):
+                problems.append(("unreadable", f"{label} 읽지 못한 일정 {stats['skipped']}건 — 그 시간이 비어 보일 수 있음"))
+            events += parsed
     # 오늘~120일(미래)만 + 무료연장(2h 미만) 흡수 + 정렬
     events = [e for e in events if today.isoformat() <= e["date"] <= horizon.isoformat()]
     events = merge_events(events)
@@ -394,10 +410,16 @@ def compute_events(env, today, old_events):
     return events, fetched_ok, fetch_failed
 
 
-def _alert_fetch_fail(msg):
-    """두 iCal 모두 실패(예약현황 갱신 불능) 경보 — silent-failure 방지.
-    nuvie_morning.report.alert_throttled로 #이상감지 1회(6h 쿨다운). import 불가(단독 실행)·
-    웹훅 미설정이면 stdout(=refresh_log.txt)에 남은 FETCH FAIL 로그만으로 폴백(graceful)."""
+def _alert(key, msg):
+    """예약현황 문제를 6시간 쿨다운으로 알린다. 알림 경로 오류는 실행을 막지 않는다."""
+    titles = {
+        "availability_fetch_down": ("🔴", "예약현황 갱신 중단", "직전 공개값을 유지했습니다.", "예약 피드 연결 상태를 확인하세요."),
+        "availability_config_missing": ("🟠", "예약현황 설정 누락", "설정되지 않은 피드는 직전값으로 동결했습니다.", "환경 설정을 확인하세요."),
+        "availability_feed_failed": ("🔴", "예약현황 피드 조회 실패", "조회 실패 룸은 직전값을 유지했습니다.", "피드 연결 상태를 확인하세요."),
+        "availability_unreadable_events": ("🟠", "일정 일부를 읽지 못함", "읽지 못한 일정은 공개 달력에서 비어 보일 수 있습니다.", "피드의 일정 형식을 확인하세요."),
+        "availability_previous_unreadable": ("🔴", "직전 예약현황 파일을 읽지 못함", "조회 실패 피드의 직전값을 복구할 수 없어 파일 갱신을 중단했습니다.", "직전 파일을 복구한 뒤 다시 실행하세요."),
+        "availability_push_failed": ("🔴", "예약현황 반영 실패", "새 예약현황을 원격에 반영하지 못했습니다.", "저장소와 원격 반영 상태를 확인하세요."),
+    }
     try:
         try:
             import nuvie_morning.report as R
@@ -407,9 +429,22 @@ def _alert_fetch_fail(msg):
             if home not in sys.path:
                 sys.path.insert(0, home)
             import nuvie_morning.report as R
-        R.alert_throttled("availability_fetch_down", msg, hours=6)
+        icon, title, impact, action = titles.get(
+            key, ("🔴", "예약현황 알림", None, None))
+        try:
+            alert_msg = R.alert_text(icon, title, what=str(msg), impact=impact, action=action)
+        except Exception:
+            alert_msg = str(msg)
+        sent = R.alert_throttled(key, alert_msg, hours=6)
+        if isinstance(sent, tuple) and sent and sent[0] is False:
+            print("  (경보 전송 실패 또는 비활성화)")
     except Exception as e:
-        print(f"  (경보 전송 스킵 — refresh_log 폴백: {str(e)[:80]})")
+        print(f"  (경보 전송 실패 — {type(e).__name__})")
+
+
+def _alert_fetch_fail(msg):
+    """두 예약 피드 모두 실패했을 때 쓰는 호환 경보 래퍼."""
+    _alert("availability_fetch_down", msg)
 
 
 def _worktree_dirty_besides_availability(repo):
@@ -466,6 +501,7 @@ def push_changes(repo, n_events):
     if held:
         print(f"  ⏸ {held}")
         return False
+    stage = "git add/commit"
     try:
         subprocess.run(["git", "-C", repo, "add", "availability.json"], check=True)
         subprocess.run(["git", "-C", repo,
@@ -475,6 +511,7 @@ def push_changes(repo, n_events):
         # ⚠️ 2026-07-03: push 전 rebase — 외부(수동 히어로 편집·GitHub 웹)로 origin이 앞서도
         # 강제덮어쓰기 없이 availability 커밋을 그 위에 리베이스(split-brain·수동수정 유실 방지).
         # availability.json은 봇 전용이라 index.html 등 수동파일과 충돌 사실상 없음.
+        stage = "rebase"
         pr = subprocess.run(["git", "-C", repo, "pull", "--rebase", "origin", "main"],
                             capture_output=True, text=True, encoding="utf-8", errors="replace")
         if pr.returncode != 0:
@@ -495,28 +532,52 @@ def push_changes(repo, n_events):
                 #   작업 중인 게 있으면 자가치유를 «하지 않는다»(다음 런이 다시 시도한다).
                 print(f"  ⛔ 자가치유 보류 — 작업 중인 미커밋 변경이 있다 {sorted(dirty)[:5]}. "
                       f"reset --hard 를 돌리면 그 작업이 사라진다(사람이 정리한 뒤 자동 회복).")
+                _alert("availability_push_failed", "rebase 충돌 후 미커밋 작업이 있어 자가치유 보류 — 수동 정리 필요")
             elif touched and touched <= {"availability.json"}:
                 subprocess.run(["git", "-C", repo, "reset", "--hard", "origin/main"], check=True)
                 print("  rebase 충돌 → availability 전용 로컬커밋이라 origin에 맞춤(다음 런 재생성). 스톨 자가치유.")
             else:
                 print(f"  rebase 충돌 → push 보류(availability 외 변경 {sorted(touched)} 有, 수동 확인):",
                       (pr.stderr or "")[:150])
+                _alert("availability_push_failed", "rebase 충돌 후 수동 확인이 필요해 push 보류")
             return False
+        stage = "push"
         subprocess.run(["git", "-C", repo, "push", "origin", "main"], check=True)
         print("  변경 감지 → rebase+push 완료 (Vercel 자동 재배포)")
         return True
     except Exception as e:
         print("  push 실패:", e)
+        _alert("availability_push_failed", f"{stage} 단계 실패 ({type(e).__name__}) — 원격 반영되지 않음")
         return False
 
 
 def main(argv=None, repo=None):
     argv = sys.argv if argv is None else argv
+    problems = []
+    env_exists = os.path.exists(ENV)
     env = load_env(ENV)
+    if not env_exists:
+        problems.append(("config", ".env 파일 없음 — 모든 피드 직전값으로 동결"))
     today = datetime.date.today()
     repo = repo or os.path.dirname(os.path.abspath(__file__))
     dst = os.path.join(repo, "availability.json")
+    previous_unreadable = False
     old_events = _load_old_events(dst)
+    old_note = _load_old_note(dst)
+    if os.path.exists(dst):
+        try:
+            with open(dst, encoding="utf-8") as previous_file:
+                previous_data = json.load(previous_file)
+            if not isinstance(previous_data, dict) or not isinstance(previous_data.get("events"), list):
+                raise ValueError("availability.json 구조를 읽을 수 없음")
+            old_events = previous_data["events"]
+            if not all(isinstance(event, dict) for event in old_events):
+                raise ValueError("availability.json events 항목을 읽을 수 없음")
+            old_note = previous_data.get("note")
+        except Exception:
+            previous_unreadable = True
+            old_events = None
+            old_note = None
 
     # 과거 예약 누적(repo 밖 로컬 히스토리, 공개 산출물과 무관) — 여기서 예외가 나도 본래 기능
     # (availability.json 생성·push)은 절대 막히면 안 되므로 try/except로 감싸고 로그만 남긴다.
@@ -525,7 +586,26 @@ def main(argv=None, repo=None):
     except Exception as e:
         print("  history 저장 실패(무시, 본 기능 계속):", e)
 
-    events, fetched_ok, fetch_failed = compute_events(env, today, old_events)
+    events, fetched_ok, fetch_failed = compute_events(env, today, old_events, problems=problems)
+
+    alert_keys = {
+        "config": "availability_config_missing",
+        "feed": "availability_feed_failed",
+        "unreadable": "availability_unreadable_events",
+    }
+    for kind, key in alert_keys.items():
+        messages = [message for problem_kind, message in problems if problem_kind == kind]
+        if messages:
+            _alert(key, "\n".join(messages))
+
+    has_unavailable_feed = any(
+        kind == "feed" or (kind == "config" and message.startswith("ICAL_URL_"))
+        for kind, message in problems
+    )
+    if previous_unreadable and has_unavailable_feed:
+        _alert("availability_previous_unreadable",
+               "직전 availability.json을 읽을 수 없고 조회 실패 또는 설정 누락 피드가 있어 파일 갱신을 중단했습니다.")
+        print("  ❌ 직전 availability.json 손상 + 미조회 피드 — 파일 미갱신·push 스킵")
 
     if fetched_ok == 0:
         # 신선 페치 0건 → 직전 availability.json을 **그대로 둔다**(빈값 덮어쓰기 = 예약된 날이
@@ -537,10 +617,13 @@ def main(argv=None, repo=None):
                 "(직전값 유지·공개 사이트 안전). 피드 URL·아워플레이스 점검 필요.")
         return False
 
+    if previous_unreadable and has_unavailable_feed:
+        return False
+
     busy = sorted({e["date"] for e in events})
     # 2026-09-28: note 문구를 고쳐도 이벤트가 같으면 옛 note 가 배포본에 계속 남았다(«휴무» 잔류).
     #   note 가 다르면 한 번 새로 쓴다. 같아지면 다시 no-op 이라 07-23 스톨 대책은 그대로다.
-    changed = ((old_events or []) != events) or (_load_old_note(dst) != NOTE)
+    changed = ((old_events or []) != events) or (old_note != NOTE)
     # 🔧 2026-07-23: 변경이 있을 때만 파일을 쓴다. 종전엔 매 런 `updated` 타임스탬프를 무조건
     #   재기록 → 이벤트 변화가 없어도 워킹트리가 dirty → 다음 런의 `git pull --rebase`가 dirty로
     #   막혀 크론이 스톨했다(라이브 예약현황 8일 고착 사고, 2026-07-23). 변경 시에만 기록.

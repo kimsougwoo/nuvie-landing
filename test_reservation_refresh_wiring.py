@@ -36,7 +36,7 @@ def test_main_reports_push_failure_to_the_scheduler(tmp_path, monkeypatch):
     today = datetime.date.today()
     event = {"date": today.isoformat(), "start": 10.0, "end": 12.0, "room": "A"}
     monkeypatch.setattr(BA, "load_env", lambda _path: {"ICAL_URL_HOURPLACE": "A"})
-    monkeypatch.setattr(BA, "compute_events", lambda _env, _today, _old: ([event], 1, 0))
+    monkeypatch.setattr(BA, "compute_events", lambda _env, _today, _old, **kw: ([event], 1, 0))
     monkeypatch.setattr(BA, "push_changes", lambda _repo, _count: False)
 
     assert BA.main(argv=["build_availability.py", "--push"], repo=str(tmp_path)) is False
