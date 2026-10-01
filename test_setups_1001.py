@@ -48,7 +48,8 @@ def test_owner_note_present_and_no_shoot_dates():
     html = (ROOT / "a.html").read_text(encoding="utf-8").replace(chr(0xa0), " ").replace(chr(0x2060), "")
     sec = re.search(r'<section id="setups">(.*?)</section>', html, re.S).group(1)
     assert "매일 조금씩 디테일이 달라질 수 있습니다" in sec
-    assert "A룸을 이렇게 꾸몄어요" in sec and "블랙 호리존을 이렇게" not in sec   # 10-01 대표 «가. 제목을 넓히고»
+    assert "블랙 호리존을 이렇게 꾸몄어요" in sec and "A룸을 이렇게" not in sec   # 10-01 대표 최종 «블랙호리존을 이렇게 꾸몄어요 로 변경»
+    assert "aset-1001-12" not in sec   # 원창 장식 사진은 공간 갤러리로(같은 날 대표 지시)
     imgs = re.findall(r"<img [^>]*>", sec)
     assert len(imgs) == len(A["setups"]["items"]) >= 8
     assert "촬영" not in sec, "촬영일 표기가 남아 있다"
