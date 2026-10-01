@@ -154,7 +154,7 @@
   </aside>
 
   <main class="main" id="top">
-    <header class="hero" style="position:relative;height:90vh;min-height:560px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden">
+    <header class="hero" data-hero-tone="light" data-hero-hub style="position:relative;height:90vh;min-height:560px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden">
       <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0B0B0C,#1C1C1F)"></div>
       <!-- 🌗 히어로 배경 = **테마를 따라간다** (2026-08-04 대표 안: 「라이트일 땐 B룸, 다크일 땐 A룸」).
            왜 좋은가: A룸은 어둠(달 조명)·B룸은 빛(통창)이라 두 룸이 테마와 그대로 대응하고,
@@ -1052,7 +1052,7 @@
     }
     heroSwap(c);
   }
-  function setTheme(t){document.body.setAttribute('data-theme',t);themeBtn.textContent=(t==='dark'?'☀':'☾');themeBtn.setAttribute('aria-label',t==='dark'?'라이트 모드로 전환':'다크 모드로 전환');paintHero(t);}
+  function setTheme(t){document.body.setAttribute('data-theme',t);var hh=document.querySelector('header.hero');if(hh)hh.setAttribute('data-hero-tone',t==='dark'?'dark':'light');themeBtn.textContent=(t==='dark'?'☀':'☾');themeBtn.setAttribute('aria-label',t==='dark'?'라이트 모드로 전환':'다크 모드로 전환');paintHero(t);}
   themeBtn.addEventListener('click',function(){setTheme(document.body.getAttribute('data-theme')==='dark'?'light':'dark');});
   /* 뒤 레이어를 만들면서 반대 테마 이미지도 함께 받힌다 — 없으면 토글할 때마다 사진이 그
      자리에서 로드되며 히어로가 **검게 깜빡인다**(2026-08-04 라이브 관찰).

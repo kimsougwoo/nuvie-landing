@@ -134,6 +134,10 @@
         {
           "src": "/img/galA5.jpg",
           "alt": "A룸 조명·뒷공간(조명 셋업 공간)"
+        },
+        {
+          "src": "/img/galA-1001-6.jpg",
+          "alt": "A룸 원창 세트 — 평상과 격자 난간, 서예 천(밝은 조명)"
         }
       ],
       "showReviews": true
@@ -172,6 +176,7 @@
       },
       "hero": {
         "kicker": "B ROOM",
+        "tone": "light",
         "h1": [
           "원하는 시간",
           "자리도 골라 찍어요"
@@ -236,6 +241,22 @@
         {
           "src": "/img/galB-1001-8.jpg",
           "alt": "B룸 거울과 촛대"
+        },
+        {
+          "src": "/img/galB-1001-9.jpg",
+          "alt": "B룸 창가 벤치와 곰인형"
+        },
+        {
+          "src": "/img/galB-1001-10.jpg",
+          "alt": "B룸 디저트 테이블 — 3단 스탠드와 레이스 테이블"
+        },
+        {
+          "src": "/img/galB-1001-11.jpg",
+          "alt": "B룸 에스프레소 머신과 그라인더"
+        },
+        {
+          "src": "/img/galB-1001-12.jpg",
+          "alt": "B룸 창가 벤치와 칠판, 원형 티테이블"
         }
       ],
       "showReviews": true

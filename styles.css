@@ -631,3 +631,13 @@ body{word-break:keep-all;overflow-wrap:break-word}
 @media(max-width:374px){div:has(> #calPrev){flex-wrap:wrap;row-gap:8px}#calToday{margin-left:0!important}}
 /* 2026-10-01 review carousel (mobile): the 52px side inset was only there to keep the side arrows off the cards; arrows now sit in the counter row -> first card starts at the panel text edge and the next card peeks on the right */
 @media(max-width:640px){#reviewCards{padding-left:20px!important;padding-right:20px!important;scroll-padding-left:20px;scroll-padding-right:20px}#reviewCards>div{flex:0 0 84%!important;scroll-snap-align:start!important}}
+
+/* 2026-10-01 밝은 사진 첫 화면(/b·홈 라이트 테마 = B룸 낮 사진): 대표 «어두워보입니다 모두» → 화면 전체에 깔던 어두운 막(사진 필터·위쪽 스크림)을 걷고,
+   글자가 놓이는 쪽(모바일 = 아래·가운데, PC = 왼쪽)에만 그라디언트를 깐다. 위쪽 1/3 은 원본 밝기에 가깝게. 대비 실측 = hero_contrast_1001.py. A룸·홈 다크(어두운 사진)는 그대로. */
+[data-hero-tone="light"] .heroImgWrap img{filter:none!important}
+[data-hero-tone="light"] .heroScrim{background:linear-gradient(180deg,rgba(6,6,7,.80) 0%,rgba(6,6,7,.44) 9%,rgba(6,6,7,0) 19%),linear-gradient(0deg,rgba(6,6,7,.62) 0%,rgba(6,6,7,.25) 14%,rgba(6,6,7,0) 26%),linear-gradient(90deg,rgba(6,6,7,.76) 0%,rgba(6,6,7,.68) 40%,rgba(6,6,7,.42) 54%,rgba(6,6,7,.10) 68%,rgba(6,6,7,0) 82%),linear-gradient(180deg,rgba(6,6,7,0) 0%,rgba(6,6,7,0) 55%,rgba(6,6,7,.55) 100%)!important}
+[data-hero-tone="light"] h1,[data-hero-tone="light"] p,[data-hero-tone="light"] .herotop,[data-hero-tone="light"] [data-reveal]{text-shadow:0 1px 14px rgba(0,0,0,.45)}
+@media(max-width:760px){[data-hero-tone="light"] .heroScrim{background:linear-gradient(180deg,rgba(6,6,7,.06) 0%,rgba(6,6,7,.50) 14%,rgba(6,6,7,.64) 32%,rgba(6,6,7,.76) 56%,rgba(6,6,7,.92) 100%)!important}}
+@media(max-width:760px){[data-hero-tone="light"][data-hero-hub] .heroScrim{background:linear-gradient(180deg,rgba(6,6,7,.08) 0%,rgba(6,6,7,.56) 9%,rgba(6,6,7,.64) 30%,rgba(6,6,7,.76) 56%,rgba(6,6,7,.92) 100%)!important}}   /* 홈은 첫 화면이 길어 키커가 위 10% 지점 */
+[data-hero-tone="light"] .herotop{color:#FFFFFF!important}   /* 반투명(.8) 흰 글자는 밝은 사진 위에서 대비가 모자란다 */
+[data-hero-tone="light"] .btn,[data-hero-tone="light"] .btn *{text-shadow:none!important}   /* 흰 버튼 안 검은 글자에는 그림자를 주지 않는다 */
