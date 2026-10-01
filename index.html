@@ -1180,9 +1180,10 @@
       calLastUpdatedEl.textContent='마지막 확인 '+formatLastChecked(checked);
       calLastUpdatedEl.style.color='var(--faint)';
     }else{
-      calLastUpdatedEl.textContent='확인이 6시간 넘게 늦어지고 있습니다 · 마지막 확인 '+(formatLastChecked(checked)||'알 수 없음')+' · 최신 예약은 아워플레이스에서 확인해 주세요';
+      calLastUpdatedEl.textContent='확인이 6시간 넘게 늦어지고 있습니다\n마지막 확인 '+(formatLastChecked(checked)||'알 수 없음')+'\n최신 예약은 아워플레이스에서 확인해 주세요';
       calLastUpdatedEl.style.color='var(--accent)';
     }
+    calLastUpdatedEl.style.whiteSpace='pre-line';   // 문장을 잇는 «·» 대신 줄바꿈(랜딩 줄바꿈 규칙 10-01)
     calLastUpdatedEl.style.display='block';
   }
   function loadAvailability(){

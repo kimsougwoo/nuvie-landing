@@ -177,3 +177,12 @@ def test_hub_label_says_last_checked_not_last_changed():
 
 def test_hub_shows_stale_warning_text():
     assert "확인이 6시간 넘게" in HUB
+
+
+def test_stale_warning_breaks_lines_instead_of_dot_joining():
+    """랜딩 « · » 줄바꿈 규칙(대표 10-01): 문장을 잇는 «·»는 줄바꿈. 경고는 세 문장이라 줄로 나눈다."""
+    seg = HUB[HUB.index("function setCheckedStatus"):HUB.index("function loadAvailability")]
+    stale = seg[seg.index("확인이 6시간 넘게"):]
+    stale = stale[:stale.index(";")]
+    assert " · " not in stale, "문장을 «·»로 이었다 — 줄바꿈 규칙 위반"
+    assert "pre-line" in seg, "줄바꿈이 화면에 보이려면 white-space:pre-line 이 필요하다"
