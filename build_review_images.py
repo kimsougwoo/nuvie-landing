@@ -8,7 +8,7 @@ reviews/img/ 에 WebP 두 벌을 만든다: 썸네일 긴 변 640px · 확대용
 - 파일명 = 원본 URL sha1 앞 12자 + -640.webp / -1600.webp
 - EXIF 방향을 반영해 똑바로 세운다(세로 사진이 눕지 않게)
 - 이미 있으면 내려받지 않는다(멱등)
-- 내려받기·디코드 실패 URL 은 map 에 넣지 않는다 → index.html 이 원본으로 폴백
+- 내려받기·디코드 실패 URL 은 map 에 넣지 않는다 → 후기 카드에서 그 사진을 제외한다
 - reviews_all.json / reviews.json 은 읽기만 한다(후기 원문 verbatim)
 
 실행: python build_review_images.py
@@ -80,8 +80,8 @@ def build(urls, out_dir=OUT_DIR, fetch=http_fetch, rel_prefix=REL_PREFIX):
                 _save_webp(full, fp, FULL_Q)
             with Image.open(fp) as f:
                 w, h = f.size
-        except Exception as e:  # 네트워크·디코드 실패 = 이 사진만 원본 폴백
-            print(f"경고: {url} 사본 생성 실패({type(e).__name__}: {e}) — 원본으로 폴백", file=sys.stderr)
+        except Exception as e:  # 네트워크·디코드 실패 = 후기 카드에서 이 사진 제외
+            print(f"경고: {url} 사본 생성 실패({type(e).__name__}: {e}) — 이 사진은 후기에서 빠짐", file=sys.stderr)
             for p in (tp, fp):
                 if p.exists() and not (tp.exists() and fp.exists()):
                     p.unlink()
@@ -96,7 +96,7 @@ def main():
     urls = collect_urls(HERE / "reviews_all.json")
     m, failed = build(urls)
     total = sum((OUT_DIR / Path(e[k]).name).stat().st_size for e in m.values() for k in ("thumb", "full"))
-    print(f"사진 URL {len(urls)}개 · 사본 {len(m)}개 · 실패(원본 폴백) {len(failed)}개 · 사본 합계 {total/1e6:.2f}MB")
+    print(f"사진 URL {len(urls)}개 · 사본 {len(m)}개 · 실패(이 사진은 후기에서 빠짐) {len(failed)}개 · 사본 합계 {total/1e6:.2f}MB")
     return 1 if failed else 0
 
 

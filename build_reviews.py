@@ -12,7 +12,7 @@ G2 후기 전파 제너레이터 — reviews_all.json(메인 SSOT) → index.htm
   --check = 갱신 없이 드리프트만 보고(비정합이면 exit 1). CI/surface_lint 훅용.
 순수함수(sync_*)는 파일 I/O 없이 문자열만 변환 → 재현 테스트에서 그대로 검증.
 """
-import sys, os, json, re
+import sys, os, json, re, math
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REVIEWS = os.path.join(HERE, "reviews_all.json")
@@ -20,21 +20,30 @@ INDEX = os.path.join(HERE, "index.html")
 LLMS = os.path.join(HERE, "llms.txt")
 
 
+def _numeric_rating(value):
+    return (isinstance(value, (int, float)) and not isinstance(value, bool)
+            and math.isfinite(value))
+
+
 def load_facts(reviews_json):
-    """reviews_all.json dict → (count, rating_str). count=실제 리뷰 수(권위), rating=평균 1자리."""
+    """reviews_all.json dict → (count, rating_str_or_none). count=실제 리뷰 수, 평균은 평점 있는 후기만."""
     rv = reviews_json.get("reviews") or []
     count = len(rv)
-    if rv:
-        avg = sum(float(r.get("rating", 0)) for r in rv) / count
+    ratings = [r["rating"] for r in rv if _numeric_rating(r.get("rating"))]
+    if ratings:
+        avg = sum(ratings) / len(ratings)
         rating = f"{round(avg, 1):.1f}"
     else:
-        rating = f"{float(reviews_json.get('rating', 0)):.1f}"
+        fallback = reviews_json.get("rating")
+        rating = f"{float(fallback):.1f}" if _numeric_rating(fallback) else None
     return count, rating
 
 
 def sync_llms_text(text, count, rating):
     """llms.txt의 '후기 N개·평점 X★' 문구를 SSOT값으로. 문구 없으면 원본 유지."""
     text = text.replace("A룸은 아워플레이스 후기", "A룸·B룸은 아워플레이스 후기")
+    if rating is None:
+        return re.sub(r"후기\s*\d+\s*개(?:·평점\s*[\d.]+★)?", f"후기 {count}개", text)
     return re.sub(r"후기\s*\d+\s*개·평점\s*[\d.]+★",
                   f"후기 {count}개·평점 {rating}★", text)
 
@@ -42,11 +51,26 @@ def sync_llms_text(text, count, rating):
 def sync_index_html(html, count, rating):
     """index.html의 aggregateRating(JSON-LD) + 정적 스팬(reviewCount/reviewTotal)을 SSOT값으로.
     ⚠️ 개별 review의 ratingValue는 건드리지 않는다(aggregateRating 객체만 타깃)."""
-    # JSON-LD aggregateRating (ratingValue + reviewCount) — 이 객체만 정확히 매칭
-    html = re.sub(
-        r'("aggregateRating":\{"@type":"AggregateRating","ratingValue":")[\d.]+(","reviewCount":")\d+(")',
-        lambda m: f'{m.group(1)}{rating}{m.group(2)}{count}{m.group(3)}',
-        html)
+    if rating is None:
+        # 평균이 없으면 구조화 데이터에서도 aggregateRating 을 빼고, 정적 요약의 별점을 지운다.
+        for match in re.finditer(r'<script type="application/ld\+json">\s*(.*?)\s*</script>', html, re.S):
+            try:
+                data = json.loads(match.group(1))
+            except json.JSONDecodeError:
+                continue
+            if data.get("@type") != "LocalBusiness" or "aggregateRating" not in data:
+                continue
+            data.pop("aggregateRating", None)
+            replacement = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+            html = html[:match.start(1)] + replacement + html[match.end(1):]
+            break
+        html = re.sub(r'(reviewTotal">\d+</span>건)\s*★[\d.]+', r"\1", html)
+    else:
+        # JSON-LD aggregateRating (ratingValue + reviewCount) — 이 객체만 정확히 매칭
+        html = re.sub(
+            r'("aggregateRating":\{"@type":"AggregateRating","ratingValue":")[\d.]+(","reviewCount":")\d+(")',
+            lambda m: f'{m.group(1)}{rating}{m.group(2)}{count}{m.group(3)}',
+            html)
     # 정적 폴백 스팬(JS가 덮어쓰나 no-JS·크롤러 대비 정합 유지)
     html = re.sub(r'(id="reviewCount">)\d+(</span>)', lambda m: f'{m.group(1)}{count}{m.group(2)}', html)
     html = re.sub(r'(id="reviewTotal">)\d+(</span>)', lambda m: f'{m.group(1)}{count}{m.group(2)}', html)
@@ -92,7 +116,7 @@ IMG_MAP = os.path.join(HERE, "reviews", "img", "map.json")
 
 
 def load_img_map(path=IMG_MAP):
-    """build_review_images.py 가 만든 {원본URL: {thumb, full, w, h}}. 없거나 깨지면 {}(원본 URL 폴백)."""
+    """build_review_images.py 가 만든 {원본URL: {thumb, full, w, h}}. 없거나 깨지면 {}(사진 카드에서 제외)."""
     try:
         with open(path, encoding="utf-8") as fh:
             m = json.load(fh)
@@ -103,13 +127,15 @@ def load_img_map(path=IMG_MAP):
 
 def _static_photo_grid(photos, img_map):
     """JS 카드와 같은 사진 칸 — 최대 2장·정사각형(aspect-ratio 1/1 이라 사진이 늦게 와도 높이 고정)."""
-    photos = [p for p in (photos or []) if p][:2]
+    img_map = img_map or {}
+    # JS 카드와 같은 순서: 앞 2장을 고른 뒤 축소 사본이 없는 것을 뺀다(v.photos.slice(0,2).filter — 높이 일치).
+    photos = [p for p in (photos or [])[:2] if p and (img_map.get(p) or {}).get("thumb")]
     if not photos:
         return ""
     imgs = []
     for src in photos:
         ent = img_map.get(src) or {}
-        thumb = ent.get("thumb") or src
+        thumb = ent["thumb"]
         dims = f' width="{int(ent["w"])}" height="{int(ent["h"])}"' if ent.get("w") and ent.get("h") else ""
         # src 없이 자리만(data-src 는 추적용) — 정적 칸에 src 를 주면 느린 망에서 썸네일 15장이 첫 화면 사진과 대역폭을
         #   다퉈 LCP 가 6.9→8.7초로 늦었다(09-30 실측). 실제 사진은 JS 가 카드를 교체하며 붙인다. alt 비움 = 빈 칸에 글자 안 뜨게.
@@ -142,13 +168,19 @@ def render_static_reviews(data, n=STATIC_N, img_map=None):
             'break-inside:avoid;-webkit-column-break-inside:avoid;margin-bottom:14px')
     out = [STATIC_START]
     for v in rv:
-        stars = "★★★★★"[:int(v.get("rating") or 5)]
+        rating = v.get("rating")
+        rating_markup = ""
+        if _numeric_rating(rating):
+            stars = "★★★★★"[:int(rating)]
+            rating_markup = (
+                f'<span aria-hidden="true" style="color:var(--accent);font-size:13px">{stars}</span>'
+                f'<span class="sr-only">5점 만점에 {int(rating)}점</span>'
+            )
         who = _esc(v.get("name", "")) + (f" · {_esc(v['date'])}" if v.get("date") else "")
         out.append(
             f'        <div role="listitem" style="{card}">'
             f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'
-            f'<span aria-hidden="true" style="color:var(--accent);font-size:13px">{stars}</span>'
-            f'<span class="sr-only">5점 만점에 {int(v.get("rating") or 5)}점</span>'
+            f'{rating_markup}'
             f'<span style="font-family:var(--label-font);font-size:12px;color:var(--dim)">{who}</span>'
             f'</div>'
             f'{_static_photo_grid(v.get("photos"), img_map)}'
@@ -281,12 +313,13 @@ def sync_jsonld_reviews(html, data):
             "@type": "Review",
             "author": {"@type": "Person", "name": r.get("name", "")},
             "datePublished": r.get("date", ""),
-            "reviewRating": {"@type": "Rating",
-                             "ratingValue": str(int(float(r.get("rating", 5)))),
-                             "bestRating": "5"},
-            "reviewBody": jsonld_snippet(r.get("text", "")),
-            "publisher": {"@type": "Organization", "name": "아워플레이스"},
         }
+        if _numeric_rating(r.get("rating")):
+            obj["reviewRating"] = {"@type": "Rating",
+                                   "ratingValue": str(int(float(r["rating"]))),
+                                   "bestRating": "5"}
+        obj["reviewBody"] = jsonld_snippet(r.get("text", ""))
+        obj["publisher"] = {"@type": "Organization", "name": "아워플레이스"}
         items.append(json.dumps(obj, ensure_ascii=False, separators=(",", ":")))
     return html[:start] + "[" + ",".join(items) + "]" + html[end:]
 
@@ -295,7 +328,10 @@ def sync_reviews_json_text(text, count, rating):
     """reviews_all.json 원문의 최상위 count/rating 필드만 targeted 치환(수기 포맷·photos 배열 보존).
     ⚠️ 개별 review의 'rating': 5는 건드리지 않는다(최상위 필드만 — 앞 들여쓰기 2칸 기준)."""
     text = re.sub(r'(\n  "count":\s*)\d+', lambda m: f'{m.group(1)}{count}', text)
-    text = re.sub(r'(\n  "rating":\s*)[\d.]+', lambda m: f'{m.group(1)}{float(rating)}', text)
+    if rating is None:
+        text = re.sub(r'(\n  "rating":\s*)(?:null|[\d.]+)', r'\1null', text)
+    else:
+        text = re.sub(r'(\n  "rating":\s*)(?:null|[\d.]+)', lambda m: f'{m.group(1)}{float(rating)}', text)
     return text
 
 

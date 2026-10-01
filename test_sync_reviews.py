@@ -82,8 +82,9 @@ import subprocess as _sp
 
 def _fake_scrape(tmp_path):
     rev = {"feedback_id": 1, "작성자": "홍길동", "작성일": "2026.09.01", "평점": 5, "후기": "좋아요", "사진": [], "blind": False}
+    # 2026-10-02: B룸 0건 가드(기존 후기가 있으면 0건 덮어쓰기 중단)가 생겨서, 체인 테스트는 B 에도 한 건을 둔다.
     data = {"ok": True, "rooms": [{"room": "A룸", "place_id": S.PLACE_A, "reviews": [rev]},
-                                  {"room": "B룸", "place_id": S.PLACE_B, "reviews": []}]}
+                                  {"room": "B룸", "place_id": S.PLACE_B, "reviews": [dict(rev, feedback_id=2)]}]}
     p = tmp_path / "scrape.json"
     p.write_text(_json.dumps(data, ensure_ascii=False), encoding="utf-8")
     return str(p)

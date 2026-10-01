@@ -121,8 +121,8 @@ def test_index_loads_map_and_never_blocks_render_on_it():
 
 def test_index_thumb_uses_map_thumb_and_lightbox_uses_full_with_fallback():
     assert re.search(r"\.thumb", INDEX) and re.search(r"\.full", INDEX)
-    # 폴백: map 에 없으면 원본 src 그대로
-    assert re.search(r"(\|\|\s*src|:\s*src)\b", INDEX)
+    # map 에 없으면 원본 src 대신 띄우지 않는다
+    assert not re.search(r"(\|\|\s*src|:\s*src)\b", INDEX)
     # 썸네일 img 는 lazy/async 유지 + 치수 속성
     assert "im.loading='lazy'" in INDEX
     assert "im.decoding='async'" in INDEX

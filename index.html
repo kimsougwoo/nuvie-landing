@@ -519,35 +519,47 @@
             // ⚠️ Number() 필수 — rating 이 문자열("5")로 하나만 들어와도 `+` 가 이어붙이기로
             //    바뀌어 평균이 폭주한다(2026-07-26 라이브에 6944444.4 노출). 후기는 수기
             //    큐레이션이라 따옴표가 다시 붙을 수 있으므로 데이터가 아니라 여기서 막는다.
-            var sum=0; rv.forEach(function(v){sum+=(Number(v.rating)||5);});
-            var avg=(sum/rv.length).toFixed(1);
+            //    예전 식 sum+=(Number(v.rating)||5)는 평점 없음도 5점으로 계산해 제거했다.
+            var sum=0; var ratedCount=0;
+            rv.forEach(function(v){
+              var value=v.rating, score=Number(value);
+              if((typeof value==='number'||(typeof value==='string'&&value.trim()!==''))&&Number.isFinite(score)){sum+=score;ratedCount++;}
+            });
+            var avg=ratedCount?(sum/ratedCount).toFixed(1):null;
             var hb=document.getElementById('heroReviewBadge'), ht=document.getElementById('heroReviewText');
-            if(hb&&ht){ ht.textContent=avg+' · 아워플레이스 후기 '+n+'건'; hb.style.display='inline-flex'; }
+            if(hb&&ht&&avg!==null){ ht.textContent=avg+' · 아워플레이스 후기 '+n+'건'; hb.style.display='inline-flex'; }
           }
           host.innerHTML='';
           rv.forEach(function(v){
             var card=document.createElement('div'); card.setAttribute('role','listitem');
             card.style.cssText='background:var(--elev);border-radius:5px;padding:18px 20px;border:1px solid var(--line);break-inside:avoid;-webkit-column-break-inside:avoid;margin-bottom:14px';
             var h=document.createElement('div'); h.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:10px';
-            var st=document.createElement('span'); st.setAttribute('aria-hidden','true'); st.style.cssText='color:var(--accent);font-size:13px'; st.textContent='★★★★★'.slice(0,(v.rating||5));
-            var sr=document.createElement('span'); sr.className='sr-only'; sr.textContent='5점 만점에 '+(v.rating||5)+'점';
+            var value=v.rating, score=Number(value);
+            if(typeof value==='number'&&Number.isFinite(score)){
+              var st=document.createElement('span'); st.setAttribute('aria-hidden','true'); st.style.cssText='color:var(--accent);font-size:13px'; st.textContent='★★★★★'.slice(0,score);
+              var sr=document.createElement('span'); sr.className='sr-only'; sr.textContent='5점 만점에 '+score+'점';
+              h.appendChild(st); h.appendChild(sr);
+            }
             var nm=document.createElement('span'); nm.style.cssText='font-family:var(--label-font);font-size:12px;color:var(--dim)'; nm.textContent=v.name+(v.date?' · '+v.date:'');
-            h.appendChild(st); h.appendChild(sr); h.appendChild(nm); card.appendChild(h);
+            h.appendChild(nm); card.appendChild(h);
             if(v.photos&&v.photos.length){
-              var pg=document.createElement('div');
-              pg.style.cssText='display:grid;grid-template-columns:repeat('+Math.min(v.photos.length,2)+',1fr);gap:6px;margin-bottom:11px';
-              v.photos.slice(0,2).forEach(function(src){
-                var ent=imgMap[src], thumbSrc=(ent&&ent.thumb)||src, fullSrc=(ent&&ent.full)||src;
-                var im=document.createElement('img'); im.src=thumbSrc; im.alt='누비 스튜디오 후기 사진'; im.loading='lazy'; im.decoding='async';
-                if(ent&&ent.w&&ent.h){ im.width=ent.w; im.height=ent.h; }
-                im.style.cssText='width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;border-radius:4px;display:block;cursor:pointer';
-                // 순수 <img> 에 click 만 달면 키보드로는 열 수 없다(WCAG 2.1.1 위반).
-            im.tabIndex=0; im.setAttribute('role','button'); im.setAttribute('aria-label','후기 사진 확대 보기');
-            im.addEventListener('click',function(){ openLb(fullSrc,im,null,ent&&ent.thumb?thumbSrc:null,ent); });
-            im.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openLb(fullSrc,im,null,ent&&ent.thumb?thumbSrc:null,ent); } });
-                pg.appendChild(im);
-              });
-              card.appendChild(pg);
+              var photos=v.photos.slice(0,2).filter(function(src){var ent=imgMap[src];return !!(ent&&ent.thumb&&ent.full);});
+              if(photos.length){
+                var pg=document.createElement('div');
+                pg.style.cssText='display:grid;grid-template-columns:repeat('+photos.length+',1fr);gap:6px;margin-bottom:11px';
+                photos.forEach(function(src){
+                  var ent=imgMap[src], thumbSrc=ent.thumb, fullSrc=ent.full;
+                  var im=document.createElement('img'); im.src=thumbSrc; im.alt='누비 스튜디오 후기 사진'; im.loading='lazy'; im.decoding='async';
+                  if(ent.w&&ent.h){ im.width=ent.w; im.height=ent.h; }
+                  im.style.cssText='width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;border-radius:4px;display:block;cursor:pointer';
+                  // 순수 <img> 에 click 만 달면 키보드로는 열 수 없다(WCAG 2.1.1 위반).
+                  im.tabIndex=0; im.setAttribute('role','button'); im.setAttribute('aria-label','후기 사진 확대 보기');
+                  im.addEventListener('click',function(){ openLb(fullSrc,im,null,ent&&ent.thumb?thumbSrc:null,ent); });
+                  im.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openLb(fullSrc,im,null,ent&&ent.thumb?thumbSrc:null,ent); } });
+                  pg.appendChild(im);
+                });
+                card.appendChild(pg);
+              }
             }
             // white-space:pre-line — 후기 원문의 줄바꿈을 살린다. 게스트가 여러 줄로 쓴 후기를
             // 기본값(normal)으로 두면 전부 한 덩어리로 접혀 읽기 나빠진다(2026-07-24 대표 지적).

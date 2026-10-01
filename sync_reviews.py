@@ -17,8 +17,8 @@
 
 사진: 후기 JSON 에는 아워 CDN 원본 URL 을 그대로 적는다(이 스크립트는 다운로드·커밋 없음).
   화면은 reviews/img/map.json 의 축소 WebP 사본(build_review_images.py, 2026-09-29 자체 호스팅)을 먼저 쓰고,
-  매핑이 없으면 원본 URL 로 폴백한다. 새 후기 사진의 축소 사본은 build_review_images.py 가 만든다
-  (2026-09-29 부터 이 스크립트의 빌드 체인 맨 앞에서 돈다 — 실패해도 체인은 계속, 그 사진만 원본 폴백.
+  축소 사본이 없는 사진은 후기 카드에서 제외한다. 새 후기 사진의 축소 사본은 build_review_images.py 가 만든다
+  (2026-09-29 부터 이 스크립트의 빌드 체인 맨 앞에서 돈다 — 실패해도 체인은 계속, 실패한 사진은 후기에서 제외.
    --offline·--no-build 는 내려받지 않는다).
 이름: mask_name(build_reviews) 로 앞 2글자+*** (공개 레포라 노출 축소 — 이건 큐레이션이 아니라 개인정보 처리).
 blind 처리된 후기는 제외(아워에서 숨긴 것).
@@ -31,6 +31,7 @@ blind 처리된 후기는 제외(아워에서 숨긴 것).
 """
 from __future__ import annotations
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -41,6 +42,24 @@ from build_reviews import mask_name  # 이름 마스킹 규칙 재사용(정본 
 
 PLACE_A, PLACE_B = 61823, 62341
 REVIEWS_ALL = ROOT / "reviews_all.json"
+
+
+def _alert(key: str, msg: str) -> None:
+    """후기 동기화 문제를 6시간 쿨다운으로 알린다. 알림 경로 오류는 실행을 막지 않는다.
+    (테스트에서는 conftest 가 이 함수를 기록용으로 바꿔 끼운다 — 운영 코드에 테스트 분기를 두지 않는다.)"""
+    try:
+        try:
+            import nuvie_morning.report as R
+        except Exception:
+            # 단독 실행(cwd=Projects\\nuvie-landing) 시 홈이 path 에 없으면 보강 후 재시도
+            home = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            if home not in sys.path:
+                sys.path.insert(0, home)
+            import nuvie_morning.report as R
+        alert_msg = R.alert_text("🔴", "후기 동기화 알림", what=str(msg)) or msg
+        R.alert_throttled(key, alert_msg, hours=6)
+    except Exception as e:
+        print(f"[sync_reviews] 알림 실패 — {type(e).__name__}: {e}")
 
 
 def _iso_date(s: str) -> str:
@@ -58,21 +77,25 @@ def _room_doc(room: dict, source_label: str) -> dict:
         text = (r.get("후기") or "").strip()
         if not text:
             continue
+        raw_rating = r.get("평점")
+        rating = int(round(float(raw_rating))) if raw_rating is not None and str(raw_rating).strip() else None
         reviews.append({
             "name": mask_name(r.get("작성자") or ""),
             "date": _iso_date(r.get("작성일") or ""),
-            "rating": int(round(float(r.get("평점") or 5))),
+            "rating": rating,
             "text": text,
             "photos": [p for p in (r.get("사진") or []) if p],
         })
     reviews.sort(key=lambda v: v.get("date") or "0000-00-00", reverse=True)
     count = len(reviews)
-    rating = round(sum(v["rating"] for v in reviews) / count, 1) if count else 5.0
+    rated = [v["rating"] for v in reviews
+             if isinstance(v.get("rating"), (int, float)) and not isinstance(v.get("rating"), bool)]
+    rating = round(sum(rated) / len(rated), 1) if rated else None
     return {
         "updated": max((v["date"] for v in reviews), default=""),
         "source": source_label,
         "place_id": room.get("place_id"),
-        "rating": float(rating),
+        "rating": float(rating) if rating is not None else None,
         "count": count,
         "auto": "hourplace_reviews_scrape (2026-08-25 대표 지시로 완전 자동·수동 큐레이션 폐기)",
         "reviews": reviews,
@@ -84,7 +107,9 @@ def _all_doc(room_docs: list[dict]) -> dict:
     reviews = [review for doc in room_docs for review in (doc.get("reviews") or [])]
     reviews.sort(key=lambda v: v.get("date") or "0000-00-00", reverse=True)
     count = len(reviews)
-    rating = round(sum(float(review.get("rating") or 5) for review in reviews) / count, 1) if count else 5.0
+    rated = [review["rating"] for review in reviews
+             if isinstance(review.get("rating"), (int, float)) and not isinstance(review.get("rating"), bool)]
+    rating = round(sum(rated) / len(rated), 1) if rated else None
     return {
         "updated": max((review.get("date") or "" for review in reviews), default=""),
         "source": "A+B 통합(메인 집계)",
@@ -105,10 +130,11 @@ def _originals(rooms: list[dict]) -> dict:
             text = (r.get("후기") or "").strip()
             if not text:
                 continue
+            raw_rating = r.get("평점")
             out.append({
                 "feedback_id": r.get("feedback_id"),
                 "date": _iso_date(r.get("작성일") or ""),
-                "rating": float(r.get("평점") or 5),
+                "rating": float(raw_rating) if raw_rating is not None and str(raw_rating).strip() else None,
                 "text": text,
             })
     out.sort(key=lambda v: v.get("date") or "0000-00-00", reverse=True)
@@ -121,6 +147,7 @@ def _originals(rooms: list[dict]) -> dict:
 
 def _dump(path: Path, data: dict) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
 
 
 def scrape_live() -> dict:
@@ -151,7 +178,7 @@ def _load_existing_docs() -> tuple[dict, dict]:
 
 
 def _run_build(module: str, fatal: bool = True) -> None:
-    """빌드 모듈 실행. fatal=False 면 실패해도 경고만 남기고 체인을 계속한다(축소 사본처럼 폴백이 있는 단계)."""
+    """빌드 모듈 실행. 실패를 알린 뒤 fatal=False 는 체인을 계속한다."""
     r = subprocess.run([sys.executable, str(ROOT / f"{module}.py")],
                        capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(ROOT))
     summary = (r.stdout or "").strip()[-160:]
@@ -160,8 +187,10 @@ def _run_build(module: str, fatal: bool = True) -> None:
     if r.returncode != 0:
         error = (r.stderr or "")[:300].encode("ascii", "backslashreplace").decode("ascii")
         if not fatal:
-            print(f"[sync_reviews] ⚠️ {module} 실패(계속 진행 — 해당 사진은 원본 URL 로 폴백): {error}")
+            print(f"[sync_reviews] ⚠️ {module} 실패(계속 진행): {error}")
+            _alert("reviews_build_failed", f"{module} 실패 — {error}")
             return
+        _alert("reviews_build_failed", f"{module} 실패 — {error}")
         raise SystemExit(f"[sync_reviews] {module} 실패: {error}")
 
 
@@ -196,7 +225,19 @@ def main(argv: list[str]) -> int:
     # 🔴 거짓 0 가드 — A룸은 상시 후기가 있다(현재 15건). 0건이면 스크래이프 이상이므로
     #    기존 데이터를 «빈 값으로 덮어쓰지» 않는다(빈렌더 SOP·아워 stats-sync 「거짓 0」 규율과 동일).
     if doc_a["count"] == 0:
+        _alert("reviews_zero_guard", "A룸 후기 0건 — 스크래이프 이상 의심, 덮어쓰기 중단")
         raise SystemExit("[sync_reviews] A룸 후기 0건 — 스크래이프 이상 의심, 덮어쓰기 중단(거짓 0 방지)")
+    previous_b_count = 0
+    previous_b_path = ROOT / "reviews_b.json"
+    if previous_b_path.exists():
+        try:
+            previous_b = json.loads(previous_b_path.read_text(encoding="utf-8"))
+            previous_b_count = int(previous_b.get("count") or 0)
+        except (OSError, json.JSONDecodeError, TypeError, ValueError, AttributeError):
+            previous_b_count = 0
+    if doc_b["count"] == 0 and previous_b_count >= 1:
+        _alert("reviews_zero_guard", f"B룸 후기 0건 — 기존 {previous_b_count}건, 스크래이프 이상 의심, 덮어쓰기 중단")
+        raise SystemExit(f"[sync_reviews] B룸 후기 0건 — 기존 {previous_b_count}건, 스크래이프 이상 의심, 덮어쓰기 중단")
     _dump(ROOT / "reviews.json", doc_a)
     _dump(ROOT / "reviews_b.json", doc_b)
     _dump(ROOT / "reviews_originals.json", _originals([room_a, room_b]))
@@ -205,7 +246,7 @@ def main(argv: list[str]) -> int:
     print(f"[sync_reviews] A룸 {doc_a['count']}건 · B룸 {doc_b['count']}건 · 메인 {all_doc['count']}건 재생성 완료")
 
     if "--no-build" not in argv:
-        # 축소 사본 먼저(build_reviews 가 map.json 으로 정적 카드를 그린다). 내려받기·PIL 실패는 폴백이 있어 치명 아님.
+        # 축소 사본 먼저(build_reviews 가 map.json 으로 정적 카드를 그린다). 내려받기·PIL 실패 사진은 제외한다.
         _run_build("build_review_images", fatal=False)
         for mod in ("build_reviews", "build_rooms"):
             _run_build(mod)

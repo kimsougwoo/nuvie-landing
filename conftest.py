@@ -24,4 +24,10 @@ def availability_alerts(monkeypatch):
         return
     if hasattr(BA, "_alert"):
         monkeypatch.setattr(BA, "_alert", lambda key, msg: sent.append((key, msg)))
+    try:
+        import sync_reviews as SR                     # 후기 동기화 알림(2026-10-02 우선순위 1-9~11)도 같은 이유로 막는다
+        if hasattr(SR, "_alert"):
+            monkeypatch.setattr(SR, "_alert", lambda key, msg: sent.append((key, msg)))
+    except Exception:
+        pass
     yield sent
