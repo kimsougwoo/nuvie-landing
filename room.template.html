@@ -83,6 +83,9 @@
 <meta name="twitter:title" content="{{OG_TITLE}}">
 <meta name="twitter:description" content="{{DESC}}">
 <meta name="twitter:image" content="{{OG_IMAGE}}">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+{{HERO_PRELOAD}}
 {{FONT_HEAD}}
 <link rel="stylesheet" href="/styles.css">
 {{JSONLD}}
@@ -123,7 +126,7 @@
   <main class="main" id="top">
     <header class="hero" style="position:relative;height:76vh;min-height:480px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden">
       <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0B0B0C,#1C1C1F)"></div>
-      <div class="heroImgWrap" style="position:absolute;inset:0"><img data-fallback="1" data-ken decoding="async" fetchpriority="high" src="{{HERO_IMG}}" alt="{{HERO_ALT}}" style="display:block;width:100%;height:100%;object-fit:cover;filter:brightness(.76) saturate(.95);transform:scale(1.05)"></div>
+      <div class="heroImgWrap" style="position:absolute;inset:0"><img data-fallback="1" data-ken decoding="async" fetchpriority="high" src="{{HERO_IMG}}"{{HERO_SRCSET}} alt="{{HERO_ALT}}" style="display:block;width:100%;height:100%;object-fit:cover;filter:brightness(.76) saturate(.95);transform:scale(1.05)"></div>
       <div class="heroScrim" style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,6,7,.30) 0%,rgba(6,6,7,.06) 26%,rgba(6,6,7,.60) 62%,rgba(6,6,7,.92) 100%)"></div>
       <div class="herotop" style="position:absolute;top:0;left:0;right:0;z-index:3;padding:26px 40px;display:flex;justify-content:space-between;align-items:center;gap:14px;font-family:var(--label-font);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.8)">
         <a href="/" style="white-space:nowrap;color:inherit;text-decoration:none">← 누비 스튜디오</a>

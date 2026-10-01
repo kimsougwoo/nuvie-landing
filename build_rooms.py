@@ -99,6 +99,20 @@ def render_info_cells(room: dict) -> str:
     return "".join(out)
 
 
+def hero_srcset(image):
+    """히어로 사진에 800w 변형(img/<이름>-800.jpg)이 있으면 (img 의 srcset 속성, head 의 preload 줄)을 돌려준다.
+    10-01 SEO 점검: 홈은 srcset+preload 인데 /a·/b 는 모바일에서도 1600w 원본(/b 248KB)을 받았다. 사진은 그대로, 파일만 작게.
+    변형이 없으면 둘 다 빈 문자열(예전 그대로)."""
+    if not image.endswith('.jpg'):
+        return '', ''
+    small = image[:-4] + '-800.jpg'
+    if not (ROOT / small.lstrip('/')).exists():
+        return '', ''
+    srcset = f'{small} 800w, {image} 1600w'
+    return (f' srcset="{esc(srcset)}" sizes="100vw"',
+            f'<link rel="preload" as="image" href="{esc(image)}" imagesrcset="{esc(srcset)}" imagesizes="100vw" fetchpriority="high">')
+
+
 def render_season_note(room: dict) -> str:
     """시즌 안내(2026-09-30 U-01) — rooms.json seasonNote {text, until}. 없으면 빈 문자열(b.html 바이트 불변).
     until(KST 날짜)부터 스스로 숨는다 — 홈 룸 카드 #seasonNoteA 와 같은 방식·같은 문장."""
@@ -285,7 +299,7 @@ def render_jsonld(room: dict, other: dict, catalog: dict, reviews_doc: dict) -> 
     offer = {
         "@type": "AggregateOffer",
         "url": url,
-        "seller": {"@id": BUSINESS_ID},
+        "seller": {"@type": "LocalBusiness", "@id": BUSINESS_ID, "name": "누비 스튜디오 NUVIE STUDIO", "url": "https://www.nuviestudio.com/"},
         "lowPrice": p["weekday"],
         "highPrice": p["weekend"],
         "priceCurrency": p["currency"],
@@ -385,6 +399,8 @@ def build_page(room: dict, other: dict, catalog: dict, reviews_doc: dict, templa
         "SUB": hero["sub"],  # <br> 허용 필드
         "SEASON_NOTE": render_season_note(room),
         "HERO_IMG": esc(hero["image"]),
+        "HERO_SRCSET": hero_srcset(hero["image"])[0],
+        "HERO_PRELOAD": hero_srcset(hero["image"])[1],
         "HERO_ALT": esc(hero["alt"]),
         "HERO_TAGS": render_hero_tags(room),
         "INFO_CELLS": render_info_cells(room),
