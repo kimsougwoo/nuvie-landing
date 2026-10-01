@@ -184,6 +184,22 @@
       });
     } catch (e) {}
   }
+  function sendVital(m) {
+    try {
+      var a = m.attribution || {};
+      // CLS 는 0.05 같은 소수라 metric_value(정수)에 1000 을 곱해 싣는다(0.05 → 50). LCP 는 밀리초 그대로.
+      var scale = m.name === 'CLS' ? 1000 : 1;
+      event('web_vitals', {
+        metric_name: m.name,
+        metric_value: Math.round(m.value * scale),
+        metric_id: clip(m.id, 40),
+        metric_delta: Math.round((m.delta || 0) * scale),
+        metric_rating: m.rating,
+        interaction_target: String(a.target || a.largestShiftTarget || '').slice(-100),   // LCP 요소·가장 크게 밀린 요소
+        transport_type: 'beacon'
+      });
+    } catch (e) {}
+  }
   function loadVitals() {
     if (vitalsLoaded) return;
     vitalsLoaded = true;
@@ -193,6 +209,9 @@
       s.src = VITALS_SRC;
       s.onload = function () {
         try { if (window.webVitals && window.webVitals.onINP) window.webVitals.onINP(sendInp); } catch (e) {}
+        // 10-01: 실험실(Lighthouse) 값만으로 LCP 를 판정하지 않으려고 실사용 LCP·CLS 도 보낸다(같은 이벤트·metric_name 으로 구분).
+        try { if (window.webVitals && window.webVitals.onLCP) window.webVitals.onLCP(sendVital); } catch (e) {}
+        try { if (window.webVitals && window.webVitals.onCLS) window.webVitals.onCLS(sendVital); } catch (e) {}
       };
       document.head.appendChild(s);
     } catch (e) {}

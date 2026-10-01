@@ -17,6 +17,7 @@
 """
 import argparse
 import json
+import re
 import sys
 from io import BytesIO
 from pathlib import Path
@@ -31,6 +32,22 @@ TEXT_SOURCES = ["index.html", "a.html", "b.html", "404.html", "privacy.html", "r
                 "reviews_all.json", "reviews.json", "reviews_b.json", "rooms.json"]
 # 늘 넣는 글자: 인쇄 가능한 ASCII 전부 + 자주 쓰는 기호(새 문구·후기에 흔한 것) + 테마 버튼 ☾☀
 ALWAYS = "".join(chr(c) for c in range(0x20, 0x7F)) + "·…‘’“”«»〈〉「」『』–—→←↑↓★☆♥♡✓✔×÷°%₩~!?()[]☾☀"
+
+
+def strip_comments(name, text):
+    """화면에 안 나오는 주석 글자를 뺀다 — HTML <!-- -->, <script>·<style> 안과 .js 의 /* */·// 주석.
+    10-01 Lighthouse: 글꼴 4개(각 ~72KB)가 첫 화면 사진과 대역을 다퉜고, 한글 708자 중 195자가 주석에만 있었다.
+    // 앞이 : ' " \\ 이면 주소·문자열로 보고 남긴다(https://… 등). 문자열 안 글자는 그대로 둔다.
+    """
+    def js(body):
+        body = re.sub(r"(?s)/\*.*?\*/", "", body)
+        return re.sub(r"(?m)(^|[^:'\"\\\\])//[^\n]*", r"\1", body)
+    if name.endswith('.html'):
+        text = re.sub(r"(?s)<!--.*?-->", "", text)
+        return re.sub(r"(?s)<(script|style)\b.*?</\1>", lambda m: js(m.group(0)), text)
+    if name.endswith('.js'):
+        return js(text)
+    return text
 
 
 def site_chars(root=HERE, sources=TEXT_SOURCES):
@@ -53,7 +70,7 @@ def site_chars(root=HERE, sources=TEXT_SOURCES):
                         walk(x)
             walk(json.loads(text))
         else:
-            chars.update(text)
+            chars.update(strip_comments(name, text))
     return {c for c in chars if c.isprintable() and not c.isspace() or c == " "}
 
 

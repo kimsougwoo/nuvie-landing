@@ -108,7 +108,9 @@ def hero_srcset(image):
     small = image[:-4] + '-800.jpg'
     if not (ROOT / small.lstrip('/')).exists():
         return '', ''
-    srcset = f'{small} 800w, {image} 1600w'
+    mid = image[:-4] + '-1200.jpg'   # 10-01: 360×DPR3·390×DPR3 폰은 1080~1170px 이 필요해 800w 를 건너뛰고 1600w 원본을 받았다
+    rungs = [f'{small} 800w'] + ([f'{mid} 1200w'] if (ROOT / mid.lstrip('/')).exists() else []) + [f'{image} 1600w']
+    srcset = ', '.join(rungs)
     return (f' srcset="{esc(srcset)}" sizes="100vw"',
             f'<link rel="preload" as="image" href="{esc(image)}" imagesrcset="{esc(srcset)}" imagesizes="100vw" fetchpriority="high">')
 

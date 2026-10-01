@@ -93,7 +93,7 @@
      09-29 동적 서브셋의 늦은 교체로 /a 360px 뒤로 가기 CLS 0.4~0.6·렌더 차단(/a 첫 화면 3.1초). -->
 <link rel="stylesheet" href="/fonts.css">
 <!-- 2026-09-17 P0: 히어로 LCP 프리로드(srcset 반영·모바일 800w) + 룸 상세 선수신(quick_back 완화·인앱 Chromium만·스크립트 실행 없음). -->
-<link rel="preload" as="image" href="/img/room-b.jpg" imagesrcset="/img/room-b-800.jpg 800w, /img/room-b.jpg 1600w" imagesizes="100vw" fetchpriority="high">
+<link rel="preload" as="image" href="/img/room-b.jpg" imagesrcset="/img/room-b-800.jpg 800w, /img/room-b-1200.jpg 1200w, /img/room-b.jpg 1600w" imagesizes="100vw" fetchpriority="high">
 <link rel="prefetch" href="/a" as="document"><link rel="prefetch" href="/b" as="document">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"LocalBusiness","@id":"https://www.nuviestudio.com/#business","name":"누비 스튜디오 NUVIE STUDIO","alternateName":["누비스튜디오","NUVIE STUDIO"],"description":"코스프레 촬영을 위한 컨셉 렌탈 스튜디오. 동양풍 블랙 호리존 A룸, 화이트 티타임 카페 B룸. 무인 운영.","url":"https://www.nuviestudio.com/","telephone":"+82-70-8211-1103","image":"https://www.nuviestudio.com/og.jpg","areaServed":"서울","address":{"@type":"PostalAddress","streetAddress":"곰달래로 184, 4층 (화곡동 874-12 남양빌딩)","addressLocality":"서울 강서구","addressRegion":"서울","postalCode":"07782","addressCountry":"KR"},"openingHours":"Mo-Su 00:00-24:00","hasMap":["https://naver.me/GM334mVo","https://place.map.kakao.com/918861206"],"sameAs":["https://x.com/nuvie_studio","https://www.instagram.com/nuvie_studio","https://naver.me/GM334mVo","https://place.map.kakao.com/918861206","https://www.hourplace.co.kr/place/61823","https://www.hourplace.co.kr/place/62341"],"keywords":"코스프레 스튜디오, 코스프레 렌탈, 컨셉 스튜디오, 까치산역 스튜디오, 강서구 코스프레, 동양풍 스튜디오, 자연광 스튜디오, 화이트 티타임 카페, 티타임 스튜디오, 동양풍 코스프레 스튜디오, 동양풍 코스프레 촬영","knowsAbout":["코스프레 촬영","동양풍 코스프레","블랙 호리존(BLACK CYC, 4M × 2.5M × 2.3M) 촬영","자연광 룩북·프로필 촬영"],"priceRange":"₩₩","makesOffer":[{"@type":"Offer","name":"A룸 — 동양풍 & 블랙 호리존(BLACK CYC)","url":"https://www.hourplace.co.kr/place/61823","availability":"https://schema.org/InStock","category":"코스프레 스튜디오 대관"},{"@type":"Offer","name":"B룸 — 화이트 티타임 카페","url":"https://www.hourplace.co.kr/place/62341","availability":"https://schema.org/InStock","category":"촬영 스튜디오 대관"}],"dateModified":"2026-09-22"}
@@ -163,7 +163,7 @@
            ⚠️ 초기 src 는 **기본 테마(라이트) = B룸**이어야 LCP 이미지가 헛되지 않는다.
            ⚠️ 밝기는 룸마다 다르다 — A룸 원본이 이미 매우 어두워 .76 을 먹이면 검정 덩어리가 된다
               (그게 「최상단이 까맣다」의 원인이었다). 교체는 setTheme() 이 맡는다(아래 HERO_BG). -->
-      <div class="heroImgWrap" style="position:absolute;inset:0"><img id="heroImg" data-fallback="1" data-ken decoding="async" fetchpriority="high" src="/img/room-b.jpg" srcset="/img/room-b-800.jpg 800w, /img/room-b.jpg 1600w" sizes="100vw" alt="누비 스튜디오 B룸 화이트 티타임 카페 — 통창 자연광이 드는 화이트 톤 공간" style="display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.62) saturate(.95);transform:scale(1.05);opacity:1;transition:opacity .55s ease"></div>
+      <div class="heroImgWrap" style="position:absolute;inset:0"><img id="heroImg" data-fallback="1" data-ken decoding="async" fetchpriority="high" src="/img/room-b.jpg" srcset="/img/room-b-800.jpg 800w, /img/room-b-1200.jpg 1200w, /img/room-b.jpg 1600w" sizes="100vw" alt="누비 스튜디오 B룸 화이트 티타임 카페 — 통창 자연광이 드는 화이트 톤 공간" style="display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.62) saturate(.95);transform:scale(1.05);opacity:1;transition:opacity .55s ease"></div>
       <!-- 2026-08-05: class 신설. 모바일에서 이 스크림을 덮어써야 하는데 선택할 이름이 없었다(styles.css 참조). -->
       <div class="heroScrim" style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,6,7,.30) 0%,rgba(6,6,7,.06) 26%,rgba(6,6,7,.60) 62%,rgba(6,6,7,.92) 100%)"></div>
       <div class="herotop" style="position:absolute;top:0;left:0;right:0;z-index:3;padding:26px 40px;display:flex;justify-content:space-between;align-items:center;gap:14px;font-family:var(--label-font);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.8)">
@@ -239,7 +239,7 @@
       <div class="mgal-track" id="mgalTrack">
         <div class="mgal-slide"><img loading="eager" decoding="async" src="/img/galA0.jpg" srcset="/img/galA0-800.jpg 800w, /img/galA0.jpg 1200w" sizes="84vw" alt="A룸 동양풍 — 월동문·블랙 호리존"><div class="mgal-cap"><b>A룸 · 동양풍</b><span>월동문 · 블랙 호리존</span></div></div>
         <!-- 2026-08-22 대표 지시: 새로 배치된 B룸은 «전경»(galB4 전체 공간)이 먼저 나온다. 디테일컷은 뒤로. -->
-        <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/room-b.jpg" srcset="/img/room-b-800.jpg 800w, /img/room-b.jpg 1600w" sizes="84vw" alt="B룸 화이트 티타임 카페 — 전체 공간 전경(카운터·티테이블·통창)"><div class="mgal-cap"><b>B룸 · 화이트</b><span>티타임 카페 전경</span></div></div>
+        <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/room-b.jpg" srcset="/img/room-b-800.jpg 800w, /img/room-b-1200.jpg 1200w, /img/room-b.jpg 1600w" sizes="84vw" alt="B룸 화이트 티타임 카페 — 전체 공간 전경(카운터·티테이블·통창)"><div class="mgal-cap"><b>B룸 · 화이트</b><span>티타임 카페 전경</span></div></div>
         <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/galA2.jpg" srcset="/img/galA2-800.jpg 800w, /img/galA2.jpg 1100w" sizes="84vw" alt="A룸 동양풍 — 격자문 세트"><div class="mgal-cap"><b>A룸 · 동양풍</b><span>격자문 세트</span></div></div>
         <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/galB1.jpg" srcset="/img/galB1-800.jpg 800w, /img/galB1.jpg 825w" sizes="84vw" alt="B룸 화이트 — 통창 자연광과 티테이블"><div class="mgal-cap"><b>B룸 · 화이트</b><span>통창 자연광</span></div></div>
         <div class="mgal-slide"><img loading="lazy" decoding="async" src="/img/galA4.jpg" srcset="/img/galA4-800.jpg 800w, /img/galA4.jpg 1200w" sizes="84vw" alt="A룸 동양풍 — 월문 무드"><div class="mgal-cap"><b>A룸 · 동양풍</b><span>월문 무드</span></div></div>
@@ -318,7 +318,7 @@
       <div class="roomcards" data-reveal>
         <div class="room-column">
           <a class="roomcard" href="/a" data-room-detail="a" data-room-detail-from="card">
-            <div class="roomcard-img"><img data-fallback="1" loading="lazy" decoding="async" src="/img/galA0.jpg" alt="A룸 동양풍 블랙 호리존 — 월문과 격자문 세트"></div>
+            <div class="roomcard-img"><img data-fallback="1" loading="lazy" decoding="async" src="/img/galA0.jpg" srcset="/img/galA0-800.jpg 800w, /img/galA0.jpg 1200w" sizes="(max-width: 760px) 92vw, 560px" alt="A룸 동양풍 블랙 호리존 — 월문과 격자문 세트"></div>
             <div class="roomcard-body">
               <span class="roomcard-kick">A ROOM</span>
               <h3>동양풍 &amp; 블랙 호리존</h3>
@@ -341,7 +341,7 @@
         </div>
         <div class="room-column">
           <a class="roomcard" href="/b" data-room-detail="b" data-room-detail-from="card">
-            <div class="roomcard-img"><img data-fallback="1" loading="lazy" decoding="async" src="/img/room-b.jpg" alt="B룸 화이트 티타임 카페 전경 — 자연광이 드는 화이트 톤 공간"></div>
+            <div class="roomcard-img"><img data-fallback="1" loading="lazy" decoding="async" src="/img/room-b.jpg" srcset="/img/room-b-800.jpg 800w, /img/room-b-1200.jpg 1200w, /img/room-b.jpg 1600w" sizes="(max-width: 760px) 92vw, 560px" alt="B룸 화이트 티타임 카페 전경 — 자연광이 드는 화이트 톤 공간"></div>
             <div class="roomcard-body">
               <span class="roomcard-kick">B ROOM</span><span class="roomcard-new">NEW</span>
               <h3>화이트 티타임 카페</h3>
