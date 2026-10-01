@@ -33,7 +33,11 @@ def _init(repo, note):
     dst = os.path.join(repo, "availability.json")
     json.dump({"updated": "2026-09-28T00:15", "note": note, "events": EVENTS,
                "busyDates": ["2026-10-07"]}, open(dst, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    _git(repo, "add", "availability.json")
+    # 2026-10-02: 확인 시각 파일(없거나 3시간 넘으면 «확인만» push)도 방금 확인한 상태로 심는다.
+    import datetime
+    json.dump({"checked": datetime.datetime.now().isoformat(timespec="minutes")},
+              open(os.path.join(repo, B.CHECKED_FILE), "w", encoding="utf-8"))
+    _git(repo, "add", "availability.json", B.CHECKED_FILE)
     _git(repo, "commit", "-q", "-m", "init")
     return dst
 

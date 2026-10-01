@@ -1155,28 +1155,59 @@
   function setFetchWarn(on){if(calFetchWarnEl)calFetchWarnEl.style.display=on?'block':'none';}
   function formatLastChecked(value){
     if(value===null||value===undefined||value==='')return '';
-    var d=value instanceof Date?value:new Date(value);
+    var raw=value instanceof Date?value:String(value);
+    if(!(value instanceof Date)&&!/(?:[zZ]|[+-]\d{2}:?\d{2})$/.test(raw))raw+='+09:00';
+    var d=value instanceof Date?value:new Date(raw);
     if(isNaN(d.getTime()))return '';
-    return pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+    var kst=new Date(d.getTime()+9*60*60*1000);
+    return pad(kst.getUTCMonth()+1)+'-'+pad(kst.getUTCDate())+' '+pad(kst.getUTCHours())+':'+pad(kst.getUTCMinutes());
   }
-  function setLastChecked(value,fallback){
-    var text=formatLastChecked(value)||formatLastChecked(fallback);
+  function setCheckedStatus(checked,fresh){
     if(!calLastUpdatedEl)return;
-    calLastUpdatedEl.textContent=text?'마지막 변경 '+text:'';
-    calLastUpdatedEl.style.display=text?'block':'none';
+    if(fresh){
+      calLastUpdatedEl.textContent='마지막 확인 '+formatLastChecked(checked);
+      calLastUpdatedEl.style.color='var(--faint)';
+    }else{
+      calLastUpdatedEl.textContent='확인이 6시간 넘게 늦어지고 있습니다 · 마지막 확인 '+(formatLastChecked(checked)||'알 수 없음')+' · 최신 예약은 아워플레이스에서 확인해 주세요';
+      calLastUpdatedEl.style.color='var(--accent)';
+    }
+    calLastUpdatedEl.style.display='block';
   }
   function loadAvailability(){
+    function isAvailabilityFresh(checked){
+      try{return typeof window.nvAvailFresh==='function'&&window.nvAvailFresh(checked,Date.now());}catch(e){return false;}
+    }
+    var checkedPromise=fetch('/availability_checked.json',{cache:'no-store'})
+      .then(function(r){if(!r.ok)throw new Error('checked fetch failed');return r.json();})
+      .then(function(d){return d&&typeof d.checked==='string'?d.checked:null;})
+      .catch(function(){return null;});
     fetch('/availability.json',{cache:'no-store'})
       .then(function(r){if(!r.ok)throw new Error('fetch failed');return r.json();})
-      .then(function(d){
-        var fetchedAt=new Date();
-        if(d&&Array.isArray(d.events)){EVENTS=d.events;renderCal();setLastChecked(d.updated,fetchedAt);try{if(window.nvApplyFreeLabels)window.nvApplyFreeLabels(d.events);}catch(e){}}
+      .then(function(d){return checkedPromise.then(function(checked){
+        if(d&&Array.isArray(d.events)){
+          EVENTS=d.events;
+          renderCal();
+          var fresh=isAvailabilityFresh(checked);
+          if(fresh){
+            setCheckedStatus(checked,true);
+            try{if(window.nvApplyFreeLabels)window.nvApplyFreeLabels(d.events);}catch(e){}
+          }else{
+            try{if(window.nvResetFreeLabels)window.nvResetFreeLabels();}catch(e){}
+            setCheckedStatus(checked,false);
+          }
+        }
         availRetried=false;
         setFetchWarn(false);
-      })
+      });})
       .catch(function(){
         // 실패는 "이번 달 예약 0건"과 다르게 보여야 함 — EVENTS는 건드리지 않고(마지막 성공값 유지) 경고만 노출
         setFetchWarn(true);
+        checkedPromise.then(function(checked){
+          if(!isAvailabilityFresh(checked)){
+            try{if(window.nvResetFreeLabels)window.nvResetFreeLabels();}catch(e){}
+            setCheckedStatus(checked,false);
+          }
+        });
         if(!availRetried){availRetried=true;setTimeout(loadAvailability,90*1000);}  // 1.5분 후 1회만 재시도
       });
   }

@@ -20,6 +20,8 @@ except Exception:
     pass
 
 ENV = r"F:\무인 렌탈스튜디오 인수\.env"
+CHECKED_FILE = "availability_checked.json"
+CHECKED_PUSH_EVERY_H = 3
 
 # ⚠️ 2026-07-29(과거 예약 누적): 아워플레이스 iCal은 과거 예약을 보존하지 않는다(실측 오늘 이전
 # VEVENT 0건) → 폴링 스냅샷을 안 남기면 지나간 예약은 영구 소실된다. 표시 여부는 아직 미정이라
@@ -469,7 +471,7 @@ def _worktree_dirty_besides_availability(repo):
     out = set()
     for line in (st.stdout or "").splitlines():
         path = line[3:].strip().strip('"')
-        if path and path != "availability.json":
+        if path and path not in {"availability.json", CHECKED_FILE}:
             out.add(path)
     return out
 
@@ -503,11 +505,20 @@ def push_changes(repo, n_events):
         return False
     stage = "git add/commit"
     try:
-        subprocess.run(["git", "-C", repo, "add", "availability.json"], check=True)
+        add_paths = ["availability.json"]
+        if os.path.exists(os.path.join(repo, CHECKED_FILE)):
+            add_paths.append(CHECKED_FILE)
+        subprocess.run(["git", "-C", repo, "add"] + add_paths, check=True)
+        staged = subprocess.run(["git", "-C", repo, "diff", "--cached", "--name-only"],
+                                capture_output=True, text=True, encoding="utf-8", errors="replace",
+                                check=True)
+        availability_changed = "availability.json" in (staged.stdout or "").splitlines()
+        message_kind = ("갱신(자동 30분)" if availability_changed
+                        else "확인(자동 3시간)")
         subprocess.run(["git", "-C", repo,
                         "-c", "user.name=kimsougwoo",
                         "-c", "user.email=143887564+kimsougwoo@users.noreply.github.com",
-                        "commit", "-q", "-m", f"예약현황 갱신(자동 30분): 예약 {n_events}건"], check=True)
+                        "commit", "-q", "-m", f"예약현황 {message_kind}: 예약 {n_events}건"], check=True)
         # ⚠️ 2026-07-03: push 전 rebase — 외부(수동 히어로 편집·GitHub 웹)로 origin이 앞서도
         # 강제덮어쓰기 없이 availability 커밋을 그 위에 리베이스(split-brain·수동수정 유실 방지).
         # availability.json은 봇 전용이라 index.html 등 수동파일과 충돌 사실상 없음.
@@ -533,7 +544,7 @@ def push_changes(repo, n_events):
                 print(f"  ⛔ 자가치유 보류 — 작업 중인 미커밋 변경이 있다 {sorted(dirty)[:5]}. "
                       f"reset --hard 를 돌리면 그 작업이 사라진다(사람이 정리한 뒤 자동 회복).")
                 _alert("availability_push_failed", "rebase 충돌 후 미커밋 작업이 있어 자가치유 보류 — 수동 정리 필요")
-            elif touched and touched <= {"availability.json"}:
+            elif touched and touched <= {"availability.json", CHECKED_FILE}:
                 subprocess.run(["git", "-C", repo, "reset", "--hard", "origin/main"], check=True)
                 print("  rebase 충돌 → availability 전용 로컬커밋이라 origin에 맞춤(다음 런 재생성). 스톨 자가치유.")
             else:
@@ -635,12 +646,32 @@ def main(argv=None, repo=None):
             "busyDates": busy,
         }
         json.dump(out, open(dst, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    checked_dst = os.path.join(repo, CHECKED_FILE)
+    checked_due = changed
+    if not checked_due:
+        try:
+            with open(checked_dst, encoding="utf-8") as checked_file:
+                checked_data = json.load(checked_file)
+            checked_value = checked_data.get("checked") if isinstance(checked_data, dict) else None
+            if not isinstance(checked_value, str):
+                raise ValueError("checked timestamp is missing")
+            checked_at = datetime.datetime.fromisoformat(checked_value)
+            now = (datetime.datetime.now(checked_at.tzinfo) if checked_at.tzinfo
+                   else datetime.datetime.now())
+            checked_due = now - checked_at >= datetime.timedelta(hours=CHECKED_PUSH_EVERY_H)
+        except Exception:
+            checked_due = True
+    if checked_due:
+        with open(checked_dst, "w", encoding="utf-8", newline="\n") as checked_file:
+            json.dump({"checked": datetime.datetime.now().isoformat(timespec="minutes")},
+                      checked_file, ensure_ascii=False)
+            checked_file.write("\n")
     print(f"availability.json {'작성' if changed else '변화없음(미기록)'}: 예약 {len(events)}건 / "
           f"{len(busy)}일 (이름 0개 노출) · 변경={changed} · 페치성공 {fetched_ok}/실패 {fetch_failed}")
     print("  샘플:", events[:4])
 
     if "--push" in argv:
-        if not changed:
+        if not changed and not checked_due:
             print("  변경 없음 → push 생략")
             # dirty-잔류 방지(멱등): 과거 버그로 남았을 수 있는 타임스탬프-only 오염을 되돌려
             #   다음 런의 pull --rebase가 막히지 않게 한다. 변경 없으니 되돌려도 무손실.

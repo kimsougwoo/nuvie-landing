@@ -1,4 +1,5 @@
 /* Bottom booking bar "fastest free slot" label (2026-09-30 owner decision, relayed by 9a).
+   Free-slot labels require a check timestamp no older than 6 hours (owner decision, 2026-10-02).
    Used by the hub (index.html: #book-mobile A, #book-mobile-b B) and room pages (.sticky-book a[data-book], /a and /b).
    Same data as the calendar: /availability.json events (booking and block both count as busy).
    - DAY_START 9: no dawn starts. Policy (ops v1.3 sec 0/2, price v6 sec 5) allows 24h booking with no hour limit, so the
@@ -9,8 +10,18 @@
    - HORIZON_DAYS 14: well inside the 120 days build_availability.py fetches; beyond it the default label stays.
    No free slot, bad data or no data -> the original label (never claim a slot we cannot see). hrefs/ids/tracking untouched. */
 (function(w){
-  var DAY_START = 9, LAST_START = 21, MIN_H = 2, HORIZON_DAYS = 14;
+  var DAY_START = 9, LAST_START = 21, MIN_H = 2, HORIZON_DAYS = 14, STALE_H = 6;
   var DOW = ['일', '월', '화', '수', '목', '금', '토'];
+
+  w.nvAvailFresh = function(checkedIso, nowMs){
+    if (typeof checkedIso !== 'string' || typeof nowMs !== 'number' || !isFinite(nowMs)) return false;
+    var value = checkedIso.trim();
+    if (!value) return false;
+    if (!/(?:[zZ]|[+-]\d{2}:?\d{2})$/.test(value)) value += '+09:00';
+    var checkedMs = Date.parse(value);
+    if (!isFinite(checkedMs)) return false;
+    return nowMs - checkedMs <= STALE_H * 60 * 60 * 1000;
+  };
 
   w.nvFirstFree = function(events, nowMs, room){
     if (!Array.isArray(events) || typeof nowMs !== 'number' || !isFinite(nowMs)) return null;
@@ -81,11 +92,44 @@
     }
   };
 
+  w.nvResetFreeLabels = function(){
+    if (typeof document === 'undefined') return;
+    function reset(a){
+      if (!a) return;
+      if (!a.dataset || a.dataset.nvDefault === undefined) return;
+      a.textContent = a.dataset.nvDefault;
+      if (a.dataset && a.dataset.nvAria !== undefined && a.dataset.nvAria){
+        a.setAttribute('aria-label', a.dataset.nvAria);
+      } else if (a.removeAttribute){
+        a.removeAttribute('aria-label');
+      }
+      if (a.classList) a.classList.toggle('wk2', false);
+    }
+    reset(document.getElementById('book-mobile'));
+    reset(document.getElementById('book-mobile-b'));
+    var rs = document.querySelectorAll('.sticky-book a[data-book]');
+    for (var i = 0; i < rs.length; i++) reset(rs[i]);
+  };
+
   // Room pages do not load the calendar, so they fetch the same file here. The hub calls nvApplyFreeLabels after its own fetch.
   if (typeof document !== 'undefined' && typeof fetch === 'function' && document.querySelector('.sticky-book a[data-book]')){
-    fetch('/availability.json', {cache: 'no-store'})
-      .then(function(r){ return r.ok ? r.json() : null; })
-      .then(function(d){ if (d && Array.isArray(d.events)) w.nvApplyFreeLabels(d.events); })
-      .catch(function(){});
+    Promise.all([
+      fetch('/availability.json', {cache: 'no-store'}).then(function(r){
+        if (!r.ok) throw new Error('availability fetch failed');
+        return r.json();
+      }),
+      fetch('/availability_checked.json', {cache: 'no-store'}).then(function(r){
+        if (!r.ok) throw new Error('checked fetch failed');
+        return r.json();
+      })
+    ]).then(function(data){
+      var availability = data[0], checked = data[1] && data[1].checked;
+      if (availability && Array.isArray(availability.events) &&
+          typeof w.nvAvailFresh === 'function' && w.nvAvailFresh(checked, Date.now())){
+        w.nvApplyFreeLabels(availability.events);
+      } else {
+        w.nvResetFreeLabels();
+      }
+    }).catch(function(){ w.nvResetFreeLabels(); });
   }
 })(window);

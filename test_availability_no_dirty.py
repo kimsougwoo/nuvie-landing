@@ -29,7 +29,12 @@ def _init_repo(repo, events):
     json.dump({"updated": "2026-07-01T00:00", "note": B.NOTE, "events": events,
                "busyDates": sorted({e["date"] for e in events})},
               open(dst, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    _git(repo, "add", "availability.json")
+    # 2026-10-02: 확인 시각 파일이 없거나 3시간 넘으면 «확인만» push 한다(총괄 결정). 이 테스트들은
+    #   «변화 없음이면 아무것도 안 함»을 재므로, 방금 확인한 상태로 심는다.
+    import datetime
+    json.dump({"checked": datetime.datetime.now().isoformat(timespec="minutes")},
+              open(os.path.join(repo, B.CHECKED_FILE), "w", encoding="utf-8"))
+    _git(repo, "add", "availability.json", B.CHECKED_FILE)
     _git(repo, "commit", "-q", "-m", "init")
     return dst
 
