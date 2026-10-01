@@ -223,10 +223,14 @@ def render_gallery(room: dict) -> str:
         "transition:transform .6s cubic-bezier(.22,.61,.36,1)"
     )
     out = []
+    # 10-01: caption 이 있는 항목만 사진 아래쪽에 짧은 설명(활용 예시임을 밝힌다 — 대표 «이렇게 세팅할수 있는거에요»). 없으면 예전과 같은 마크업.
+    capstyle = ("position:absolute;left:0;right:0;bottom:0;padding:26px 12px 10px;font-size:12.5px;line-height:1.5;color:#FFFFFF;"
+                "background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.66));pointer-events:none")
     for g in room["gallery"]:
+        cap = f'<span style="{capstyle}">{esc(g["caption"])}</span>' if g.get("caption") else ""
         out.append(
             f'<div style="{cardstyle}"><img data-fallback="1" data-zoom loading="lazy" '
-            f'decoding="async" src="{esc(g["src"])}" alt="{esc(g["alt"])}" style="{imgstyle}"></div>'
+            f'decoding="async" src="{esc(g["src"])}" alt="{esc(g["alt"])}" style="{imgstyle}">{cap}</div>'
         )
     return "".join(out)
 
