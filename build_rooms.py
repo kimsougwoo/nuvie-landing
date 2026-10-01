@@ -132,6 +132,50 @@ def render_season_note(room: dict) -> str:
             f'<script>{js}</script>')
 
 
+def render_setups(room: dict, today: str | None = None) -> str:
+    """꾸며 놓았던 세팅 기록(2026-10-01 대표 «블랙호리존 꾸며놓았던 사진들 따로 섹션» · «매일 조금씩 디테일이 달라질 순 있습니다 표기»).
+    rooms.json setups 가 없으면 빈 문자열(b.html 바이트 불변). 시즌 라벨은 until(KST 날짜) 전 = «지금», 그날부터 = «지난».
+    빌드 날짜로 한 번 정하고(스크립트 없는 수집기용), 페이지 안 스크립트가 방문 날짜로 다시 맞춘다(10/31 에 빌드한 페이지도 11/1 엔 «지난»)."""
+    st = room.get("setups")
+    if not st:
+        return ""
+    season = st["season"]
+    today = today or datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d")
+    past = today >= season["until"]
+    cardstyle = (
+        "aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);"
+        "position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"
+    )
+    imgstyle = "position:absolute;inset:0;width:100%;height:100%;object-fit:cover"
+    capstyle = (
+        "position:absolute;left:0;right:0;bottom:0;padding:22px 12px 10px;font-size:12px;color:#FFFFFF;"
+        "background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.62));pointer-events:none"
+    )
+    cards = []
+    for it in st["items"]:
+        src = it["src"]
+        small = src[:-4] + "-800.jpg"
+        cards.append(
+            f'<div style="{cardstyle}"><img data-fallback="1" data-zoom loading="lazy" decoding="async" '
+            f'src="{esc(src)}" srcset="{esc(small)} 800w, {esc(src)} 825w" sizes="(max-width: 760px) 82vw, 360px" '
+            f'alt="{esc(it["alt"])} ({esc(it["date"])})" style="{imgstyle}">'
+            f'<span style="{capstyle}">{esc(it["date"])}</span></div>'
+        )
+    js = ("(function(){var s=document.getElementById('setupSeason');if(!s)return;"
+          "var today=new Date(Date.now()+9*3600*1000).toISOString().slice(0,10);var past=today>=s.dataset.until;"
+          "s.querySelector('[data-now]').hidden=past;s.querySelector('[data-past]').hidden=!past;})();")
+    return f"""<section id="setups">
+          <div class="sechead" data-reveal>
+            <span class="snum">03</span>
+            <div><div class="skick">Setups</div><h2 style="margin:0;font-size:clamp(26px,3vw,40px);letter-spacing:-.02em">{esc(st["title"])}</h2></div>
+          </div>
+          <p id="setupSeason" data-until="{esc(season["until"])}" data-reveal style="margin:0 0 8px;color:var(--ink);font-size:15px;font-weight:600"><span data-now{" hidden" if past else ""}>{esc(season["now"])}</span><span data-past{"" if past else " hidden"}>{esc(season["past"])}</span></p>
+          <p class="desc" data-reveal style="margin:0 0 30px">{esc(st["intro"])}<br>{esc(st["note"])}</p>
+          <div class="gal" data-reveal style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px">{"".join(cards)}</div>
+          <script>{js}</script>
+        </section>"""
+
+
 def render_hero_tags(room: dict) -> str:
     # ⚠️ 히어로는 테마와 무관하게 항상 어두운 사진 위다 → 테마 토큰을 쓰면 라이트에서 글자가 사라진다.
     #    고정 라이트 값으로 못박는다(2026-08-04 Stayfolio 전환 시 실제로 밟은 함정).
@@ -266,7 +310,7 @@ def render_reviews(room: dict, reviews_doc: dict) -> str:
     #    그리드가 이미 폭·여백을 잡는다(붙이면 패딩이 이중으로 걸린다).
     return f"""<section id="reviews">
       <div class="sechead" data-reveal>
-        <span class="snum">03</span>
+        <span class="snum">{"04" if room.get("setups") else "03"}</span>
         <div><div class="skick">Reviews</div><h2 style="margin:0;font-size:clamp(26px,3vw,40px);letter-spacing:-.02em">후기</h2></div>
       </div>
       <p class="desc" data-reveal style="margin:0 0 30px">아워플레이스에 남겨주신 후기예요 · 평점 {esc(rating)} / 5 · {esc(count)}건</p>
@@ -408,6 +452,7 @@ def build_page(room: dict, other: dict, catalog: dict, reviews_doc: dict, templa
         "INFO_CELLS": render_info_cells(room),
         "BLOCKS": render_blocks(room),
         "GALLERY": render_gallery(room),
+        "SETUPS": render_setups(room),
         "REVIEWS": render_reviews(room, reviews_doc),
         "PRICE_LINE": price_line,
         "PRICE_CONDITIONS": price_conditions,
