@@ -43,15 +43,18 @@ def test_page_script_flips_label_by_visit_date():
     assert "toISOString().slice(0,10)" in html and "today>=s.dataset.until" in html
 
 
-def test_owner_note_and_dates_on_every_photo():
-    html = (ROOT / "a.html").read_text(encoding="utf-8").replace(" ", " ").replace("⁠", "")
+def test_owner_note_present_and_no_shoot_dates():
+    """10-01 대표 «일자는 빼주세요» — 사진 아래 촬영일·alt 속 날짜를 쓰지 않는다(운영 기간 라벨 «10월 31일까지»는 별개)."""
+    html = (ROOT / "a.html").read_text(encoding="utf-8").replace(chr(0xa0), " ").replace(chr(0x2060), "")
     sec = re.search(r'<section id="setups">(.*?)</section>', html, re.S).group(1)
     assert "매일 조금씩 디테일이 달라질 수 있습니다" in sec
     imgs = re.findall(r"<img [^>]*>", sec)
     assert len(imgs) == len(A["setups"]["items"]) >= 8
+    assert "촬영" not in sec, "촬영일 표기가 남아 있다"
+    gallery = sec.split('<div class="gal"', 1)[1]
+    assert not re.search(r"\d+월 \d+일", gallery), "사진 쪽에 날짜가 남아 있다"
     for it in A["setups"]["items"]:
-        assert re.search(r"\d+월 \d+일 촬영", it["date"]), it
-        assert it["src"] in sec and it["date"] in sec
+        assert it["src"] in sec and "date" not in it
 
 
 def test_b_room_has_no_setups_section():

@@ -147,10 +147,7 @@ def render_setups(room: dict, today: str | None = None) -> str:
         "position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"
     )
     imgstyle = "position:absolute;inset:0;width:100%;height:100%;object-fit:cover"
-    capstyle = (
-        "position:absolute;left:0;right:0;bottom:0;padding:22px 12px 10px;font-size:12px;color:#FFFFFF;"
-        "background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.62));pointer-events:none"
-    )
+    # 10-01 대표 «일자는 빼주세요» → 사진마다 붙이던 촬영일 표기·alt 속 날짜를 뺐다(운영 기간 라벨은 위 season 이 맡는다)
     cards = []
     for it in st["items"]:
         src = it["src"]
@@ -158,8 +155,7 @@ def render_setups(room: dict, today: str | None = None) -> str:
         cards.append(
             f'<div style="{cardstyle}"><img data-fallback="1" data-zoom loading="lazy" decoding="async" '
             f'src="{esc(src)}" srcset="{esc(small)} 800w, {esc(src)} 825w" sizes="(max-width: 760px) 82vw, 360px" '
-            f'alt="{esc(it["alt"])} ({esc(it["date"])})" style="{imgstyle}">'
-            f'<span style="{capstyle}">{esc(it["date"])}</span></div>'
+            f'alt="{esc(it["alt"])}" style="{imgstyle}"></div>'
         )
     js = ("(function(){var s=document.getElementById('setupSeason');if(!s)return;"
           "var today=new Date(Date.now()+9*3600*1000).toISOString().slice(0,10);var past=today>=s.dataset.until;"

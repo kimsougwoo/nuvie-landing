@@ -183,7 +183,7 @@ def test_히어로가_테마별로_다른_룸을_쓴다():
     assert m, "HERO_BG 매핑이 사라졌다"
     blk = m.group(1)
     assert re.search(r"dark\s*:\{src:'/img/hero\.jpg'", blk), "다크 = A룸(hero.jpg) 이 아니다"
-    assert re.search(r"light\s*:\{src:'/img/room-b\.jpg'", blk), "라이트 = B룸(room-b.jpg) 이 아니다"
+    assert re.search(r"light\s*:\{src:'/img/room-b-1001\.jpg'", blk), "라이트 = B룸(room-b.jpg) 이 아니다"
     assert "paintHero(t);}" in HTML, "setTheme 이 배경을 갈아끼우지 않는다"
 
 
@@ -193,7 +193,7 @@ def test_히어로_초기_이미지가_초기_테마와_일치한다():
     초기 테마는 <body data-theme="..."> 하드코딩이고 setTheme 은 토글 때만 돈다 →
     **초기 src 는 HTML 이 정본**이라 손으로 맞춰야 하고, 그래서 조용히 어긋나기 쉽다."""
     theme = re.search(r'<body data-theme="(\w+)"', HTML).group(1)
-    want = "/img/room-b.jpg" if theme == "light" else "/img/hero.jpg"
+    want = "/img/room-b-1001.jpg" if theme == "light" else "/img/hero.jpg"   # 10-01 B룸 사진 교체(새 이름)
     hero = re.search(r'<img id="heroImg"[^>]*src="([^"]+)"', HTML)
     assert hero, "heroImg 를 못 찾음"
     assert hero.group(1) == want, (
