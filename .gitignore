@@ -23,3 +23,6 @@ img/props/
 test_build_props.py
 test_props_filter.js
 test_props_page.py
+
+# 배포 빌드 결과물(build_dist.mjs, Vercel 이 서버에서 만든다)
+dist/

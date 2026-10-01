@@ -1,0 +1,11 @@
+{
+  "name": "nuvie-landing",
+  "private": true,
+  "description": "Static landing; build step only strips comments from HTML into dist/ (sources keep their comments).",
+  "scripts": {
+    "build": "node build_dist.mjs"
+  },
+  "dependencies": {
+    "html-minifier-terser": "7.2.0"
+  }
+}
