@@ -658,3 +658,12 @@ body{word-break:keep-all;overflow-wrap:break-word}
   header.hero[data-hero-tone="light"]:not([data-hero-hub]) .herobadges>*{color:var(--ink)!important;border-color:var(--line)!important;background:transparent!important}
   header.hero[data-hero-tone="light"]:not([data-hero-hub]) .herocta .btn[data-book]{background:var(--ink)!important;color:var(--bg)!important;border-color:var(--ink)!important}
 }
+/* 10-01 /b 갤러리 영상 칸(build_rooms render_gallery · site.js wireGalVideo). PC 2열에서 13번째 칸이 홀로 남으면 가운데로. 아이콘만(글자 없음). */
+@media(min-width:641px){.gal>.galvid:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:calc(50% - 7px)}}
+.galvid-btn{position:absolute;right:10px;bottom:10px;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:rgba(0,0,0,.45);cursor:pointer;padding:0}
+.galvid-btn[hidden]{display:none}
+.galvid-btn::before,.galvid-btn::after{content:"";position:absolute;top:11px;width:4px;height:14px;background:#FFF;border-radius:1px}
+.galvid-btn::before{left:12px}.galvid-btn::after{left:20px}
+.galvid-btn[data-state="paused"]::after{display:none}
+.galvid-btn[data-state="paused"]::before{left:14px;top:10px;width:0;height:0;background:none;border-radius:0;border-style:solid;border-width:8px 0 8px 12px;border-color:transparent transparent transparent #FFF}
+.galvid-btn:focus-visible{outline:2px solid #FFF;outline-offset:2px}

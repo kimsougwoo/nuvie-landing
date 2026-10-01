@@ -227,6 +227,15 @@ def render_gallery(room: dict) -> str:
     capstyle = ("position:absolute;left:0;right:0;bottom:0;padding:26px 12px 10px;font-size:12.5px;line-height:1.5;color:#FFFFFF;"
                 "background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.66));pointer-events:none")
     for g in room["gallery"]:
+        if g.get("video"):
+            # 10-01: 영상 칸. poster·src 를 HTML 에 두지 않는다(poster 는 위치와 상관없이 바로 받아져 LCP 대역을 먹는다).
+            #   site.js wireGalVideo 가 갤러리 근처에서 채우고 화면 안에서만 재생한다. <img> 를 두지 않아 /b 동결 픽스처(갤러리 사진 목록)가 그대로다.
+            out.append(
+                f'<div class="galvid" style="{cardstyle}"><video muted loop playsinline preload="none" '
+                f'data-src="{esc(g["video"])}" data-poster="{esc(g["poster"])}" aria-label="{esc(g["alt"])}" style="{imgstyle}"></video>'
+                f'<button type="button" class="galvid-btn" aria-label="영상 일시정지" hidden></button></div>'
+            )
+            continue
         cap = f'<span style="{capstyle}">{esc(g["caption"])}</span>' if g.get("caption") else ""
         out.append(
             f'<div style="{cardstyle}"><img data-fallback="1" data-zoom loading="lazy" '
@@ -360,7 +369,7 @@ def render_jsonld(room: dict, other: dict, catalog: dict, reviews_doc: dict) -> 
         "sku": room["sku"],
         "description": room["seo"]["description"],
         "url": url,
-        "image": [SITE + g["src"] for g in room["gallery"][:4]],
+        "image": [SITE + g["src"] for g in room["gallery"] if not g.get("video")][:4],
         "brand": {"@type": "Brand", "name": "누비 스튜디오 NUVIE STUDIO"},
         "category": "코스프레 스튜디오 대관",
         "offers": offer,

@@ -217,6 +217,51 @@
     });
   }
 
+  /* 10-01 /b 갤러리 영상 칸(build_rooms render_gallery). HTML 에는 data-src·data-poster 만 있다.
+   * 갤러리 300px 앞에서 poster·src 를 채우고, 화면에 보일 때만 재생한다(LCP·대역 무영향).
+   * 움직임 줄이기 설정이면 자동재생하지 않고 버튼으로만 재생. 12초 반복이라 일시정지 버튼을 둔다(WCAG 2.2.2). */
+  function wireGalVideo(root) {
+    var cards = root.querySelectorAll('.galvid');
+    if (!cards.length) return;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    Array.prototype.forEach.call(cards, function (card) {
+      var v = card.querySelector('video'), btn = card.querySelector('.galvid-btn');
+      if (!v) return;
+      var loaded = false, inView = false, userPaused = reduce;
+      function sync() {
+        btn.setAttribute('aria-label', v.paused ? '영상 재생' : '영상 일시정지');
+        btn.setAttribute('data-state', v.paused ? 'paused' : 'playing');
+      }
+      function load() {
+        if (loaded) return;
+        loaded = true;
+        v.poster = v.getAttribute('data-poster');
+        v.src = v.getAttribute('data-src');
+        btn.hidden = false;
+        sync();
+      }
+      function tryPlay() { load(); var p = v.play(); if (p && p.catch) p.catch(function () { sync(); }); }
+      v.addEventListener('error', function () { card.style.display = 'none'; });
+      v.addEventListener('play', sync);
+      v.addEventListener('pause', sync);
+      btn.addEventListener('click', function () {
+        load();
+        if (v.paused) { userPaused = false; tryPlay(); } else { userPaused = true; v.pause(); }
+      });
+      try {
+        new IntersectionObserver(function (es) {
+          es.forEach(function (e) { if (e.isIntersecting) load(); });
+        }, { rootMargin: '300px' }).observe(card);
+        new IntersectionObserver(function (es) {
+          es.forEach(function (e) {
+            inView = e.isIntersecting;
+            if (inView && !userPaused) tryPlay(); else if (!inView && !v.paused) v.pause();
+          });
+        }, { threshold: 0.35 }).observe(card);
+      } catch (e) { load(); }
+    });
+  }
+
   function wireReveal(root) {
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
     var els = Array.prototype.slice.call(root.querySelectorAll('[data-reveal]'));
@@ -269,6 +314,7 @@
     wireHeroCta(root);
     wireTheme();
     wireImages(root);
+    wireGalVideo(root);
     wireReveal(root);
   }
 

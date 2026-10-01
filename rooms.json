@@ -262,6 +262,12 @@
         {
           "src": "/img/galB-1001-12.jpg",
           "alt": "B룸 창가 벤치와 칠판, 원형 티테이블"
+        },
+        {
+          "src": "/img/b-table-1001-poster.jpg",
+          "video": "/img/b-table-1001.mp4",
+          "poster": "/img/b-table-1001-poster.jpg",
+          "alt": "B룸 디저트 테이블과 카운터를 천천히 따라가는 영상"
         }
       ],
       "showReviews": true
