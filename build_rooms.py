@@ -299,7 +299,7 @@ def render_jsonld(room: dict, other: dict, catalog: dict, reviews_doc: dict) -> 
     offer = {
         "@type": "AggregateOffer",
         "url": url,
-        "seller": {"@type": "LocalBusiness", "@id": BUSINESS_ID, "name": "누비 스튜디오 NUVIE STUDIO", "url": "https://www.nuviestudio.com/"},
+        "seller": {"@type": "Organization", "@id": BUSINESS_ID, "name": "누비 스튜디오 NUVIE STUDIO", "url": "https://www.nuviestudio.com/"},
         "lowPrice": p["weekday"],
         "highPrice": p["weekend"],
         "priceCurrency": p["currency"],
