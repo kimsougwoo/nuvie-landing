@@ -154,6 +154,7 @@
       "name": "화이트 티타임 카페",
       "status": "open",
       "availabilityKey": "B",
+      "image": "/img/room-b-1002.jpg",
       "external": {
         "provider": "hourplace",
         "placeId": 62341
@@ -177,7 +178,7 @@
       "seo": {
         "title": "B룸 화이트 티타임 카페 — 누비 스튜디오 · 강서구 촬영 공간",
         "description": "오후 5시부터 노을까지 통창 자연광이 드는 화이트 톤 공간. 티세트·앤티크 소품, 파우더룸. 약 11평 무인 단독 대관. 까치산역 도보 10분.",
-        "ogImage": "/img/og-b-1001.jpg"
+        "ogImage": "/img/og-b-1002.jpg"
       },
       "hero": {
         "kicker": "B ROOM",
@@ -187,8 +188,8 @@
           "자리도 골라 찍어요"
         ],
         "sub": "통창으로 오후 5시부터 노을까지 자연광이 들어옵니다.<br>시간대랑 자리를 원하는 대로 골라서 찍으면 그날그날 다른 빛이 나와요.",
-        "image": "/img/room-b-1001.jpg",
-        "alt": "B룸 화이트 티타임 카페 전경 — 자연광이 드는 화이트 톤 공간에 흰 테이블 세팅"
+        "image": "/img/room-b-1002.jpg",
+        "alt": "B룸 화이트 티타임 카페 — 커피머신 카운터와 레이스 티테이블"
       },
       "blocks": [
         {
@@ -216,52 +217,48 @@
       ],
       "gallery": [
         {
-          "src": "/img/galB-1001-1.jpg",
-          "alt": "B룸 카운터 — 커피머신과 레이스 테이블 세팅"
+          "src": "/img/galB-1002-1.jpg",
+          "alt": "B룸 카운터 — 디저트 상자와 케이크 진열"
         },
         {
-          "src": "/img/galB-1001-2.jpg",
-          "alt": "B룸 창가 — 원형 티테이블과 곰인형"
+          "src": "/img/galB-1002-2.jpg",
+          "alt": "B룸 전경 — 카운터와 원형 티테이블"
         },
         {
-          "src": "/img/galB-1001-3.jpg",
-          "alt": "B룸 티세트 — 3단 디저트 스탠드와 찻잔"
+          "src": "/img/galB-1002-3.jpg",
+          "alt": "B룸 창가 — 곰인형과 원형 티테이블"
         },
         {
-          "src": "/img/galB-1001-4.jpg",
-          "alt": "B룸 창가 자리 — 레이스 커튼과 티테이블"
+          "src": "/img/galB-1002-4.jpg",
+          "alt": "B룸 창가 — 레이스 커튼과 곰인형"
         },
         {
-          "src": "/img/galB-1001-5.jpg",
-          "alt": "B룸 디저트 진열장"
+          "src": "/img/galB-1002-5.jpg",
+          "alt": "B룸 창가 자리 — 티테이블과 쿠션 의자"
         },
         {
-          "src": "/img/galB-1001-6.jpg",
-          "alt": "B룸 파우더 코너 — 조명 거울과 원목 데스크"
+          "src": "/img/galB-1002-6.jpg",
+          "alt": "B룸 디저트 스탠드 — 3단 스탠드와 찻잔"
         },
         {
-          "src": "/img/galB-1001-7.jpg",
-          "alt": "B룸 화장대 코너 — 스탠드 조명과 화분"
+          "src": "/img/galB-1002-7.jpg",
+          "alt": "B룸 디저트 — 조각 케이크 근접"
         },
         {
-          "src": "/img/galB-1001-8.jpg",
-          "alt": "B룸 거울과 촛대"
+          "src": "/img/galB-1002-8.jpg",
+          "alt": "B룸 화장대 — 조명 거울과 의자"
         },
         {
-          "src": "/img/galB-1001-9.jpg",
-          "alt": "B룸 창가 벤치와 곰인형"
+          "src": "/img/galB-1002-9.jpg",
+          "alt": "B룸 탈의 공간 — 커튼과 스팀다리미"
         },
         {
-          "src": "/img/galB-1001-10.jpg",
-          "alt": "B룸 디저트 테이블 — 3단 스탠드와 레이스 테이블"
+          "src": "/img/galB-1002-10.jpg",
+          "alt": "B룸 소품 코너 — 스탠드 조명과 화분"
         },
         {
-          "src": "/img/galB-1001-11.jpg",
-          "alt": "B룸 에스프레소 머신과 그라인더"
-        },
-        {
-          "src": "/img/galB-1001-12.jpg",
-          "alt": "B룸 창가 벤치와 칠판, 원형 티테이블"
+          "src": "/img/galB-1002-11.jpg",
+          "alt": "B룸 거울 코너 — 앤티크 거울과 촛대"
         },
         {
           "src": "/img/b-table-1001-poster.jpg",

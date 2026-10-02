@@ -28,7 +28,7 @@ def test_mgal_섹션이_존재하고_룸사진_6장을_싣는다():
     assert m, "mgal 섹션 블록을 못 찾았다"
     block = m.group(0)
     # B 전경은 B 메인이미지(room-b.jpg)를 그대로 쓴다(2026-08-22 대표 지시) — gal 패턴 + room-b 둘 다 인정
-    imgs = re.findall(r'/img/(?:gal[AB]\d|galB-1001-\d|room-b(?:-1001)?)\.jpg', block)   # 10-01 B룸 사진 교체(새 이름)
+    imgs = re.findall(r'/img/(?:gal[AB]\d|galB-1002-\d|room-b(?:-1002)?)\.jpg', block)   # 10-02 v2 B룸 사진 교체(새 이름)
     assert len(imgs) >= 6, f"갤러리 룸 사진이 6장 미만이다: {imgs}"
     assert any("galA" in i for i in imgs), "A룸 사진이 없다"
     assert any(("galB" in i) or ("room-b" in i) for i in imgs), "B룸 사진이 없다(한 룸도 편들지 않음)"

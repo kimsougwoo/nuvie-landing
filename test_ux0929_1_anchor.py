@@ -122,6 +122,7 @@ def test_b_room_own_copy_and_photos_unchanged():
     test_b_copy_fixture.json. 소개 문구·제목·설명·히어로·태그·갤러리 사진이 바뀌면 RED(11/11 해제 때 이 픽스처를 새로 뽑는다).
     2026-10-01 사진만 먼저 풀림: 대표 «보정이 완료되면, 콘텐츠 발행함 드래프트 B룸 사진들 교체해주시고, 아워 및 랜딩페이지에도 교체진행해주세요»
     + «2개 사진 추가(메인사진 교체용)» → 픽스처의 사진 항목(og_image·hero_img·gallery 의 주소·설명)만 새 사진으로 다시 뽑았다.
+    2026-10-02 예외: 대표 «측정이 섞여도 괜찮음» 승인으로 사진을 v2 로 교체했다.
     문구 항목(title·description·hero_h1·hero_tags·about)은 그대로 11/11 까지 동결이다."""
     fixture = json.loads((ROOT / "test_b_copy_fixture.json").read_text(encoding="utf-8"))
     now = _b_copy_view((ROOT / "b.html").read_text(encoding="utf-8"))

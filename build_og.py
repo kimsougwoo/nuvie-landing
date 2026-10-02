@@ -22,7 +22,7 @@ RATIO = TARGET_W / TARGET_H
 # (출력, 소스) — 소스는 룸을 한 컷으로 대표하는 이미지
 JOBS = [
     ("img/og-a.jpg", "img/hero.jpg"),
-    ("img/og-b-1001.jpg", "img/room-b-1001.jpg")   # 10-01 B룸 사진 교체(새 이름 = 캐시),
+    ("img/og-b-1002.jpg", "img/room-b-1002.jpg")   # 10-02 v2 B룸 사진 교체(새 이름 = 캐시),
 ]
 
 # ── 허브 OG (og.jpg) ──────────────────────────────────────────────────
@@ -70,7 +70,7 @@ def make_hub() -> None:
     line1, line2 = read_hub_h1()
     photo_h, half = HUB_H - HUB_BAND, HUB_W // 2
     a = cover(Image.open(ROOT / "img/hero.jpg").convert("RGB"), half, photo_h, ay=0.44)
-    b = cover(Image.open(ROOT / "img/room-b-1001.jpg").convert("RGB"), half, photo_h, ay=0.55)
+    b = cover(Image.open(ROOT / "img/room-b-1002.jpg").convert("RGB"), half, photo_h, ay=0.55)
     canvas = Image.new("RGB", (HUB_W, HUB_H), INK)
     canvas.paste(a, (0, 0)); canvas.paste(b, (half, 0))
     ImageDraw.Draw(canvas).line([(half, 0), (half, photo_h)], fill=(255, 255, 255), width=2)
