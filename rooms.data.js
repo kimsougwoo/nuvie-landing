@@ -17,7 +17,16 @@ window.NUVIE.rooms = {
       "baseGuests": 4,
       "extraGuestPerHour": 5500,
       "weekendDefinition": "토·일·공휴일",
-      "accessoryFeePerItem": 10000
+      "equipmentFees": [
+        {
+          "label": "FC-60B 세트·파보튜브 15C 각",
+          "amount": 10000
+        },
+        {
+          "label": "브이플랫",
+          "amount": 5000
+        }
+      ]
     },
     "capacity": {
       "min": 1,
@@ -41,7 +50,12 @@ window.NUVIE.rooms = {
       "baseGuests": 4,
       "extraGuestPerHour": 5500,
       "weekendDefinition": "토·일·공휴일",
-      "accessoryFeePerItem": 10000
+      "equipmentFees": [
+        {
+          "label": "브이플랫",
+          "amount": 5000
+        }
+      ]
     },
     "capacity": {
       "min": 1,

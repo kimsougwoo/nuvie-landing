@@ -91,8 +91,8 @@ def test_price_strings_come_from_rooms_json():
             p["weekday"],
             p["weekend"],
             p["extraGuestPerHour"],
-            p["accessoryFeePerItem"],
         }
+        expected.update(fee["amount"] for fee in p["equipmentFees"])
         html_text = _read(f"{slug}.html")
         found = _money_values(html_text)
         assert found == expected, (
@@ -109,7 +109,8 @@ def test_surcharge_disclosure_present():
         p = rooms_by_slug[slug]["pricing"]
         html_text = _read(f"{slug}.html")
         assert f"{p['extraGuestPerHour']:,}원" in html_text, f"{slug}.html 에 초과인원 추가요금 고지가 없다"
-        assert f"{p['accessoryFeePerItem']:,}원" in html_text, f"{slug}.html 에 액세서리 요금 고지가 없다"
+        for fee in p["equipmentFees"]:
+            assert f"{fee['amount']:,}원" in html_text, f"{slug}.html 에 장비 요금 고지가 없다"
         assert p["weekendDefinition"] in html_text, f"{slug}.html 에 주말 정의가 없다"
         assert f"{p['baseGuests']}인 기준" in html_text, f"{slug}.html 에 기준 인원 표기가 없다"
 
