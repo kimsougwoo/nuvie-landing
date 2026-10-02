@@ -638,7 +638,7 @@ body{word-break:keep-all;overflow-wrap:break-word}
 [data-hero-tone="light"] .heroScrim{background:linear-gradient(180deg,rgba(6,6,7,.80) 0%,rgba(6,6,7,.44) 9%,rgba(6,6,7,0) 19%),linear-gradient(0deg,rgba(6,6,7,.62) 0%,rgba(6,6,7,.25) 14%,rgba(6,6,7,0) 26%),linear-gradient(90deg,rgba(6,6,7,.76) 0%,rgba(6,6,7,.68) 40%,rgba(6,6,7,.42) 54%,rgba(6,6,7,.10) 68%,rgba(6,6,7,0) 82%),linear-gradient(180deg,rgba(6,6,7,0) 0%,rgba(6,6,7,0) 55%,rgba(6,6,7,.55) 100%)!important}
 [data-hero-tone="light"] h1,[data-hero-tone="light"] p,[data-hero-tone="light"] .herotop,[data-hero-tone="light"] [data-reveal]{text-shadow:0 1px 14px rgba(0,0,0,.45)}
 @media(max-width:760px){[data-hero-tone="light"] .heroScrim{background:linear-gradient(180deg,rgba(6,6,7,.06) 0%,rgba(6,6,7,.50) 14%,rgba(6,6,7,.64) 32%,rgba(6,6,7,.76) 56%,rgba(6,6,7,.92) 100%)!important}}
-@media(max-width:760px){[data-hero-tone="light"][data-hero-hub] .heroScrim{background:linear-gradient(180deg,rgba(6,6,7,.08) 0%,rgba(6,6,7,.56) 9%,rgba(6,6,7,.64) 30%,rgba(6,6,7,.76) 56%,rgba(6,6,7,.92) 100%)!important}}   /* 홈은 첫 화면이 길어 키커가 위 10% 지점 */
+@media(max-width:760px){[data-hero-tone="light"][data-hero-hub] .heroScrim{background:linear-gradient(180deg,rgba(6,6,7,.50) 0%,rgba(6,6,7,.60) 9%,rgba(6,6,7,.64) 30%,rgba(6,6,7,.76) 56%,rgba(6,6,7,.92) 100%)!important}}   /* 홈은 첫 화면이 길어 키커가 위 10% 지점 · 10-02 B 첫 화면이 밝은 벽(01)으로 바뀌어 키커 대비 2.87 → 위 끝 .08→.50 */
 [data-hero-tone="light"] .herotop{color:#FFFFFF!important}   /* 반투명(.8) 흰 글자는 밝은 사진 위에서 대비가 모자란다 */
 [data-hero-tone="light"] .btn,[data-hero-tone="light"] .btn *{text-shadow:none!important}   /* 흰 버튼 안 검은 글자에는 그림자를 주지 않는다 */
 /* 2026-10-01 /b 모바일 첫 화면 = «사진 띠 + 글자 판»(9a 중계, 대표 «어두워보입니다 모두»). 모바일에선 글자가 첫 화면의 86%를 덮어
