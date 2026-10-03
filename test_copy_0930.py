@@ -25,7 +25,7 @@ def _room(slug):
     return ({x["slug"]: x for x in rooms} if isinstance(rooms, list) else rooms)[slug]
 
 
-NEW_SUB = "조명 색과 각도, 소품과 천의 자리를 직접 정하는 룸이에요.<br>꾸민 만큼 사진이 달라져요."
+NEW_SUB = "조명 색과 각도, 소품과 천의 자리를 원하는 장면에 맞춰 바꿀 수 있는 룸이에요."
 
 
 def test_a_hero_sub_is_self_directed_not_a_promise():

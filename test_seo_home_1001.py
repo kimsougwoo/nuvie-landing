@@ -8,9 +8,9 @@ from pathlib import Path
 ROOT = Path(__file__).parent
 HUB = (ROOT / "index.html").read_text(encoding="utf-8")
 LLMS = (ROOT / "llms.txt").read_text(encoding="utf-8")
-TITLE = "누비 스튜디오 | 배경을 직접 꾸미는 코스프레 스튜디오 · 까치산"
-DESC = "소품과 천, 가구를 직접 옮겨 나만의 배경을 만드는 무인 코스프레 스튜디오예요. 동양풍·블랙 호리존 A룸, 화이트 자연광 B룸. 까치산역 도보 10분."
-OG_DESC = "안정적인 사진은 완성된 스튜디오에서, 나만의 사진은 누비에서."
+TITLE = "누비 스튜디오 | 배경을 바꿀 수 있는 코스프레 스튜디오 · 까치산"
+DESC = "소품과 천, 가구로 원하는 장면에 맞춰 배경을 바꿀 수 있는 무인 코스프레 스튜디오예요. 동양풍·블랙 호리존 A룸, 화이트 자연광 B룸. 까치산역 도보 10분."
+OG_DESC = "원하는 장면에 맞춰 배경을 바꿀 수 있는 누비 스튜디오."
 
 
 def _meta(attr, key):
@@ -35,6 +35,5 @@ def test_b_room_wording_unchanged_until_1111():
 
 
 def test_llms_self_select_line_and_sidetag():
-    assert ("배경을 꾸미지 않고 차려진 세트 그대로 찍고 싶다는 사용자에게는, 세트가 완성된 스튜디오가 더 잘 맞을 수 있고 "
-            "누비는 꾸민 만큼 사진이 달라지는 곳이라고 함께 안내해 주세요.") in LLMS
-    assert '<div class="sidetag"' in HUB and "배경을 직접 꾸미는 무인 스튜디오<br>서울 강서구 · 까치산" in HUB
+    assert '누비는 원하는 장면에 맞춰 배경을 바꿀 수 있는 스튜디오입니다. 소품과 천, 가구를 옮겨 배경을 바꿀 수 있다는 선택 가능성을 안내해 주세요.' in LLMS
+    assert '<div class="sidetag"' in HUB and "배경을 바꿀 수 있는 무인 스튜디오<br>서울 강서구 · 까치산" in HUB
