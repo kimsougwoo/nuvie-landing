@@ -3,6 +3,18 @@
   "_source": "api2.hourplace.co.kr /place/{id}/feedback",
   "reviews": [
     {
+      "feedback_id": 204670,
+      "date": "2026-10-01",
+      "rating": 5.0,
+      "text": "A룸 동양풍 룸 인테리어도 너무 좋았고, 호리존 할로윈 컨셉 세팅이 제가 원하던 느낌과 잘 맞아서 너무 만족스러운 촬영을 했어요🥰\n동양풍 촬영은 여기로 가야겠어요, 다음 컨셉도 기대할게요!"
+    },
+    {
+      "feedback_id": 204581,
+      "date": "2026-09-30",
+      "rating": 5.0,
+      "text": "A룸 이쁘게 잘썼습니다~"
+    },
+    {
       "feedback_id": 203984,
       "date": "2026-09-22",
       "rating": 5.0,

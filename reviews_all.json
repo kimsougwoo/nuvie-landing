@@ -1,10 +1,29 @@
 {
-  "updated": "2026-09-22",
+  "updated": "2026-10-01",
   "source": "A+B 통합(메인 집계)",
   "rating": 5.0,
-  "count": 23,
+  "count": 25,
   "auto": "hourplace_reviews_scrape (2026-08-25 대표 지시로 완전 자동·수동 큐레이션 폐기)",
   "reviews": [
+    {
+      "name": "YU***",
+      "date": "2026-10-01",
+      "rating": 5,
+      "text": "A룸 동양풍 룸 인테리어도 너무 좋았고, 호리존 할로윈 컨셉 세팅이 제가 원하던 느낌과 잘 맞아서 너무 만족스러운 촬영을 했어요🥰\n동양풍 촬영은 여기로 가야겠어요, 다음 컨셉도 기대할게요!",
+      "photos": [
+        "https://img.hourplace.co.kr/feedback/user/243412/2026/10/01/a2955f2d-0bb7-48ad-95ec-78078c2edd9c.jpg",
+        "https://img.hourplace.co.kr/feedback/user/243412/2026/10/01/2e4706fb-e872-4684-92c1-0bd529f0237e.jpg"
+      ]
+    },
+    {
+      "name": "ct***",
+      "date": "2026-09-30",
+      "rating": 5,
+      "text": "A룸 이쁘게 잘썼습니다~",
+      "photos": [
+        "https://img.hourplace.co.kr/feedback/user/185666/2026/09/30/89a90d83-1990-446e-a72a-909dba59a5e9"
+      ]
+    },
     {
       "name": "이후***",
       "date": "2026-09-22",
