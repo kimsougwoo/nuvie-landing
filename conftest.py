@@ -31,3 +31,16 @@ def availability_alerts(monkeypatch):
     except Exception:
         pass
     yield sent
+
+
+@pytest.fixture(autouse=True)
+def availability_resolves(monkeypatch):
+    resolved = []
+    try:
+        import build_availability as BA
+    except Exception:
+        yield resolved
+        return
+    if hasattr(BA, "_resolve"):
+        monkeypatch.setattr(BA, "_resolve", lambda key, msg: resolved.append((key, msg)))
+    yield resolved

@@ -444,6 +444,22 @@ def _alert(key, msg):
         print(f"  (경보 전송 실패 — {type(e).__name__})")
 
 
+def _resolve(key, msg):
+    """열려 있는 예약현황 경보를 해소한다. 알림 경로 오류는 실행을 막지 않는다."""
+    try:
+        try:
+            import nuvie_morning.report as R
+        except Exception:
+            # 단독 실행(cwd=Projects\nuvie-landing) 시엔 홈(C:\Users\kgr96)이 path에 없음 → 보강 후 재시도
+            home = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            if home not in sys.path:
+                sys.path.insert(0, home)
+            import nuvie_morning.report as R
+        R.alert_resolved(key, msg)
+    except Exception as e:
+        print(f"  (경보 해소 실패 — {type(e).__name__})")
+
+
 def _alert_fetch_fail(msg):
     """두 예약 피드 모두 실패했을 때 쓰는 호환 경보 래퍼."""
     _alert("availability_fetch_down", msg)
@@ -526,6 +542,42 @@ def push_changes(repo, n_events):
         pr = subprocess.run(["git", "-C", repo, "pull", "--rebase", "origin", "main"],
                             capture_output=True, text=True, encoding="utf-8", errors="replace")
         if pr.returncode != 0:
+            rebase_in_progress = False
+            for rebase_dir in ("rebase-merge", "rebase-apply"):
+                state = subprocess.run(
+                    ["git", "-C", repo, "rev-parse", "--git-path", rebase_dir],
+                    capture_output=True, text=True, encoding="utf-8", errors="replace")
+                if state.returncode != 0:
+                    continue
+                state_path = (state.stdout or "").strip()
+                if not state_path:
+                    continue
+                if not os.path.isabs(state_path):
+                    state_path = os.path.join(repo, state_path)
+                if os.path.isdir(state_path):
+                    rebase_in_progress = True
+                    break
+
+            if not rebase_in_progress:
+                # git 이 rebase 시작을 거부하는 건 «추적 파일»의 미커밋 변경 때문이다. 미추적 파일만
+                #   있으면 거부 사유가 아니므로(네트워크 실패를 편집 탓으로 오분류 방지) 추적 변경만 센다.
+                tracked = subprocess.run(
+                    ["git", "-C", repo, "status", "--porcelain", "--untracked-files=no"],
+                    capture_output=True, text=True, encoding="utf-8", errors="replace")
+                tracked_dirty = {line[3:].strip().strip('"') for line in (tracked.stdout or "").splitlines()
+                                 if line[3:].strip()} - {"availability.json", CHECKED_FILE}
+                if tracked.returncode == 0 and tracked_dirty:
+                    msg = ("작업 중인 미커밋 편집이 있어 원격 최신본을 받지 못했습니다(충돌 아님). "
+                           "편집을 커밋하거나 정리하면 다음 회차에 자동으로 반영됩니다.")
+                    print(f"  {msg} 변경 파일: {sorted(tracked_dirty)[:5]}")
+                    _alert("availability_push_failed", msg)
+                    return False
+                stderr = (pr.stderr or "")[:150]
+                msg = f"원격 가져오기 단계 실패(네트워크·인증·원격 저장소 확인 필요): {stderr}"
+                print(f"  {msg}")
+                _alert("availability_push_failed", msg)
+                return False
+
             subprocess.run(["git", "-C", repo, "rebase", "--abort"], capture_output=True)
             # 🔧 2026-07-23: 충돌 자가치유. availability.json은 봇 전용이라, 스톨된 로컬 커밋이
             #   이 파일만 건드렸다면 origin에 맞추고(스냅샷 폐기) 신선본은 다음 30분 런이 재생성한다.
@@ -554,6 +606,7 @@ def push_changes(repo, n_events):
             return False
         stage = "push"
         subprocess.run(["git", "-C", repo, "push", "origin", "main"], check=True)
+        _resolve("availability_push_failed", "예약현황 원격 반영이 정상화되었습니다.")
         print("  변경 감지 → rebase+push 완료 (Vercel 자동 재배포)")
         return True
     except Exception as e:
@@ -598,16 +651,25 @@ def main(argv=None, repo=None):
         print("  history 저장 실패(무시, 본 기능 계속):", e)
 
     events, fetched_ok, fetch_failed = compute_events(env, today, old_events, problems=problems)
+    if fetched_ok > 0:
+        _resolve("availability_fetch_down", "예약 피드 조회가 정상화되었습니다.")
 
     alert_keys = {
         "config": "availability_config_missing",
         "feed": "availability_feed_failed",
         "unreadable": "availability_unreadable_events",
     }
+    resolve_messages = {
+        "config": "예약현황 설정이 정상입니다.",
+        "feed": "예약현황 피드 조회가 정상입니다.",
+        "unreadable": "예약 일정 읽기가 정상입니다.",
+    }
     for kind, key in alert_keys.items():
         messages = [message for problem_kind, message in problems if problem_kind == kind]
         if messages:
             _alert(key, "\n".join(messages))
+        else:
+            _resolve(key, resolve_messages[kind])
 
     has_unavailable_feed = any(
         kind == "feed" or (kind == "config" and message.startswith("ICAL_URL_"))
@@ -617,6 +679,8 @@ def main(argv=None, repo=None):
         _alert("availability_previous_unreadable",
                "직전 availability.json을 읽을 수 없고 조회 실패 또는 설정 누락 피드가 있어 파일 갱신을 중단했습니다.")
         print("  ❌ 직전 availability.json 손상 + 미조회 피드 — 파일 미갱신·push 스킵")
+    elif not previous_unreadable:
+        _resolve("availability_previous_unreadable", "직전 예약현황 파일을 정상적으로 읽었습니다.")
 
     if fetched_ok == 0:
         # 신선 페치 0건 → 직전 availability.json을 **그대로 둔다**(빈값 덮어쓰기 = 예약된 날이
