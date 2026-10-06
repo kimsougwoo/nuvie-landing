@@ -412,6 +412,16 @@ def compute_events(env, today, old_events, problems=None):
     return events, fetched_ok, fetch_failed
 
 
+OWNER_BY_KEY = {
+    "availability_fetch_down": "fyi",
+    "availability_config_missing": ("todo", "예약 피드 주소(.env) 설정을 넣어 주세요"),
+    "availability_feed_failed": "fyi",
+    "availability_unreadable_events": "fyi",
+    "availability_previous_unreadable": "fyi",
+    "availability_push_failed": "fyi",
+}
+
+
 def _alert(key, msg):
     """예약현황 문제를 6시간 쿨다운으로 알린다. 알림 경로 오류는 실행을 막지 않는다."""
     titles = {
@@ -437,7 +447,10 @@ def _alert(key, msg):
             alert_msg = R.alert_text(icon, title, what=str(msg), impact=impact, action=action)
         except Exception:
             alert_msg = str(msg)
-        sent = R.alert_throttled(key, alert_msg, hours=6)
+        # 10-06 A2: #이상감지 첫 줄 라벨. 피드·git·파일 문제는 AI(개발팀)가 처리하므로 «할 일 없음»,
+        #   피드 주소 같은 설정값은 대표가 넣는 값이라 «대표님 할 일»(엔진 report owner= 와 짝).
+        owner = OWNER_BY_KEY.get(key, ("todo", "예약현황 알림을 확인해 주세요"))
+        sent = R.alert_throttled(key, alert_msg, hours=6, owner=owner)
         if isinstance(sent, tuple) and sent and sent[0] is False:
             print("  (경보 전송 실패 또는 비활성화)")
     except Exception as e:
