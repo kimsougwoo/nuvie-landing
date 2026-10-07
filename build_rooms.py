@@ -16,6 +16,7 @@ from ko_glue import glue_html, _glue_inner
 
 import html
 import json
+import re
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -28,6 +29,24 @@ BUSINESS_ID = f"{SITE}/#business"
 def esc(s: str) -> str:
     """속성/텍스트 공용 이스케이프. 카피에 이미 <br> 이 들어있는 필드에는 쓰지 않는다."""
     return html.escape(str(s), quote=True)
+
+
+def format_business_phone(tel: str) -> str:
+    """화면 표기용 전화번호. 원본은 rooms.json business.tel 이며 임의 번호는 두지 않는다."""
+    digits = re.sub(r"\D", "", tel)
+    if len(digits) != 11:
+        raise SystemExit("[build_rooms] business.tel 은 11자리 국내 번호여야 한다")
+    return f"{digits[:3]}-{digits[3:7]}-{digits[7:]}"
+
+
+def render_footer_lines(room: dict, phone_display: str) -> str:
+    """B룸의 기존 인라인 푸터는 유지하고, 여러 줄 푸터는 줄바꿈으로 잇는다."""
+    lines = room["footerLines"]
+    if not isinstance(lines, list) or not lines:
+        raise SystemExit(f"[build_rooms] {room['slug']}: footerLines 는 비어 있지 않은 배열이어야 한다")
+    lines = [line.replace("{business.tel}", phone_display) for line in lines]
+    rendered = "<br>".join(esc(line) for line in lines)
+    return (" / " if len(lines) == 1 else "<br>") + rendered
 
 
 def won(n: int) -> str:
@@ -401,7 +420,7 @@ def render_jsonld(room: dict, other: dict, catalog: dict, reviews_doc: dict) -> 
 # ---------------------------------------------------------------- 페이지 조립
 
 
-def build_page(room: dict, other: dict, catalog: dict, reviews_doc: dict, template: str) -> str:
+def build_page(room: dict, other: dict, catalog: dict, business: dict, reviews_doc: dict, template: str) -> str:
     p = room["pricing"]
     price_line = (
         f'평일 <b style="font-weight:700">{won(p["weekday"])}</b> / '
@@ -431,6 +450,7 @@ def build_page(room: dict, other: dict, catalog: dict, reviews_doc: dict, templa
         else "예약·결제를 이 페이지에서 바로 진행하실 수 있어요."
     )
     hero = room["hero"]
+    phone_display = format_business_phone(business["tel"])
     if len(hero["h1"]) != 2:
         raise SystemExit(f"[build_rooms] {room['slug']}: hero.h1 은 2줄이어야 한다")
     # h1 첫 줄 상한. 공백은 한글 글자보다 훨씬 좁으므로 폭 기준에서 제외한다
@@ -477,6 +497,8 @@ def build_page(room: dict, other: dict, catalog: dict, reviews_doc: dict, templa
         "OTHER_LABEL": esc(other["label"]),
         "OTHER_NAME": esc(other["name"]),
         "OTHER_SLUG": other["slug"],
+        "INQUIRY_LINE": esc(room["inquiryLine"]),
+        "FOOTER_LINES": render_footer_lines(room, phone_display),
     }
     out = template
     for k, v in repl.items():
@@ -589,7 +611,7 @@ def generate() -> dict[str, str]:
     template = (ROOT / "room.template.html").read_text(encoding="utf-8")
     reviews_by_place = _load_reviews_by_place()
 
-    catalog, rooms = spec["catalog"], spec["rooms"]
+    catalog, rooms, business = spec["catalog"], spec["rooms"], spec["business"]
 
     # 후기 정본 가드 — 룸엔 «그 룸 place 의» 후기만 붙인다(다른 place 후기 = 거짓 사회적 증거).
     for r in rooms:
@@ -603,7 +625,7 @@ def generate() -> dict[str, str]:
     for i, room in enumerate(rooms):
         other = rooms[(i + 1) % len(rooms)]
         reviews_doc = reviews_by_place.get(int(room["external"]["placeId"]), {"reviews": []})
-        out[f"{room['slug']}.html"] = build_page(room, other, catalog, reviews_doc, template)
+        out[f"{room['slug']}.html"] = build_page(room, other, catalog, business, reviews_doc, template)
     out["rooms.data.js"] = build_rooms_data(rooms, catalog)
     out["sitemap.xml"] = build_sitemap(rooms)
     return out

@@ -10,6 +10,9 @@
     "  · availabilityKey 는 availability.json events[].room 과 맞춰 둔다 — 그게 슬롯 재고가 된다.",
     "  · 예약된 URL 공간(지금 쓰지 말 것): /book/<slug> · /checkout · /orders"
   ],
+  "business": {
+    "tel": "07082111103"
+  },
   "catalog": {
     "currency": "KRW",
     "unit": "hour",
@@ -23,6 +26,11 @@
   "rooms": [
     {
       "slug": "a",
+      "inquiryLine": "문의는 전화(10:00~19:00) 또는 아워플레이스 메시지",
+      "footerLines": [
+        "예약: 아워플레이스",
+        "문의: 전화 {business.tel}(10:00~19:00) · 아워플레이스 메시지"
+      ],
       "sku": "ROOM-A",
       "label": "A룸",
       "name": "동양풍 & 블랙 호리존",
@@ -158,6 +166,8 @@
     },
     {
       "slug": "b",
+      "inquiryLine": "문의는 아워플레이스 메시지",
+      "footerLines": ["예약·문의: 아워플레이스"],
       "sku": "ROOM-B",
       "label": "B룸",
       "name": "화이트 티타임 카페",
