@@ -10,6 +10,12 @@ def test_home_footer_shows_registered_mail_order_number():
     assert "통신판매업 신고번호: 2026-서울강서-2507" in index
 
 
+def test_mail_order_number_does_not_break_mid_number_on_mobile():
+    # 10-08 aside 390px 실측: 번호가 «2026-» / «서울강서-2507» 로 두 줄에 갈렸다.
+    index = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert '<span style="white-space:nowrap">통신판매업 신고번호: 2026-서울강서-2507</span>' in index
+
+
 def test_home_footer_links_to_ftc_business_check_safely():
     index = (ROOT / "index.html").read_text(encoding="utf-8")
     match = re.search(
