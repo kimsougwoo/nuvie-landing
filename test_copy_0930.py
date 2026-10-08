@@ -98,7 +98,7 @@ def test_allday_faq_contact_is_phone_and_group_answer_links_to_it():
     allday = allday[:allday.index("</details>")]
     assert "x.com/nuvie_studio" not in allday
     assert '<br>올데이권은 아워플레이스 상품이 아니라 개별 문의로 잡아 드려요.<br>전화 <a href="tel:07082111103" style="color:var(--accent)">070-8211-1103</a>(10:00~19:00)으로 날짜·시간·인원을 알려 주세요.' in allday
-    assert allday.count('<br>') == 7, '주제별 다섯 줄 + 한 줄 안 두 문장은 문장 끝에서 한 번 더(대표 «전부 줄바꿈»)'
+    assert allday.count('<br>') == 6, '10-09 «9시간» 줄 삭제로 7→6 · 주제별 다섯 줄 + 한 줄 안 두 문장은 문장 끝에서 한 번 더(대표 «전부 줄바꿈»)'
     assert "문자" not in allday and 'href="sms:' not in html
     details = [d for d in re.findall(r"<details\b.*?</details>", html, re.S) if "몇 명까지 이용할 수 있나요?" in d]
     assert details and 'href="#allday"' in details[0] and "올데이권(12시간) 문의" in details[0]
