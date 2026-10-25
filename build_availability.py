@@ -8,7 +8,7 @@ r"""
 사용:  python build_availability.py            # 생성만
        python build_availability.py --push     # 변경 시에만 git commit+push (30분 스케줄용)
 """
-import os, re, json, datetime, urllib.request, subprocess, sys
+import os, re, json, datetime, urllib.request, subprocess, sys, shutil
 
 # 콘솔 인코딩 가드(2026-07-24): 작업 스케줄러로 돌면 stdout이 cp949라, 예약이 있는 날
 # print하는 em-dash("예약 — OK")에서 UnicodeEncodeError로 죽었다 → CS_Watch RC=1 데드맨.
@@ -22,6 +22,9 @@ except Exception:
 ENV = r"F:\무인 렌탈스튜디오 인수\.env"
 CHECKED_FILE = "availability_checked.json"
 CHECKED_PUSH_EVERY_H = 3
+# 2026-10-25 — 10-15 이후 «git» 을 PATH 에서 못 찾아(WinError 2) availability 커밋·푸시가
+#   전부 죽었다(사이트 예약현황 10-14 집결). 절대 경로 폴백으로 고정한다.
+GIT = shutil.which("git") or r"C:\Program Files\Git\cmd\git.exe"
 
 # ⚠️ 2026-07-29(과거 예약 누적): 아워플레이스 iCal은 과거 예약을 보존하지 않는다(실측 오늘 이전
 # VEVENT 0건) → 폴링 스냅샷을 안 남기면 지나간 예약은 영구 소실된다. 표시 여부는 아직 미정이라
@@ -487,13 +490,13 @@ def _worktree_dirty_besides_availability(repo):
     ⚠️ 추적 안 되는 파일(`??`)도 센다 — 새로 쓰던 파일이 제일 위험하다(git 에 사본이 없다).
     ⚠️ 판정 불가(git 실패)면 **「더럽다」고 본다** — 모르면 파괴하지 않는 쪽으로 기운다.
     """
-    top = subprocess.run(["git", "-C", repo, "rev-parse", "--show-toplevel"],
+    top = subprocess.run([GIT, "-C", repo, "rev-parse", "--show-toplevel"],
                          capture_output=True, text=True, encoding="utf-8", errors="replace")
     if top.returncode != 0:
         return {"(git rev-parse 실패 — 안전을 위해 더럽다고 본다)"}
     if os.path.realpath((top.stdout or "").strip()) != os.path.realpath(str(repo)):
         return {"(git 저장소 루트 불일치 — 안전을 위해 더럽다고 본다)"}
-    st = subprocess.run(["git", "-C", repo, "status", "--porcelain"],
+    st = subprocess.run([GIT, "-C", repo, "status", "--porcelain"],
                         capture_output=True, text=True, encoding="utf-8", errors="replace")
     if st.returncode != 0:
         return {"(git status 실패 — 안전을 위해 더럽다고 본다)"}
@@ -537,14 +540,14 @@ def push_changes(repo, n_events):
         add_paths = ["availability.json"]
         if os.path.exists(os.path.join(repo, CHECKED_FILE)):
             add_paths.append(CHECKED_FILE)
-        subprocess.run(["git", "-C", repo, "add"] + add_paths, check=True)
-        staged = subprocess.run(["git", "-C", repo, "diff", "--cached", "--name-only"],
+        subprocess.run([GIT, "-C", repo, "add"] + add_paths, check=True)
+        staged = subprocess.run([GIT, "-C", repo, "diff", "--cached", "--name-only"],
                                 capture_output=True, text=True, encoding="utf-8", errors="replace",
                                 check=True)
         availability_changed = "availability.json" in (staged.stdout or "").splitlines()
         message_kind = ("갱신(자동 30분)" if availability_changed
                         else "확인(자동 3시간)")
-        subprocess.run(["git", "-C", repo,
+        subprocess.run([GIT, "-C", repo,
                         "-c", "user.name=kimsougwoo",
                         "-c", "user.email=143887564+kimsougwoo@users.noreply.github.com",
                         "commit", "-q", "-m", f"예약현황 {message_kind}: 예약 {n_events}건"], check=True)
@@ -552,13 +555,13 @@ def push_changes(repo, n_events):
         # 강제덮어쓰기 없이 availability 커밋을 그 위에 리베이스(split-brain·수동수정 유실 방지).
         # availability.json은 봇 전용이라 index.html 등 수동파일과 충돌 사실상 없음.
         stage = "rebase"
-        pr = subprocess.run(["git", "-C", repo, "pull", "--rebase", "origin", "main"],
+        pr = subprocess.run([GIT, "-C", repo, "pull", "--rebase", "origin", "main"],
                             capture_output=True, text=True, encoding="utf-8", errors="replace")
         if pr.returncode != 0:
             rebase_in_progress = False
             for rebase_dir in ("rebase-merge", "rebase-apply"):
                 state = subprocess.run(
-                    ["git", "-C", repo, "rev-parse", "--git-path", rebase_dir],
+                    [GIT, "-C", repo, "rev-parse", "--git-path", rebase_dir],
                     capture_output=True, text=True, encoding="utf-8", errors="replace")
                 if state.returncode != 0:
                     continue
@@ -575,7 +578,7 @@ def push_changes(repo, n_events):
                 # git 이 rebase 시작을 거부하는 건 «추적 파일»의 미커밋 변경 때문이다. 미추적 파일만
                 #   있으면 거부 사유가 아니므로(네트워크 실패를 편집 탓으로 오분류 방지) 추적 변경만 센다.
                 tracked = subprocess.run(
-                    ["git", "-C", repo, "status", "--porcelain", "--untracked-files=no"],
+                    [GIT, "-C", repo, "status", "--porcelain", "--untracked-files=no"],
                     capture_output=True, text=True, encoding="utf-8", errors="replace")
                 tracked_dirty = {line[3:].strip().strip('"') for line in (tracked.stdout or "").splitlines()
                                  if line[3:].strip()} - {"availability.json", CHECKED_FILE}
@@ -591,12 +594,12 @@ def push_changes(repo, n_events):
                 _alert("availability_push_failed", msg)
                 return False
 
-            subprocess.run(["git", "-C", repo, "rebase", "--abort"], capture_output=True)
+            subprocess.run([GIT, "-C", repo, "rebase", "--abort"], capture_output=True)
             # 🔧 2026-07-23: 충돌 자가치유. availability.json은 봇 전용이라, 스톨된 로컬 커밋이
             #   이 파일만 건드렸다면 origin에 맞추고(스냅샷 폐기) 신선본은 다음 30분 런이 재생성한다.
             #   과거엔 abort 후 그냥 return False → 커밋이 영구 적체(ahead 누적)돼 스톨했다.
             #   ⚠️ 다른 파일이 섞였으면 자동 폐기 위험 → 종전대로 보류(수동 확인).
-            diff = subprocess.run(["git", "-C", repo, "diff", "--name-only", "origin/main..HEAD"],
+            diff = subprocess.run([GIT, "-C", repo, "diff", "--name-only", "origin/main..HEAD"],
                                   capture_output=True, text=True, encoding="utf-8", errors="replace")
             touched = {f.strip() for f in (diff.stdout or "").splitlines() if f.strip()}
             dirty = _worktree_dirty_besides_availability(repo)
@@ -610,7 +613,7 @@ def push_changes(repo, n_events):
                       f"reset --hard 를 돌리면 그 작업이 사라진다(사람이 정리한 뒤 자동 회복).")
                 _alert("availability_push_failed", "rebase 충돌 후 미커밋 작업이 있어 자가치유 보류 — 수동 정리 필요")
             elif touched and touched <= {"availability.json", CHECKED_FILE}:
-                subprocess.run(["git", "-C", repo, "reset", "--hard", "origin/main"], check=True)
+                subprocess.run([GIT, "-C", repo, "reset", "--hard", "origin/main"], check=True)
                 print("  rebase 충돌 → availability 전용 로컬커밋이라 origin에 맞춤(다음 런 재생성). 스톨 자가치유.")
             else:
                 print(f"  rebase 충돌 → push 보류(availability 외 변경 {sorted(touched)} 有, 수동 확인):",
@@ -618,7 +621,7 @@ def push_changes(repo, n_events):
                 _alert("availability_push_failed", "rebase 충돌 후 수동 확인이 필요해 push 보류")
             return False
         stage = "push"
-        subprocess.run(["git", "-C", repo, "push", "origin", "main"], check=True)
+        subprocess.run([GIT, "-C", repo, "push", "origin", "main"], check=True)
         _resolve("availability_push_failed", "예약현황 원격 반영이 정상화되었습니다.")
         print("  변경 감지 → rebase+push 완료 (Vercel 자동 재배포)")
         return True
@@ -752,7 +755,7 @@ def main(argv=None, repo=None):
             print("  변경 없음 → push 생략")
             # dirty-잔류 방지(멱등): 과거 버그로 남았을 수 있는 타임스탬프-only 오염을 되돌려
             #   다음 런의 pull --rebase가 막히지 않게 한다. 변경 없으니 되돌려도 무손실.
-            subprocess.run(["git", "-C", repo, "checkout", "--", "availability.json"],
+            subprocess.run([GIT, "-C", repo, "checkout", "--", "availability.json"],
                            capture_output=True)
             return True
         return bool(push_changes(repo, len(events)))
