@@ -10,9 +10,6 @@ const TOUCH_KEYS = [
   'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
   'gclid', 'fbclid', 'landing_path', 'referrer_origin', 'captured_at'
 ];
-const NOTION_WRITE_ATTEMPTS = 3;
-const NOTION_RETRY_DELAYS_MS = [300, 900];
-
 function clip(value, limit) {
   return String(value == null ? '' : value).trim().slice(0, limit);
 }
@@ -119,32 +116,20 @@ function allowedOrigin(origin) {
   return !origin || origin === configured || runtimeOrigins.includes(origin) || origin === 'http://localhost:3000' || origin === 'http://127.0.0.1:3000';
 }
 
-function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 async function createNotionLead(notionBody, token) {
-  let lastError;
-  for (let attempt = 0; attempt < NOTION_WRITE_ATTEMPTS; attempt += 1) {
-    try {
-      const response = await fetch('https://api.notion.com/v1/pages', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'Notion-Version': process.env.NOTION_VERSION || DEFAULT_NOTION_VERSION
-        },
-        body: JSON.stringify(notionBody)
-      });
-      if (response.ok) return;
-      lastError = new Error(`Notion write failed with status ${response.status || 'unknown'}`);
-    } catch (error) {
-      lastError = error;
-    }
-
-    if (attempt < NOTION_WRITE_ATTEMPTS - 1) await delay(NOTION_RETRY_DELAYS_MS[attempt]);
+  // A lost POST response may already have created the page; never auto-repeat it.
+  const response = await fetch('https://api.notion.com/v1/pages', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'Notion-Version': process.env.NOTION_VERSION || DEFAULT_NOTION_VERSION
+    },
+    body: JSON.stringify(notionBody)
+  });
+  if (!response.ok) {
+    throw new Error(`Notion write failed with status ${response.status || 'unknown'}`);
   }
-  throw lastError || new Error('Notion write failed');
 }
 
 function safeUtmValue(value) {
