@@ -3,6 +3,24 @@
   "_source": "api2.hourplace.co.kr /place/{id}/feedback",
   "reviews": [
     {
+      "feedback_id": 208180,
+      "date": "2026-11-13",
+      "rating": 5.0,
+      "text": "스튜디오가 깔끔하고 장비가 신품이라 편하게 촬영했습니다.\n\n다음에 동양풍 스튜디오가 필요하면 또 이용할 것 같아요"
+    },
+    {
+      "feedback_id": 207349,
+      "date": "2026-11-03",
+      "rating": 5.0,
+      "text": "쾌적한 환경과 많은 삼각대가 저를 반겨주며 재밌고 좋은 촬영 하고갑니다~"
+    },
+    {
+      "feedback_id": 207249,
+      "date": "2026-11-02",
+      "rating": 5.0,
+      "text": "깔끔하고 좋았습니다!"
+    },
+    {
       "feedback_id": 205925,
       "date": "2026-10-18",
       "rating": 5.0,

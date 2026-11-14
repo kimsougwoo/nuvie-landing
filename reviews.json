@@ -1,11 +1,38 @@
 {
-  "updated": "2026-10-18",
+  "updated": "2026-11-13",
   "source": "아워플레이스 A룸 후기 (자동)",
   "place_id": 61823,
   "rating": 5.0,
-  "count": 23,
+  "count": 26,
   "auto": "hourplace_reviews_scrape (2026-08-25 대표 지시로 완전 자동·수동 큐레이션 폐기)",
   "reviews": [
+    {
+      "name": "te***",
+      "date": "2026-11-13",
+      "rating": 5,
+      "text": "스튜디오가 깔끔하고 장비가 신품이라 편하게 촬영했습니다.\n\n다음에 동양풍 스튜디오가 필요하면 또 이용할 것 같아요",
+      "photos": [
+        "https://img.hourplace.co.kr/feedback/user/217608/2026/11/13/e0a0f288-390f-4403-9cab-237985bd9311",
+        "https://img.hourplace.co.kr/feedback/user/217608/2026/11/13/f81cb636-7263-46d6-a685-2a8cdf7b24e3"
+      ]
+    },
+    {
+      "name": "ck***",
+      "date": "2026-11-03",
+      "rating": 5,
+      "text": "쾌적한 환경과 많은 삼각대가 저를 반겨주며 재밌고 좋은 촬영 하고갑니다~",
+      "photos": [
+        "https://img.hourplace.co.kr/feedback/user/216926/2026/11/03/914defca-7d1f-4846-980c-2a73f124feed.jpg",
+        "https://img.hourplace.co.kr/feedback/user/216926/2026/11/03/3dddf5e3-6611-4c6e-bfc3-e16f8af1b5cc.jpg"
+      ]
+    },
+    {
+      "name": "ju***",
+      "date": "2026-11-02",
+      "rating": 5,
+      "text": "깔끔하고 좋았습니다!",
+      "photos": []
+    },
     {
       "name": "sj***",
       "date": "2026-10-18",
