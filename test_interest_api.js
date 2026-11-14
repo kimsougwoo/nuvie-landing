@@ -46,7 +46,7 @@ function restoreEnv(name, value) {
   else process.env[name] = value;
 }
 
-test('retries a failed Notion write three times, then sends a PII-free lead failure alert', async () => {
+test('attempts the Notion write once (no retry — lost POST response duplicate guard 9936a6b), then sends a PII-free lead failure alert', async () => {
   const previousFetch = global.fetch;
   const previousSetTimeout = global.setTimeout;
   const previousToken = process.env.NOTION_TOKEN;
@@ -77,7 +77,7 @@ test('retries a failed Notion write three times, then sends a PII-free lead fail
 
     assert.equal(res.statusCode, 502);
     assert.deepEqual(res.body, { ok: false, error: 'submission failed' });
-    assert.equal(notionCalls.length, 3);
+    assert.equal(notionCalls.length, 1);  // 9936a6b: 응답 손실 POST 재시도 = 리드 중복 → 의도 단발
     assert.equal(alertCalls.length, 1);
     const alertPayload = JSON.stringify(JSON.parse(alertCalls[0].options.body));
     for (const pii of ['홍길동', 'lead.owner@example.com', '01012345678', '010-1234-5678']) {
@@ -138,7 +138,7 @@ test('does not crash or attempt an alert when the lead webhook is not configured
   try {
     const res = await call(valid);
     assert.equal(res.statusCode, 502);
-    assert.equal(calls, 3);
+    assert.equal(calls, 1);  // 9936a6b 단발 설계 — 재시도 없음
   } finally {
     global.fetch = previousFetch;
     global.setTimeout = previousSetTimeout;
