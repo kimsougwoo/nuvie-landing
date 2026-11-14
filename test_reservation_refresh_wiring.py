@@ -7,7 +7,8 @@ import build_availability as BA
 
 
 LANDING = Path(r"C:\Users\kgr96\Projects\nuvie-landing")
-RUNNER = Path(r"C:\Users\kgr96\nuvie_morning\run_cs_watch.bat")
+# 11-08 드라이브 분할: 코드 정본 = 엔진 런타임 (홈의 nuvie_morning 은 D:\nuvie_morning 데이터 junction으로 대체됨)
+RUNNER = Path(r"C:\Users\kgr96\nuvie-engine-runtime\nuvie_morning\run_cs_watch.bat")
 
 
 def test_cs_watch_points_to_the_actual_landing_repo_and_log():
@@ -23,7 +24,8 @@ def test_cs_watch_points_to_the_actual_landing_repo_and_log():
 
 def test_cs_watch_keeps_the_hidden_launcher_and_working_home():
     text = RUNNER.read_text(encoding="utf-8")
-    assert "cd /d C:\\Users\\kgr96" in text
+    # 11-08 이후 런처는 자기 위치 기준 cd (엔진 루트 = 코드 정본) — 구 «cd /d C:\Users\kgr96» 관습 대체
+    assert 'cd /d "%~dp0.."' in text
     assert "nuvie_morning\\booking_watch.py" not in text
 
 
