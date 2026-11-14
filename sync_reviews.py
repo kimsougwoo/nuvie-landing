@@ -154,7 +154,12 @@ def scrape_live() -> dict:
     """nuvie_morning 스크래이프를 서브프로세스로 호출(홈 repo·브라우저 세션 사용)."""
     proc = subprocess.run(
         [sys.executable, "-m", "nuvie_morning.hourplace_reviews_scrape"],
-        capture_output=True, text=True, encoding="utf-8", cwd=r"C:\Users\kgr96",
+        capture_output=True, text=True, encoding="utf-8",
+        # -m 의 sys.path[0]=cwd. 홈(C:\Users\kgr96)에서 돌리면 홈의 «nuvie_morning»
+        # (11-08 드라이브 분할 후 D:\nuvie_morning junction = 로그·데이터 전용)가
+        # 네임스페이스 패키지 그림자가 되어 hourplace_reviews_scrape 가 «실종» 처리된다
+        # (11-15 05:03 실측 No module named, 11-09부터 주간마다 반복). 엔진 루트 = 진짜 패키지.
+        cwd=r"C:\Users\kgr96\nuvie-engine-runtime",
     )
     if proc.returncode != 0 or not (proc.stdout or "").strip():
         raise SystemExit(f"[sync_reviews] 스크래이프 실패 rc={proc.returncode}: {(proc.stderr or '')[:300]}")
