@@ -111,6 +111,17 @@ html{scroll-behavior:smooth}
      대로 두 테마 모두 흰 채움(다크 테마 값과 같다). 🧊 /b 는 11/11 동결(B_UNFREEZE_1111.md). */
   body:not([data-frozen]) .herocta .btn[data-book]{background:#F5F5F6;color:#0B0B0C}
   body:not([data-frozen]) .herocta .btn[data-book]:hover{background:#D9D9DC}
+  /* 2026-11-16 라우터 권고 «랜딩사이트개선»(rec 35a8248a4776, 대표 승인·직결 수행): desktop 세션 +74%(35→61)인데
+     desktop 이동률 3.3%(mobile 11.0%), 예약클릭 8→6. 1440×900 실측 근거:
+     ① 히어로 주 CTA #hero-book «예약 가능 시간 →»은 #availability(5447px, 읽기 전용 달력)로 가고, 최단 예약 경로는
+       #rooms(903px, 룸 카드에 예약 버튼) — desktop에서 «룸 · 요금 보기»(#hero-rooms)를 앞으로 swap.
+       CSS order만 쓴다: DOM·id·href·hero_cta_click 계측과 모바일(≤1199px) 순서는 그대로.
+     ② 헤더 «A룸 예약/B룸 예약»이 1440px에서 84×43px 좌우 변두리(.book a 9px 18px·13.5px) → wide 화면만 확대.
+     .herocta는 index.html 인라인 display:flex — order 동작. ≤920px(195행)·≤380px(226행) 규칙과 중첩 없음. */
+@media(min-width:1200px){
+  .herocta #hero-book{order:2}
+  .book a{padding:12px 22px;font-size:15px}
+}
   /* ── 룸 카드 그리드 (2026-08-04 정보구조 재편) ──────────────────────
      Stayfolio 홈은 **큰 사진 카드가 사진을 나르고** 별도 갤러리 섹션이 없다.
      허브는 「고르는 곳」이고 상세는 /a·/b 가 맡는다 — 그래서 카드는 사진·이름·한 줄·태그까지만.
