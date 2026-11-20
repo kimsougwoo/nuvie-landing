@@ -50,9 +50,20 @@
         "baseGuests": 4,
         "extraGuestPerHour": 5500,
         "weekendDefinition": "토·일·공휴일",
+        "freeEquipment": [
+          "지속광 3대",
+          "순간광 2대(동조기 포함)",
+          "모디파이어 7종",
+          "스탠드 7대",
+          "붐암 1개"
+        ],
         "equipmentFees": [
           {
-            "label": "FC-60B 세트·파보튜브 15C 각",
+            "label": "FC-60B 세트",
+            "amount": 10000
+          },
+          {
+            "label": "파보튜브 15C",
             "amount": 10000
           },
           {
@@ -188,6 +199,11 @@
         "baseGuests": 4,
         "extraGuestPerHour": 5500,
         "weekendDefinition": "토·일·공휴일",
+        "freeEquipment": [
+          "지속광 1대",
+          "팔각 소프트박스",
+          "스탠드 5대"
+        ],
         "equipmentFees": [
           {
             "label": "브이플랫",
@@ -230,7 +246,7 @@
         },
         {
           "head": "미리 알아두세요",
-          "body": "흐린 날이나 저녁 이후엔 자연광이 약할 수 있어요.<br>자연광은 날씨 영향을 받아 정확한 예측은 어렵습니다.<br>옮긴 가구는 사용 후 원래 자리로 돌려주세요."
+          "body": "흐린 날이나 저녁 이후엔 자연광이 약할 수 있어요.<br>자연광은 날씨 영향을 받아 정확한 예측은 어렵습니다.<br>커피머신은 촬영 소품이라 사용은 어렵습니다.<br>옮긴 가구는 사용 후 원래 자리로 돌려주세요."
         }
       ],
       "tags": [

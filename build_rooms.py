@@ -431,14 +431,18 @@ def build_page(room: dict, other: dict, catalog: dict, business: dict, reviews_d
     # 추가요금 고지 — 룸 페이지엔 FAQ 가 없어 조건이 통째로 빠져 있었다(2026-08-04 검수).
     # CTA 를 태우는 페이지에서 조건을 숨기면 기대 불일치 = 보이스 1층(정직) 위반이다.
     # 10-01 대표(9a 중계): 문장 두 개를 잇는 « · » 는 줄바꿈으로 바꾼다(짧은 항목 목록인 가격 줄은 « · » 그대로).
-    equipment_fee_text = ", ".join(
+    # 11-20 대표: 무료/유료 장비는 세 면(메인·/a·/b)이 같은 문형으로 적는다.
+    #   무료 = rooms.json freeEquipment 목록, 유료 = equipmentFees(품목별 금액).
+    free_note = ""
+    if p.get("freeEquipment"):
+        free_note = "비치 조명은 무료입니다 — " + " · ".join(p["freeEquipment"]) + "<br>"
+    equipment_fee_text = " · ".join(
         f'{fee["label"]} {won(fee["amount"])}' for fee in p["equipmentFees"]
     )
-    equipment_fee_unit = " 하나" if len(p["equipmentFees"]) == 1 else ""
-    equipment_fee_note = f'유료 장비는 {equipment_fee_text}{equipment_fee_unit}(대관 1회당, 이용 시간과 무관)'
+    equipment_fee_note = f'유료 장비(대관 1회당, 이용 시간과 무관) — {equipment_fee_text}'
     price_conditions = (
-        f'{p["baseGuests"] + 1}인째부터 시간당 {won(p["extraGuestPerHour"])}이 자동 추가돼요 · '
-        f'{equipment_fee_note}<br>'
+        f'{p["baseGuests"] + 1}인째부터 시간당 {won(p["extraGuestPerHour"])}이 자동 추가돼요<br>'
+        f'{free_note}{equipment_fee_note}<br>'
         f'주말은 {p["weekendDefinition"]} 기준<br>실제 결제 금액은 예약 페이지에서 확인하실 수 있어요.'
     )
     # ⚠️ 룸 간 가격 비교 금지(대표 2026-07-26): 이 페이지엔 이 룸 값만 적는다.

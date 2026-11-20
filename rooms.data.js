@@ -17,9 +17,20 @@ window.NUVIE.rooms = {
       "baseGuests": 4,
       "extraGuestPerHour": 5500,
       "weekendDefinition": "토·일·공휴일",
+      "freeEquipment": [
+        "지속광 3대",
+        "순간광 2대(동조기 포함)",
+        "모디파이어 7종",
+        "스탠드 7대",
+        "붐암 1개"
+      ],
       "equipmentFees": [
         {
-          "label": "FC-60B 세트·파보튜브 15C 각",
+          "label": "FC-60B 세트",
+          "amount": 10000
+        },
+        {
+          "label": "파보튜브 15C",
           "amount": 10000
         },
         {
@@ -50,6 +61,11 @@ window.NUVIE.rooms = {
       "baseGuests": 4,
       "extraGuestPerHour": 5500,
       "weekendDefinition": "토·일·공휴일",
+      "freeEquipment": [
+        "지속광 1대",
+        "팔각 소프트박스",
+        "스탠드 5대"
+      ],
       "equipmentFees": [
         {
           "label": "브이플랫",
