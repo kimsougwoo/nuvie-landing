@@ -3,6 +3,18 @@
   "_source": "api2.hourplace.co.kr /place/{id}/feedback",
   "reviews": [
     {
+      "feedback_id": 208860,
+      "date": "2026-11-21",
+      "rating": 5.0,
+      "text": "예쁘고 좋아요~~ 다음에 또 이용할께요~!! 😍😍❤️❤️"
+    },
+    {
+      "feedback_id": 208586,
+      "date": "2026-11-18",
+      "rating": 5.0,
+      "text": "처음 사용해봤는데 진짜진짜 넓고 소품 배경 퀄리티도 너무 좋고 조명도 너무 좋아요! 다음엔 꼭 동양풍쪽도 사용해보고 싶습니다.\n만족도 별 5개!!✨⭐️🌟"
+    },
+    {
       "feedback_id": 208180,
       "date": "2026-11-13",
       "rating": 5.0,
