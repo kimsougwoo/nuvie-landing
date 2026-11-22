@@ -35,7 +35,7 @@ window.NUVIE.rooms = {
           "amount": 10000
         },
         {
-          "label": "브이플랫",
+          "label": "브이플랫(1대·A·B 공용)",
           "amount": 5000
         }
       ]
@@ -69,7 +69,7 @@ window.NUVIE.rooms = {
       ],
       "equipmentFees": [
         {
-          "label": "브이플랫",
+          "label": "브이플랫(1대·A·B 공용)",
           "amount": 5000
         }
       ]

@@ -68,7 +68,7 @@
       "amount": 10000
      },
      {
-      "label": "브이플랫",
+      "label": "브이플랫(1대·A·B 공용)",
       "amount": 5000
      }
     ]
@@ -259,7 +259,7 @@
     ],
     "equipmentFees": [
      {
-      "label": "브이플랫",
+      "label": "브이플랫(1대·A·B 공용)",
       "amount": 5000
      }
     ]
