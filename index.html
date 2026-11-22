@@ -1213,11 +1213,11 @@
     function isAvailabilityFresh(checked){
       try{return typeof window.nvAvailFresh==='function'&&window.nvAvailFresh(checked,Date.now());}catch(e){return false;}
     }
-    var checkedPromise=fetch('/availability_checked.json',{cache:'no-store'})
+    var checkedPromise=fetch('/availability_checked.json?t='+Date.now(),{cache:'no-store'})
       .then(function(r){if(!r.ok)throw new Error('checked fetch failed');return r.json();})
       .then(function(d){return d&&typeof d.checked==='string'?d.checked:null;})
       .catch(function(){return null;});
-    fetch('/availability.json',{cache:'no-store'})
+    fetch('/availability.json?t='+Date.now(),{cache:'no-store'})
       .then(function(r){if(!r.ok)throw new Error('fetch failed');return r.json();})
       .then(function(d){return checkedPromise.then(function(checked){
         if(d&&Array.isArray(d.events)){
@@ -1250,6 +1250,8 @@
   renderCal();              // 즉시 빈 달력
   loadAvailability();       // 실데이터
   setInterval(loadAvailability, 30*60*1000);  // 30분마다 갱신
+    // 11-22: 백그라운드 탭은 타이머가 스로틀돼 «6시간 늦음» 배너가 남았다 — 탭 복귀 즉시 재조회.
+    document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')loadAvailability();});
 
   // image fallback (없으면 그라데이션+라벨로 graceful)
   root.querySelectorAll('img[data-fallback]').forEach(function(img){

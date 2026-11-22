@@ -114,11 +114,11 @@
   // Room pages do not load the calendar, so they fetch the same file here. The hub calls nvApplyFreeLabels after its own fetch.
   if (typeof document !== 'undefined' && typeof fetch === 'function' && document.querySelector('.sticky-book a[data-book]')){
     Promise.all([
-      fetch('/availability.json', {cache: 'no-store'}).then(function(r){
+      fetch('/availability.json?t=' + Date.now(), {cache: 'no-store'}).then(function(r){
         if (!r.ok) throw new Error('availability fetch failed');
         return r.json();
       }),
-      fetch('/availability_checked.json', {cache: 'no-store'}).then(function(r){
+      fetch('/availability_checked.json?t=' + Date.now(), {cache: 'no-store'}).then(function(r){
         if (!r.ok) throw new Error('checked fetch failed');
         return r.json();
       })
