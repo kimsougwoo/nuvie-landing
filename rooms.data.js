@@ -37,10 +37,6 @@ window.NUVIE.rooms = {
         {
           "label": "브이플랫",
           "amount": 5000
-        },
-        {
-          "label": "검정 폼보드(폴리)",
-          "amount": 5000
         }
       ]
     },
@@ -74,10 +70,6 @@ window.NUVIE.rooms = {
       "equipmentFees": [
         {
           "label": "브이플랫",
-          "amount": 5000
-        },
-        {
-          "label": "검정 폼보드(폴리)",
           "amount": 5000
         }
       ]
