@@ -22,7 +22,8 @@ window.NUVIE.rooms = {
         "순간광 2대(동조기 포함)",
         "모디파이어 7종",
         "스탠드 7대",
-        "붐암 1개"
+        "붐암 1개",
+        "스모그머신(무료)"
       ],
       "equipmentFees": [
         {
@@ -35,6 +36,10 @@ window.NUVIE.rooms = {
         },
         {
           "label": "브이플랫",
+          "amount": 5000
+        },
+        {
+          "label": "검정 폼보드(폴리)",
           "amount": 5000
         }
       ]
@@ -69,6 +74,10 @@ window.NUVIE.rooms = {
       "equipmentFees": [
         {
           "label": "브이플랫",
+          "amount": 5000
+        },
+        {
+          "label": "검정 폼보드(폴리)",
           "amount": 5000
         }
       ]

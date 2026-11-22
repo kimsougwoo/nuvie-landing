@@ -1,313 +1,374 @@
 {
-  "_doc": [
-    "룸 상품 정본(SSOT). 룸 페이지(a.html·b.html)·JSON-LD·허브 카드가 전부 이 파일에서 나온다.",
-    "값을 HTML 에 손으로 적지 말 것 — build_rooms.py 가 여기서 생성한다(이중기재 금지).",
-    "",
-    "🔜 PortOne V2 자사몰 전환 대비:",
-    "  · 룸 = 상품. pricing 은 결제 모듈이 그대로 먹을 수 있게 정수 KRW·단위·최소수량으로 적는다.",
-    "  · fulfillment.mode 가 유일한 전환 스위치다. 지금 'external'(아워플레이스 위탁) →",
-    "    결제 붙는 날 'own' 으로 바꾸면 예약 CTA 목적지가 자사 체크아웃으로 넘어간다(booking.js).",
-    "  · availabilityKey 는 availability.json events[].room 과 맞춰 둔다 — 그게 슬롯 재고가 된다.",
-    "  · 예약된 URL 공간(지금 쓰지 말 것): /book/<slug> · /checkout · /orders"
-  ],
-  "business": {
-    "tel": "07082111103"
-  },
-  "catalog": {
-    "currency": "KRW",
+ "_doc": [
+  "룸 상품 정본(SSOT). 룸 페이지(a.html·b.html)·JSON-LD·허브 카드가 전부 이 파일에서 나온다.",
+  "값을 HTML 에 손으로 적지 말 것 — build_rooms.py 가 여기서 생성한다(이중기재 금지).",
+  "",
+  "🔜 PortOne V2 자사몰 전환 대비:",
+  "  · 룸 = 상품. pricing 은 결제 모듈이 그대로 먹을 수 있게 정수 KRW·단위·최소수량으로 적는다.",
+  "  · fulfillment.mode 가 유일한 전환 스위치다. 지금 'external'(아워플레이스 위탁) →",
+  "    결제 붙는 날 'own' 으로 바꾸면 예약 CTA 목적지가 자사 체크아웃으로 넘어간다(booking.js).",
+  "  · availabilityKey 는 availability.json events[].room 과 맞춰 둔다 — 그게 슬롯 재고가 된다.",
+  "  · 예약된 URL 공간(지금 쓰지 말 것): /book/<slug> · /checkout · /orders"
+ ],
+ "business": {
+  "tel": "07082111103"
+ },
+ "catalog": {
+  "currency": "KRW",
+  "unit": "hour",
+  "taxIncluded": true,
+  "fulfillment": {
+   "mode": "external",
+   "provider": "hourplace",
+   "note": "예약·결제·정산 전부 아워플레이스. 자사 결제는 흑자 게이트 통과 후 PortOne V2."
+  }
+ },
+ "rooms": [
+  {
+   "slug": "a",
+   "inquiryLine": "문의는 전화(10:00~19:00) 또는 아워플레이스 메시지",
+   "footerLines": [
+    "예약: 아워플레이스",
+    "문의: 전화 {business.tel}(10:00~19:00) · 아워플레이스 메시지"
+   ],
+   "sku": "ROOM-A",
+   "label": "A룸",
+   "name": "동양풍 & 블랙 호리존",
+   "status": "open",
+   "availabilityKey": "A",
+   "external": {
+    "provider": "hourplace",
+    "placeId": 61823
+   },
+   "pricing": {
+    "weekday": 40000,
+    "weekend": 45000,
+    "minHours": 2,
     "unit": "hour",
+    "currency": "KRW",
     "taxIncluded": true,
-    "fulfillment": {
-      "mode": "external",
-      "provider": "hourplace",
-      "note": "예약·결제·정산 전부 아워플레이스. 자사 결제는 흑자 게이트 통과 후 PortOne V2."
-    }
-  },
-  "rooms": [
+    "baseGuests": 4,
+    "extraGuestPerHour": 5500,
+    "weekendDefinition": "토·일·공휴일",
+    "freeEquipment": [
+     "지속광 3대",
+     "순간광 2대(동조기 포함)",
+     "모디파이어 7종",
+     "스탠드 7대",
+     "붐암 1개",
+     "스모그머신(무료)"
+    ],
+    "equipmentFees": [
+     {
+      "label": "FC-60B 세트",
+      "amount": 10000
+     },
+     {
+      "label": "파보튜브 15C",
+      "amount": 10000
+     },
+     {
+      "label": "브이플랫",
+      "amount": 5000
+     },
+     {
+      "label": "검정 폼보드(폴리)",
+      "amount": 5000
+     }
+    ]
+   },
+   "capacity": {
+    "min": 1,
+    "max": 4
+   },
+   "seo": {
+    "title": "A룸 동양풍·블랙 호리존 | 배경을 바꿀 수 있는 코스프레 스튜디오 누비",
+    "description": "월동문·격자문 동양풍 세트와 블랙 호리존(4M × 2.5M × 2.3M)을 한 룸에서. 천장 커튼레일 드레이핑, 소품·천 자유 배치. 까치산역 도보 10분 무인 단독 대관.",
+    "ogImage": "/img/og-a.jpg"
+   },
+   "hero": {
+    "kicker": "A ROOM",
+    "h1": [
+     "내가 원하는대로",
+     "세팅 할 수 있습니다"
+    ],
+    "sub": "조명 색과 각도, 소품과 천의 자리를 원하는 장면에 맞춰 바꿀 수 있는 룸이에요.",
+    "image": "/img/hero.jpg",
+    "alt": "누비 스튜디오 A룸 동양풍 블랙 호리존 세트"
+   },
+   "seasonNote": {
+    "text": "지금 A룸 블랙 호리존에는 할로윈 세팅이 있습니다 · 10월 31일까지",
+    "until": "2026-11-01"
+   },
+   "setups": {
+    "title": "블랙 호리존을 이렇게 꾸몄어요",
+    "intro": "그동안 블랙 호리존에 꾸며 놓았던 세팅 기록이에요.",
+    "note": "매일 조금씩 디테일이 달라질 수 있습니다.",
+    "season": {
+     "until": "2026-11-01",
+     "now": "할로윈 세팅 · 10월 31일까지",
+     "past": "지난 세팅 · 2026년 할로윈(9~10월)"
+    },
+    "items": [
+     {
+      "src": "/img/aset-1001-1.jpg",
+      "alt": "A룸 블랙 호리존 할로윈 세팅 — 정면"
+     },
+     {
+      "src": "/img/aset-1001-2.jpg",
+      "alt": "A룸 블랙 호리존 할로윈 세팅 — 가까이"
+     },
+     {
+      "src": "/img/aset-1001-9.jpg",
+      "alt": "A룸 블랙 호리존 할로윈 세팅 — 붉은 천과 이끼 바위"
+     },
+     {
+      "src": "/img/aset-1001-3.jpg",
+      "alt": "A룸 블랙 호리존 할로윈 세팅 — 붉은 조명 없이 어두운 톤"
+     },
+     {
+      "src": "/img/aset-1001-10.jpg",
+      "alt": "A룸 블랙 호리존 할로윈 세팅 — 붉은 금박 천과 붉은 등, 촛불"
+     },
+     {
+      "src": "/img/aset-1001-4.jpg",
+      "alt": "A룸 블랙 호리존 할로윈 세팅 — 밝은 조명"
+     },
+     {
+      "src": "/img/aset-1001-5.jpg",
+      "alt": "A룸 블랙 호리존 할로윈 세팅 — 병풍을 둔 옆모습"
+     },
+     {
+      "src": "/img/aset-1001-6.jpg",
+      "alt": "A룸 블랙 호리존 할로윈 세팅 — 붉은·파란 조명"
+     },
+     {
+      "src": "/img/aset-1001-7.jpg",
+      "alt": "A룸 블랙 호리존 할로윈 세팅 — 보라 조명"
+     },
+     {
+      "src": "/img/aset-1001-8.jpg",
+      "alt": "A룸 블랙 호리존 할로윈 세팅 — 전경"
+     },
+     {
+      "src": "/img/aset-1001-11.jpg",
+      "alt": "A룸 블랙 호리존 세팅 — 흰 쉬폰과 초서 천, 대나무와 바둑판"
+     }
+    ]
+   },
+   "faqLinks": [
+    [
+     "취소·환불",
+     "/#faq-refund"
+    ],
+    [
+     "인원",
+     "/#faq-pax"
+    ],
+    [
+     "단체·올데이권",
+     "/#allday"
+    ]
+   ],
+   "blocks": [
     {
-      "slug": "a",
-      "inquiryLine": "문의는 전화(10:00~19:00) 또는 아워플레이스 메시지",
-      "footerLines": [
-        "예약: 아워플레이스",
-        "문의: 전화 {business.tel}(10:00~19:00) · 아워플레이스 메시지"
-      ],
-      "sku": "ROOM-A",
-      "label": "A룸",
-      "name": "동양풍 & 블랙 호리존",
-      "status": "open",
-      "availabilityKey": "A",
-      "external": {
-        "provider": "hourplace",
-        "placeId": 61823
-      },
-      "pricing": {
-        "weekday": 40000,
-        "weekend": 45000,
-        "minHours": 2,
-        "unit": "hour",
-        "currency": "KRW",
-        "taxIncluded": true,
-        "baseGuests": 4,
-        "extraGuestPerHour": 5500,
-        "weekendDefinition": "토·일·공휴일",
-        "freeEquipment": [
-          "지속광 3대",
-          "순간광 2대(동조기 포함)",
-          "모디파이어 7종",
-          "스탠드 7대",
-          "붐암 1개"
-        ],
-        "equipmentFees": [
-          {
-            "label": "FC-60B 세트",
-            "amount": 10000
-          },
-          {
-            "label": "파보튜브 15C",
-            "amount": 10000
-          },
-          {
-            "label": "브이플랫",
-            "amount": 5000
-          }
-        ]
-      },
-      "capacity": {
-        "min": 1,
-        "max": 4
-      },
-      "seo": {
-        "title": "A룸 동양풍·블랙 호리존 | 배경을 바꿀 수 있는 코스프레 스튜디오 누비",
-        "description": "월동문·격자문 동양풍 세트와 블랙 호리존(4M × 2.5M × 2.3M)을 한 룸에서. 천장 커튼레일 드레이핑, 소품·천 자유 배치. 까치산역 도보 10분 무인 단독 대관.",
-        "ogImage": "/img/og-a.jpg"
-      },
-      "hero": {
-        "kicker": "A ROOM",
-        "h1": [
-          "내가 원하는대로",
-          "세팅 할 수 있습니다"
-        ],
-        "sub": "조명 색과 각도, 소품과 천의 자리를 원하는 장면에 맞춰 바꿀 수 있는 룸이에요.",
-        "image": "/img/hero.jpg",
-        "alt": "누비 스튜디오 A룸 동양풍 블랙 호리존 세트"
-      },
-      "seasonNote": {
-        "text": "지금 A룸 블랙 호리존에는 할로윈 세팅이 있습니다 · 10월 31일까지",
-        "until": "2026-11-01"
-      },
-      "setups": {
-        "title": "블랙 호리존을 이렇게 꾸몄어요",
-        "intro": "그동안 블랙 호리존에 꾸며 놓았던 세팅 기록이에요.",
-        "note": "매일 조금씩 디테일이 달라질 수 있습니다.",
-        "season": {"until": "2026-11-01", "now": "할로윈 세팅 · 10월 31일까지", "past": "지난 세팅 · 2026년 할로윈(9~10월)"},
-        "items": [
-          {"src": "/img/aset-1001-1.jpg", "alt": "A룸 블랙 호리존 할로윈 세팅 — 정면"},
-          {"src": "/img/aset-1001-2.jpg", "alt": "A룸 블랙 호리존 할로윈 세팅 — 가까이"},
-          {"src": "/img/aset-1001-9.jpg", "alt": "A룸 블랙 호리존 할로윈 세팅 — 붉은 천과 이끼 바위"},
-          {"src": "/img/aset-1001-3.jpg", "alt": "A룸 블랙 호리존 할로윈 세팅 — 붉은 조명 없이 어두운 톤"},
-          {"src": "/img/aset-1001-10.jpg", "alt": "A룸 블랙 호리존 할로윈 세팅 — 붉은 금박 천과 붉은 등, 촛불"},
-          {"src": "/img/aset-1001-4.jpg", "alt": "A룸 블랙 호리존 할로윈 세팅 — 밝은 조명"},
-          {"src": "/img/aset-1001-5.jpg", "alt": "A룸 블랙 호리존 할로윈 세팅 — 병풍을 둔 옆모습"},
-          {"src": "/img/aset-1001-6.jpg", "alt": "A룸 블랙 호리존 할로윈 세팅 — 붉은·파란 조명"},
-          {"src": "/img/aset-1001-7.jpg", "alt": "A룸 블랙 호리존 할로윈 세팅 — 보라 조명"},
-          {"src": "/img/aset-1001-8.jpg", "alt": "A룸 블랙 호리존 할로윈 세팅 — 전경"},
-          {"src": "/img/aset-1001-11.jpg", "alt": "A룸 블랙 호리존 세팅 — 흰 쉬폰과 초서 천, 대나무와 바둑판"}
-        ]
-      },
-      "faqLinks": [["취소·환불", "/#faq-refund"], ["인원", "/#faq-pax"], ["단체·올데이권", "/#allday"]],
-      "blocks": [
-        {
-          "head": "동양풍",
-          "body": "월동문 너머로 펼쳐지는 공간.<br>다양한 소품과 천을 비치해, 같은 공간에서도 나만의 독창적인 연출을 하실 수 있도록 열어두었습니다."
-        },
-        {
-          "head": "블랙 호리존",
-          "body": "천장 커튼레일로 천을 드레이핑해 자유로운 연출이 가능합니다(가로 4M × 세로 2.5M × 높이 2.3M)."
-        },
-        {
-          "head": "천장 연출",
-          "body": "월동문 위와 문가벽 상단에도 커튼레일을 달아두었습니다.<br>아쉬운 천장을 원하시는 색 천으로 덮으실 수 있습니다."
-        },
-        {
-          "head": "미리 알아두세요",
-          "body": "자연광을 원하시면 B룸이 더 맞습니다 — A룸은 자연광이 들어오지 않아요.<br>조명 세팅은 게스트가 직접 하셔야 합니다 — 정해진 기본값은 없어요.<br>먼저 찍고 싶은 한 컷을 정하고, 그 뒤에 둘 것 하나부터 옮겨 보세요.<br>진열 선반 하나만 세워도 배경이 달라져요.<br>블랙 호리존에서는 맨발이나 실내화로, 신발을 신으시면 바닥에 마스킹테이프를 붙여 주세요(비치돼 있어요).<br>엘리베이터가 없는 4층이고 건물 주차장이 없어요.<br>색 조명 장비 일부(파보튜브 등)는 유료 옵션입니다.<br>옮긴 소품은 사용 후 원래 자리로 돌려주세요."
-        }
-      ],
-      "tags": [
-        "월동문",
-        "블랙 호리존",
-        "한 룸, 두 컨셉"
-      ],
-      "gallery": [
-        {
-          "src": "/img/galA0.jpg",
-          "alt": "A룸 동양풍 블랙 호리존 — 월문과 격자문 세트"
-        },
-        {
-          "src": "/img/galA1.jpg",
-          "alt": "A룸 동양풍 월문 백라이트"
-        },
-        {
-          "src": "/img/galA2.jpg",
-          "alt": "A룸 격자문 세트"
-        },
-        {
-          "src": "/img/galA3.jpg",
-          "alt": "A룸 동양풍 디테일"
-        },
-        {
-          "src": "/img/galA4.jpg",
-          "alt": "A룸 블랙 호리존"
-        },
-        {
-          "src": "/img/galA5.jpg",
-          "alt": "A룸 조명·뒷공간(조명 셋업 공간)"
-        },
-        {
-          "src": "/img/galA-1001-6.jpg",
-          "alt": "A룸 원창 세트 — 평상과 격자 난간, 서예 천(밝은 조명)"
-        },
-        {
-          "src": "/img/galA-1001-7.jpg",
-          "alt": "블랙 호리존의 할로윈 소품을 원창 앞 동양풍 공간으로 옮겨 꾸민 예",
-          "caption": "블랙 호리존 소품을 옮겨 꾸민 예"
-        }
-      ],
-      "showReviews": true
+     "head": "동양풍",
+     "body": "월동문 너머로 펼쳐지는 공간.<br>다양한 소품과 천을 비치해, 같은 공간에서도 나만의 독창적인 연출을 하실 수 있도록 열어두었습니다."
     },
     {
-      "slug": "b",
-      "inquiryLine": "문의는 아워플레이스 메시지",
-      "footerLines": ["예약·문의: 아워플레이스"],
-      "sku": "ROOM-B",
-      "label": "B룸",
-      "name": "화이트 티타임 카페",
-      "status": "open",
-      "availabilityKey": "B",
-      "image": "/img/room-b-1002.jpg",
-      "external": {
-        "provider": "hourplace",
-        "placeId": 62341
-      },
-      "pricing": {
-        "weekday": 40000,
-        "weekend": 45000,
-        "minHours": 2,
-        "unit": "hour",
-        "currency": "KRW",
-        "taxIncluded": true,
-        "baseGuests": 4,
-        "extraGuestPerHour": 5500,
-        "weekendDefinition": "토·일·공휴일",
-        "freeEquipment": [
-          "지속광 1대",
-          "팔각 소프트박스",
-          "스탠드 5대"
-        ],
-        "equipmentFees": [
-          {
-            "label": "브이플랫",
-            "amount": 5000
-          }
-        ]
-      },
-      "capacity": {
-        "min": 1,
-        "max": 4
-      },
-      "seo": {
-        "title": "B룸 화이트 티타임 카페 — 누비 스튜디오 · 강서구 촬영 공간",
-        "description": "조명으로 언제든 밝게, 오후엔 서향 햇빛까지 드는 화이트 톤 공간. 티세트·앤티크 소품, 파우더룸. 약 11평 무인 단독 대관. 까치산역 도보 10분.",
-        "ogImage": "/img/og-b-1002.jpg"
-      },
-      "hero": {
-        "kicker": "B ROOM",
-        "tone": "light",
-        "h1": [
-          "원하는 시간",
-          "자리도 골라 찍어요"
-        ],
-        "sub": "상시등과 비치 조명으로 시간과 상관없이 밝게 찍을 수 있습니다. 오후에는 서향 통창으로 햇빛이 들어와 노을까지 따뜻한 빛을 더합니다. 햇빛이 드는 시각은 계절마다 달라집니다.<br>시간대랑 자리를 원하는 대로 골라서 찍으면 그날그날 다른 빛이 나와요.",
-        "image": "/img/room-b-1002.jpg",
-        "alt": "B룸 화이트 티타임 카페 — 커피머신 카운터와 레이스 티테이블"
-      },
-      "blocks": [
-        {
-          "head": "자연광",
-          "body": "오후에는 서향 통창으로 햇빛이 깊게 들어옵니다. 그 전에는 상시등과 비치 조명으로 밝게 찍을 수 있어요.<br>시간대에 따라 같은 자리에서도 다른 색이 나옵니다."
-        },
-        {
-          "head": "티타임 세팅",
-          "body": "3단 트롤리와 금장 찻잔, 케이크 소품으로 티파티 장면을 그대로 만들 수 있습니다."
-        },
-        {
-          "head": "앤티크 코너",
-          "body": "원목 서랍장과 거울, 레이스 티테이블.<br>원목 데스크와 거울이 있는 파우더룸에서 준비하실 수 있습니다."
-        },
-        {
-          "head": "미리 알아두세요",
-          "body": "흐린 날이나 저녁 이후엔 자연광이 약할 수 있어요.<br>자연광은 날씨 영향을 받아 정확한 예측은 어렵습니다.<br>커피머신은 촬영 소품이라 사용은 어렵습니다.<br>옮긴 가구는 사용 후 원래 자리로 돌려주세요."
-        }
-      ],
-      "tags": [
-        "통창 자연광",
-        "화이트 톤",
-        "티세트",
-        "약 11평"
-      ],
-      "gallery": [
-        {
-          "src": "/img/galB-1002-1.jpg",
-          "alt": "B룸 카운터 — 디저트 상자와 케이크 진열"
-        },
-        {
-          "src": "/img/galB-1002-2.jpg",
-          "alt": "B룸 전경 — 카운터와 원형 티테이블"
-        },
-        {
-          "src": "/img/galB-1002-3.jpg",
-          "alt": "B룸 창가 — 곰인형과 원형 티테이블"
-        },
-        {
-          "src": "/img/galB-1002-4.jpg",
-          "alt": "B룸 창가 — 레이스 커튼과 곰인형"
-        },
-        {
-          "src": "/img/galB-1002-5.jpg",
-          "alt": "B룸 창가 자리 — 티테이블과 쿠션 의자"
-        },
-        {
-          "src": "/img/galB-1002-6.jpg",
-          "alt": "B룸 디저트 스탠드 — 3단 스탠드와 찻잔"
-        },
-        {
-          "src": "/img/galB-1002-7.jpg",
-          "alt": "B룸 디저트 — 조각 케이크 근접"
-        },
-        {
-          "src": "/img/galB-1002-8.jpg",
-          "alt": "B룸 화장대 — 조명 거울과 의자"
-        },
-        {
-          "src": "/img/galB-1002-9.jpg",
-          "alt": "B룸 탈의 공간 — 커튼과 스팀다리미"
-        },
-        {
-          "src": "/img/galB-1002-10.jpg",
-          "alt": "B룸 소품 코너 — 스탠드 조명과 화분"
-        },
-        {
-          "src": "/img/galB-1002-11.jpg",
-          "alt": "B룸 거울 코너 — 앤티크 거울과 촛대"
-        },
-        {
-          "src": "/img/b-table-1001-poster.jpg",
-          "video": "/img/b-table-1001.mp4",
-          "poster": "/img/b-table-1001-poster.jpg",
-          "alt": "B룸 디저트 테이블과 카운터를 천천히 따라가는 영상"
-        }
-      ],
-      "showReviews": true
+     "head": "블랙 호리존",
+     "body": "천장 커튼레일로 천을 드레이핑해 자유로운 연출이 가능합니다(가로 4M × 세로 2.5M × 높이 2.3M)."
+    },
+    {
+     "head": "천장 연출",
+     "body": "월동문 위와 문가벽 상단에도 커튼레일을 달아두었습니다.<br>아쉬운 천장을 원하시는 색 천으로 덮으실 수 있습니다."
+    },
+    {
+     "head": "미리 알아두세요",
+     "body": "자연광을 원하시면 B룸이 더 맞습니다 — A룸은 자연광이 들어오지 않아요.<br>조명 세팅은 게스트가 직접 하셔야 합니다 — 정해진 기본값은 없어요.<br>먼저 찍고 싶은 한 컷을 정하고, 그 뒤에 둘 것 하나부터 옮겨 보세요.<br>진열 선반 하나만 세워도 배경이 달라져요.<br>블랙 호리존에서는 맨발이나 실내화로, 신발을 신으시면 바닥에 마스킹테이프를 붙여 주세요(비치돼 있어요).<br>엘리베이터가 없는 4층이고 건물 주차장이 없어요.<br>색 조명 장비 일부(파보튜브 등)는 유료 옵션입니다.<br>옮긴 소품은 사용 후 원래 자리로 돌려주세요."
     }
-  ]
+   ],
+   "tags": [
+    "월동문",
+    "블랙 호리존",
+    "한 룸, 두 컨셉"
+   ],
+   "gallery": [
+    {
+     "src": "/img/galA0.jpg",
+     "alt": "A룸 동양풍 블랙 호리존 — 월문과 격자문 세트"
+    },
+    {
+     "src": "/img/galA1.jpg",
+     "alt": "A룸 동양풍 월문 백라이트"
+    },
+    {
+     "src": "/img/galA2.jpg",
+     "alt": "A룸 격자문 세트"
+    },
+    {
+     "src": "/img/galA3.jpg",
+     "alt": "A룸 동양풍 디테일"
+    },
+    {
+     "src": "/img/galA4.jpg",
+     "alt": "A룸 블랙 호리존"
+    },
+    {
+     "src": "/img/galA5.jpg",
+     "alt": "A룸 조명·뒷공간(조명 셋업 공간)"
+    },
+    {
+     "src": "/img/galA-1001-6.jpg",
+     "alt": "A룸 원창 세트 — 평상과 격자 난간, 서예 천(밝은 조명)"
+    },
+    {
+     "src": "/img/galA-1001-7.jpg",
+     "alt": "블랙 호리존의 할로윈 소품을 원창 앞 동양풍 공간으로 옮겨 꾸민 예",
+     "caption": "블랙 호리존 소품을 옮겨 꾸민 예"
+    }
+   ],
+   "showReviews": true
+  },
+  {
+   "slug": "b",
+   "inquiryLine": "문의는 아워플레이스 메시지",
+   "footerLines": [
+    "예약·문의: 아워플레이스"
+   ],
+   "sku": "ROOM-B",
+   "label": "B룸",
+   "name": "화이트 티타임 카페",
+   "status": "open",
+   "availabilityKey": "B",
+   "image": "/img/room-b-1002.jpg",
+   "external": {
+    "provider": "hourplace",
+    "placeId": 62341
+   },
+   "pricing": {
+    "weekday": 40000,
+    "weekend": 45000,
+    "minHours": 2,
+    "unit": "hour",
+    "currency": "KRW",
+    "taxIncluded": true,
+    "baseGuests": 4,
+    "extraGuestPerHour": 5500,
+    "weekendDefinition": "토·일·공휴일",
+    "freeEquipment": [
+     "지속광 1대",
+     "팔각 소프트박스",
+     "스탠드 5대"
+    ],
+    "equipmentFees": [
+     {
+      "label": "브이플랫",
+      "amount": 5000
+     },
+     {
+      "label": "검정 폼보드(폴리)",
+      "amount": 5000
+     }
+    ]
+   },
+   "capacity": {
+    "min": 1,
+    "max": 4
+   },
+   "seo": {
+    "title": "B룸 화이트 티타임 카페 — 누비 스튜디오 · 강서구 촬영 공간",
+    "description": "조명으로 언제든 밝게, 오후엔 서향 햇빛까지 드는 화이트 톤 공간. 티세트·앤티크 소품, 파우더룸. 약 11평 무인 단독 대관. 까치산역 도보 10분.",
+    "ogImage": "/img/og-b-1002.jpg"
+   },
+   "hero": {
+    "kicker": "B ROOM",
+    "tone": "light",
+    "h1": [
+     "원하는 시간",
+     "자리도 골라 찍어요"
+    ],
+    "sub": "상시등과 비치 조명으로 시간과 상관없이 밝게 찍을 수 있습니다. 오후에는 서향 통창으로 햇빛이 들어와 노을까지 따뜻한 빛을 더합니다. 햇빛이 드는 시각은 계절마다 달라집니다.<br>시간대랑 자리를 원하는 대로 골라서 찍으면 그날그날 다른 빛이 나와요.",
+    "image": "/img/room-b-1002.jpg",
+    "alt": "B룸 화이트 티타임 카페 — 커피머신 카운터와 레이스 티테이블"
+   },
+   "blocks": [
+    {
+     "head": "자연광",
+     "body": "오후에는 서향 통창으로 햇빛이 깊게 들어옵니다. 그 전에는 상시등과 비치 조명으로 밝게 찍을 수 있어요.<br>시간대에 따라 같은 자리에서도 다른 색이 나옵니다."
+    },
+    {
+     "head": "티타임 세팅",
+     "body": "3단 트롤리와 금장 찻잔, 케이크 소품으로 티파티 장면을 그대로 만들 수 있습니다."
+    },
+    {
+     "head": "앤티크 코너",
+     "body": "원목 서랍장과 거울, 레이스 티테이블.<br>원목 데스크와 거울이 있는 파우더룸에서 준비하실 수 있습니다."
+    },
+    {
+     "head": "미리 알아두세요",
+     "body": "흐린 날이나 저녁 이후엔 자연광이 약할 수 있어요.<br>자연광은 날씨 영향을 받아 정확한 예측은 어렵습니다.<br>커피머신은 촬영 소품이라 사용은 어렵습니다.<br>옮긴 가구는 사용 후 원래 자리로 돌려주세요."
+    }
+   ],
+   "tags": [
+    "통창 자연광",
+    "화이트 톤",
+    "티세트",
+    "약 11평"
+   ],
+   "gallery": [
+    {
+     "src": "/img/galB-1002-1.jpg",
+     "alt": "B룸 카운터 — 디저트 상자와 케이크 진열"
+    },
+    {
+     "src": "/img/galB-1002-2.jpg",
+     "alt": "B룸 전경 — 카운터와 원형 티테이블"
+    },
+    {
+     "src": "/img/galB-1002-3.jpg",
+     "alt": "B룸 창가 — 곰인형과 원형 티테이블"
+    },
+    {
+     "src": "/img/galB-1002-4.jpg",
+     "alt": "B룸 창가 — 레이스 커튼과 곰인형"
+    },
+    {
+     "src": "/img/galB-1002-5.jpg",
+     "alt": "B룸 창가 자리 — 티테이블과 쿠션 의자"
+    },
+    {
+     "src": "/img/galB-1002-6.jpg",
+     "alt": "B룸 디저트 스탠드 — 3단 스탠드와 찻잔"
+    },
+    {
+     "src": "/img/galB-1002-7.jpg",
+     "alt": "B룸 디저트 — 조각 케이크 근접"
+    },
+    {
+     "src": "/img/galB-1002-8.jpg",
+     "alt": "B룸 화장대 — 조명 거울과 의자"
+    },
+    {
+     "src": "/img/galB-1002-9.jpg",
+     "alt": "B룸 탈의 공간 — 커튼과 스팀다리미"
+    },
+    {
+     "src": "/img/galB-1002-10.jpg",
+     "alt": "B룸 소품 코너 — 스탠드 조명과 화분"
+    },
+    {
+     "src": "/img/galB-1002-11.jpg",
+     "alt": "B룸 거울 코너 — 앤티크 거울과 촛대"
+    },
+    {
+     "src": "/img/b-table-1001-poster.jpg",
+     "video": "/img/b-table-1001.mp4",
+     "poster": "/img/b-table-1001-poster.jpg",
+     "alt": "B룸 디저트 테이블과 카운터를 천천히 따라가는 영상"
+    }
+   ],
+   "showReviews": true
+  }
+ ]
 }
