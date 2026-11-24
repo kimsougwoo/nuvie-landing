@@ -622,6 +622,9 @@ def build_page(room: dict, other: dict, catalog: dict, business: dict, reviews_d
         "SEASON_NOTE": render_season_note(room),
         "HERO_IMG": esc(hero["image"]),
         "HERO_TONE": ' data-hero-tone="light"' if hero.get("tone") == "light" else "",   # 10-01 밝은 사진 첫 화면
+        # 11-24: 밝은 히어로는 대체 배경도 밝게 → 사진 로딩 전 검게 번쩍이는 «플리커» 방지
+        "HERO_FALLBACK": ("linear-gradient(135deg,#F7F7F8,#EFEFF1)" if hero.get("tone") == "light"
+                          else "linear-gradient(135deg,#0B0B0C,#1C1C1F)"),
         "HERO_SRCSET": hero_srcset(hero["image"])[0],
         "HERO_PRELOAD": hero_srcset(hero["image"])[1],
         "HERO_ALT": esc(hero["alt"]),
