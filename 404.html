@@ -29,7 +29,7 @@
   .wrap{max-width:640px;margin:0 auto;padding:72px 24px 96px;min-height:100vh;display:flex;flex-direction:column}
   .logo{font-weight:700;font-size:22px;letter-spacing:.16em;line-height:1;text-decoration:none;color:var(--ink)}
   .logosub{font-size:12px;letter-spacing:.02em;color:var(--dim);margin-top:6px}
-  .code{font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint);margin:64px 0 12px}
+  .code{font-size:clamp(48px,12vw,72px);letter-spacing:-.04em;font-weight:700;color:var(--faint);margin:40px 0 6px;line-height:1;text-transform:none}
   h1{font-size:clamp(28px,7vw,40px);font-weight:700;letter-spacing:-.02em;line-height:1.2;margin:0}
   p{color:var(--dim);font-size:15.5px;margin:18px 0 0}
   .links{display:flex;flex-direction:column;gap:10px;margin-top:36px}
@@ -58,7 +58,7 @@
     </div>
 
     <!-- ② 타이틀 · ③ 설명 -->
-    <div class="code">404</div>
+    <div class="code" aria-hidden="true">404</div>
     <h1>페이지를 찾을 수 없어요</h1>
     <p>주소가 바뀌었거나, 링크가 잘못됐을 수 있어요.<br>아래에서 찾으시는 곳으로 바로 가실 수 있습니다.</p>
 

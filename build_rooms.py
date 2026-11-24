@@ -151,43 +151,94 @@ def render_season_note(room: dict) -> str:
             f'<script>{js}</script>')
 
 
-def render_setups(room: dict, today: str | None = None) -> str:
+def render_setups(room: dict, today: str | None = None, no: str = "03") -> str:
     """꾸며 놓았던 세팅 기록(2026-10-01 대표 «블랙호리존 꾸며놓았던 사진들 따로 섹션» · «매일 조금씩 디테일이 달라질 순 있습니다 표기»).
     rooms.json setups 가 없으면 빈 문자열(b.html 바이트 불변). 시즌 라벨은 until(KST 날짜) 전 = «지금», 그날부터 = «지난».
     빌드 날짜로 한 번 정하고(스크립트 없는 수집기용), 페이지 안 스크립트가 방문 날짜로 다시 맞춘다(10/31 에 빌드한 페이지도 11/1 엔 «지난»)."""
     st = room.get("setups")
     if not st:
         return ""
-    season = st["season"]
-    today = today or datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d")
-    past = today >= season["until"]
+    # 11-22: 시즌 라벨은 선택. season 이 없으면 «지난»/«지금» 문구와 스크립트를 넣지 않는다(상시 세팅 기록).
+    season = st.get("season")
+    past = False
+    if season:
+        today = today or datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d")
+        past = today >= season["until"]
     cardstyle = (
-        "aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);"
+        "aspect-ratio:{ar};overflow:hidden;border-radius:6px;border:1px solid var(--line);"
         "position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"
     )
     imgstyle = "position:absolute;inset:0;width:100%;height:100%;object-fit:cover"
     # 10-01 대표 «일자는 빼주세요» → 사진마다 붙이던 촬영일 표기·alt 속 날짜를 뺐다(운영 기간 라벨은 위 season 이 맡는다)
-    cards = []
-    for it in st["items"]:
+    def _card(it, ar_override=None, extra="", sizes="(max-width: 760px) 82vw, 560px"):
         src = it["src"]
-        small = src[:-4] + "-800.jpg"
-        cards.append(
-            f'<div style="{cardstyle}"><img data-fallback="1" data-zoom loading="lazy" decoding="async" '
-            f'src="{esc(src)}" srcset="{esc(small)} 800w, {esc(src)} 825w" sizes="(max-width: 760px) 82vw, 360px" '
+        p400 = src[:-4] + "-400.jpg"
+        p800 = src[:-4] + "-800.jpg"
+        fw = it.get("w") or 825
+        ar = ar_override or (f'{it["w"]}/{it["h"]}' if it.get("w") and it.get("h") else "3/4")
+        srcset = f"{esc(p400)} 400w, {esc(p800)} 800w, {esc(src)} {fw}w"
+        return (
+            f'<div style="{extra}{cardstyle.format(ar=ar)}"><img data-fallback="1" data-zoom loading="lazy" decoding="async" '
+            f'src="{esc(src)}" srcset="{srcset}" sizes="{sizes}" '
             f'alt="{esc(it["alt"])}" style="{imgstyle}"></div>'
         )
+    # 11-24: 크롭 없이(원본 비율) 한 줄 안에서 폭을 비율대로 나눠 높이를 맞춘다(필름스트립).
+    #   flex-grow = 가로/세로 비율 → 모든 칸 높이가 같아지고 이미지는 잘리지 않는다.
+    #   sizes 는 줄의 칸 수에 맞춰 추정 → 모바일에선 400w 를 골라 용량을 줄인다.
+    def _row(items, margin="0 0 14px"):
+        n = len(items)
+        if n >= 3:
+            sizes = "(max-width: 760px) 31vw, 335px"
+        elif n == 2:
+            sizes = "(max-width: 760px) 46vw, 503px"
+        else:
+            sizes = "(max-width: 900px) 100vw, 900px"
+        parts = []
+        for it in items:
+            a = (it["w"] / it["h"]) if it.get("w") and it.get("h") else 0.75
+            parts.append(_card(it, extra=f"flex:{a:.4f} 1 0;min-width:0;", sizes=sizes))
+        return (f'<div class="setup-row" data-reveal style="display:flex;gap:10px;align-items:flex-start;{margin}">'
+                + "".join(parts) + '</div>')
+    hero = st.get("hero") or []
+    trio = st.get("trio") or []
+    items2 = st.get("items") or []
+    hero_html = _row(hero) if hero else ""
+    trio_html = _row(trio) if trio else ""
+    grid_html = "".join(_row(items2[i:i + 2]) for i in range(0, len(items2), 2)) if items2 else ""
     js = ("(function(){var s=document.getElementById('setupSeason');if(!s)return;"
           "var today=new Date(Date.now()+9*3600*1000).toISOString().slice(0,10);var past=today>=s.dataset.until;"
           "s.querySelector('[data-now]').hidden=past;s.querySelector('[data-past]').hidden=!past;})();")
+    season_html = ""
+    if season:
+        season_html = (
+            f'<p id="setupSeason" data-until="{esc(season["until"])}" data-reveal style="margin:0 0 8px;color:var(--ink);font-size:15px;font-weight:600">'
+            f'<span data-now{" hidden" if past else ""}>{esc(season["now"])}</span>'
+            f'<span data-past{"" if past else " hidden"}>{esc(season["past"])}</span></p>'
+        )
+    else:
+        js = ""
+    script_html = f"<script>{js}</script>" if js else ""
+    free = (st.get("free") or "").strip()
+    free_html = ""
+    if free:
+        free_html = (
+            f'<div data-reveal style="margin:0 0 26px;padding:16px 18px;border:1px solid var(--line);'
+            f'border-radius:6px;background:var(--panel)">'
+            f'<p style="margin:0;color:var(--ink);font-size:14.5px;line-height:1.8">'
+            f'{esc(free).replace(chr(10), "<br>")}</p></div>'
+        )
     return f"""<section id="setups">
           <div class="sechead" data-reveal>
-            <span class="snum">03</span>
-            <div><div class="skick">Setups</div><h2 style="margin:0;font-size:clamp(26px,3vw,40px);letter-spacing:-.02em">{esc(st["title"])}</h2></div>
+            <span class="snum">{esc(no)}</span>
+            <div>{kick(room, "Setups")}<h2 style="margin:0;font-size:clamp(26px,3vw,40px);letter-spacing:-.02em">{esc(st["title"])}</h2></div>
           </div>
-          <p id="setupSeason" data-until="{esc(season["until"])}" data-reveal style="margin:0 0 8px;color:var(--ink);font-size:15px;font-weight:600"><span data-now{" hidden" if past else ""}>{esc(season["now"])}</span><span data-past{"" if past else " hidden"}>{esc(season["past"])}</span></p>
-          <p class="desc" data-reveal style="margin:0 0 30px">{esc(st["intro"])}<br>{esc(st["note"])}</p>
-          <div class="gal" data-reveal style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px">{"".join(cards)}</div>
-          <script>{js}</script>
+          {season_html}
+          <p class="desc" data-reveal style="margin:0 0 16px">{esc(st["intro"])}<br>{esc(st["note"])}</p>
+          {free_html}
+          {hero_html}
+          {trio_html}
+          {grid_html}
+          {script_html}
         </section>"""
 
 
@@ -233,8 +284,9 @@ def render_blocks(room: dict) -> str:
 
 
 def render_gallery(room: dict) -> str:
+    # 11-22: 방 사진은 원본 비율 유지(강제 3:4 크롭 제거). w/h 가 있으면 그 비율로, 없으면 기존 3/4.
     cardstyle = (
-        "aspect-ratio:3/4;overflow:hidden;border-radius:6px;border:1px solid var(--line);"
+        "aspect-ratio:{ar};overflow:hidden;border-radius:6px;border:1px solid var(--line);"
         "position:relative;background:linear-gradient(135deg,var(--elev),var(--panel))"
     )
     imgstyle = (
@@ -246,18 +298,20 @@ def render_gallery(room: dict) -> str:
     capstyle = ("position:absolute;left:0;right:0;bottom:0;padding:26px 12px 10px;font-size:12.5px;line-height:1.5;color:#FFFFFF;"
                 "background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.66));pointer-events:none")
     for g in room["gallery"]:
+        ar = f'{g["w"]}/{g["h"]}' if g.get("w") and g.get("h") else "3/4"
+        cs = cardstyle.format(ar=ar)
         if g.get("video"):
             # 10-01: 영상 칸. poster·src 를 HTML 에 두지 않는다(poster 는 위치와 상관없이 바로 받아져 LCP 대역을 먹는다).
             #   site.js wireGalVideo 가 갤러리 근처에서 채우고 화면 안에서만 재생한다. <img> 를 두지 않아 /b 동결 픽스처(갤러리 사진 목록)가 그대로다.
             out.append(
-                f'<div class="galvid" style="{cardstyle}"><video muted loop playsinline preload="none" '
+                f'<div class="galvid" style="{cs}"><video muted loop playsinline preload="none" '
                 f'data-src="{esc(g["video"])}" data-poster="{esc(g["poster"])}" aria-label="{esc(g["alt"])}" style="{imgstyle}"></video>'
                 f'<button type="button" class="galvid-btn" aria-label="영상 일시정지" hidden></button></div>'
             )
             continue
         cap = f'<span style="{capstyle}">{esc(g["caption"])}</span>' if g.get("caption") else ""
         out.append(
-            f'<div style="{cardstyle}"><img data-fallback="1" data-zoom loading="lazy" '
+            f'<div style="{cs}"><img data-fallback="1" data-zoom loading="lazy" '
             f'decoding="async" src="{esc(g["src"])}" alt="{esc(g["alt"])}" style="{imgstyle}">{cap}</div>'
         )
     return "".join(out)
@@ -276,7 +330,7 @@ def review_thumb(src: str) -> str:
     return ent.get("thumb") or src
 
 
-def render_reviews(room: dict, reviews_doc: dict) -> str:
+def render_reviews(room: dict, reviews_doc: dict, no: str | None = None) -> str:
     """A룸 후기 — 빌드 시점 정적 렌더(상품 페이지 SEO 목적. JS 렌더는 색인에 안 잡힌다)."""
     if not room.get("showReviews"):
         return ""
@@ -334,19 +388,77 @@ def render_reviews(room: dict, reviews_doc: dict) -> str:
         )
     rating = reviews_doc.get("rating")
     count = reviews_doc.get("count", len(items))
+    q = room.get("reviewQuote")
+    quote_html = ""
+    if q:
+        quote_html = (
+            '<figure data-reveal style="margin:0 0 26px;padding:22px 24px;border:1px solid var(--line);border-radius:6px;background:var(--panel)">'
+            '<div style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:10px">실제 손님 한마디</div>'
+            f'<blockquote style="margin:0;color:var(--ink);font-size:16.5px;line-height:1.8;white-space:pre-line">“{esc(q.get("text", ""))}”</blockquote>'
+            f'<figcaption style="margin-top:12px;color:var(--faint);font-size:12px">{esc(q.get("name", ""))} · {esc(q.get("date", ""))}</figcaption>'
+            '</figure>'
+        )
     # ⚠️ .sec/.inner 를 쓰지 않는다 — 2단 그리드(.roomgrid-main) 안에 들어가므로
     #    그리드가 이미 폭·여백을 잡는다(붙이면 패딩이 이중으로 걸린다).
     return f"""<section id="reviews">
       <div class="sechead" data-reveal>
-        <span class="snum">{"04" if room.get("setups") else "03"}</span>
-        <div><div class="skick">Reviews</div><h2 style="margin:0;font-size:clamp(26px,3vw,40px);letter-spacing:-.02em">후기</h2></div>
+        <span class="snum">{esc(no or ("04" if room.get("setups") else "03"))}</span>
+        <div>{kick(room, "Reviews")}<h2 style="margin:0;font-size:clamp(26px,3vw,40px);letter-spacing:-.02em">후기</h2></div>
       </div>
       <p class="desc" data-reveal style="margin:0 0 30px">아워플레이스에 남겨주신 후기예요 · 평점 {esc(rating)} / 5 · {esc(count)}건</p>
+      {quote_html}
       <!-- ⚠️ column-width(멀티컬럼)를 쓰지 않는다 — 이 사이트에서 핀치줌 가로넘침 버그의
            근본원인으로 특정돼 데스크탑 전용으로 격리된 기법이다(styles.css #reviewCards 주석).
            auto-fill 그리드는 같은 매이슨리 느낌을 내면서 그 버그 계열을 통째로 피하고 JS 도 필요 없다. -->
       <div class="room-reviews" data-reveal style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;align-items:start">{''.join(cards)}</div>
     </section>"""
+
+
+def kick(room: dict, label: str) -> str:
+    """11-22 대표: /a 는 kicker 제거(hideKickers), /b 는 11/11 동결 계약으로 원본 유지."""
+    return "" if room.get("hideKickers") else f'<div class="skick">{label}</div>'
+
+
+def render_prep(room: dict, no: str = "04") -> str:
+    """촬영 준비 — 현장에서 바로 확인할 것(천·레일·조명·신발·자연광). 가격·장비 목록은 사이드바와 중복하지 않는다."""
+    pr = room.get("prep") or {}
+    items = pr.get("items") or []
+    if not items:
+        return ""
+    cells = "".join(
+        f'<div style="padding:18px 0;border-top:1px solid var(--line)">'
+        f'<div style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accentSoft);margin-bottom:6px">{esc(it["head"])}</div>'
+        f'<p style="margin:0;color:var(--dim);font-size:14.5px;line-height:1.8">{esc(it["body"])}</p></div>'
+        for it in items
+    )
+    return f"""<section id="prep">
+          <div class="sechead" data-reveal>
+            <span class="snum">{esc(no)}</span>
+            <div>{kick(room, "Prepare")}<h2 style="margin:0;font-size:clamp(26px,3vw,40px);letter-spacing:-.02em">{esc(pr.get("title") or "촬영 준비")}</h2></div>
+          </div>
+          <p class="desc" data-reveal style="margin:0 0 10px">{esc(pr.get("note") or "")}</p>
+          <div class="prepgrid" data-reveal>{cells}</div>
+        </section>"""
+
+
+def render_notice(room: dict, no: str = "06") -> str:
+    """이용 전 확인 — 입실·층/주차·취소. 가격·인원은 예약 카드가 이미 말한다."""
+    nt = room.get("notice") or {}
+    items = nt.get("items") or []
+    if not items:
+        return ""
+    rows = "".join(
+        f'<div class="noticerow"><div class="noticehead">{esc(it["head"])}</div>'
+        f'<p>{esc(it["body"]).replace(chr(10), "<br>")}</p></div>'
+        for it in items
+    )
+    return f"""<section id="notice">
+          <div class="sechead" data-reveal>
+            <span class="snum">{esc(no)}</span>
+            <div>{kick(room, "Before you book")}<h2 style="margin:0;font-size:clamp(26px,3vw,40px);letter-spacing:-.02em">{esc(nt.get("title") or "이용 전 확인")}</h2></div>
+          </div>
+          <div data-reveal>{rows}</div>
+        </section>"""
 
 
 def render_jsonld(room: dict, other: dict, catalog: dict, reviews_doc: dict) -> str:
@@ -393,6 +505,10 @@ def render_jsonld(room: dict, other: dict, catalog: dict, reviews_doc: dict) -> 
         "category": "코스프레 스튜디오 대관",
         "offers": offer,
     }
+    if room.get("blackCyc"):
+        product["additionalProperty"] = [
+            {"@type": "PropertyValue", "name": "블랙 호리존(BLACK CYC) 크기", "value": room["blackCyc"]}
+        ]
     if reviews_doc.get("updated"):
         product["dateModified"] = reviews_doc["updated"]
     # 2026-09-28: aggregateRating·review[] 를 내보내지 않는다. 후기는 전부 아워플레이스 것이라
@@ -466,8 +582,26 @@ def build_page(room: dict, other: dict, catalog: dict, business: dict, reviews_d
             "— 모바일 390px 에서 3줄로 깨진다"
         )
 
+    # 11-24: 세팅을 공간보다 위로 → 01 소개, (02 세팅), 공간, 이후 순서대로.
+    counter = 2
+    setups_no = gallery_no = prep_no = reviews_no = notice_no = None
+    if room.get("setups"):
+        setups_no = f"{counter:02d}"
+        counter += 1
+    gallery_no = f"{counter:02d}"
+    counter += 1
+    if (room.get("prep") or {}).get("items"):
+        prep_no = f"{counter:02d}"
+        counter += 1
+    if (room.get("notice") or {}).get("items"):
+        notice_no = f"{counter:02d}"
+        counter += 1
+    reviews_no = f"{counter:02d}"
+    rv_rating = reviews_doc.get("rating")
+    rv_count = reviews_doc.get("count", len(reviews_doc.get("reviews", [])))
     repl = {
         "FONT_HEAD": font_head(room["slug"]),
+        "THEME": room.get("theme", "light"),   # 11-24 대표: 룸별 기본 모드(A=다크, B=라이트)
         "TITLE": esc(room["seo"]["title"]),
         "DESC": esc(room["seo"]["description"]),
         "OG_TITLE": esc(f'{room["label"]} {room["name"]} — 누비 스튜디오'),
@@ -478,6 +612,10 @@ def build_page(room: dict, other: dict, catalog: dict, business: dict, reviews_d
         "LABEL": esc(room["label"]),
         "NAME": esc(room["name"]),
         "KICKER": esc(hero["kicker"]),
+        "HERO_EYEBROW": (f'<div data-reveal style="font-family:var(--label-font);font-size:11.5px;letter-spacing:.34em;text-transform:uppercase;color:rgba(255,255,255,.72)">{esc(hero["kicker"])}</div>') if not room.get("hideKickers") else "",
+        "ABOUT_KICKER": kick(room, esc(hero["kicker"])),
+        "GALLERY_KICKER": kick(room, "Gallery"),
+        "BOOKING_KICKER": ('<div class="skick" style="margin-bottom:10px">Booking</div>') if not room.get("hideKickers") else "",
         "H1_1": esc(hero["h1"][0]),
         "H1_2": esc(hero["h1"][1]),
         "SUB": hero["sub"],  # <br> 허용 필드
@@ -490,11 +628,17 @@ def build_page(room: dict, other: dict, catalog: dict, business: dict, reviews_d
         "HERO_TAGS": render_hero_tags(room),
         "INFO_CELLS": render_info_cells(room),
         "BLOCKS": render_blocks(room),
+        "GALLERY_NO": gallery_no,
         "GALLERY": render_gallery(room),
-        "SETUPS": render_setups(room),
-        "REVIEWS": render_reviews(room, reviews_doc),
+        "GALLERY_DESC": esc(room.get("galleryDesc") or f"{room['label']}에서 찍힌 장면들이에요."),
+        "ABOUT_LEAD": (f'<p class="desc" data-reveal style="margin:0 0 26px">{esc(room["aboutLead"])}</p>' if room.get("aboutLead") else ""),
+        "SETUPS": render_setups(room, no=setups_no) if setups_no else "",
+        "PREP": render_prep(room, no=prep_no) if prep_no else "",
+        "REVIEWS": render_reviews(room, reviews_doc, no=reviews_no),
+        "NOTICE": render_notice(room, no=notice_no) if notice_no else "",
         "PRICE_LINE": price_line,
         "PRICE_CONDITIONS": price_conditions,
+        "BOOK_RATING": (f'<div style="display:flex;align-items:center;gap:6px;margin:0 0 14px;color:var(--dim);font-size:12.5px"><span style="color:var(--accent)">★</span> {esc(str(rv_rating))} · 후기 {esc(str(rv_count))}건</div>' if room.get("bookRating") and rv_rating and rv_count else ""),
         "BOOKING_HREF": booking_href(room, catalog),
         "BOOKING_NOTE": booking_note,
         "FAQ_LINKS": render_faq_links(room),

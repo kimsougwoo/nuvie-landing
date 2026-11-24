@@ -136,6 +136,7 @@
       btn.textContent = (t === 'dark' ? '☀' : '☾');
       btn.setAttribute('aria-label', t === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환');
     }
+    setTheme(document.body.getAttribute('data-theme') || 'light');   // 룸별 기본 모드에 맞춰 버튼 글리프 초기화
     btn.addEventListener('click', function () {
       setTheme(document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });
