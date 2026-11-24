@@ -54,7 +54,7 @@ def test_calendar_cell_animation_keeps_intended_opacity():
     kf = re.search(r"@keyframesnvCellIn\{from\{([^}]*)\}to\{([^}]*)\}\}", css)
     assert kf and "opacity:var(--op,1)" in kf.group(2), kf and kf.group(2)
     src = _read("index.html")
-    assert "--op:.45" in src and "--op:.3" in src and "--op:.65" in src   # 지난 날 · 지난 다른 달 · 다음 달 앞날(약하게)
+    assert "--op:.6" in src and "--op:.65" in src   # 11-23: 지난 날·지난 다른 달 .45/.3→.6(대비 4.5:1), 다음 달 앞날 .65 유지
 
 
 def test_calendar_dims_past_days_but_keeps_current_month_default():

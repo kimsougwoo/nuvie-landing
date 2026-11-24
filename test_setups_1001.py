@@ -29,43 +29,51 @@ def _visible(html, attr):
     return m.group(1) is None
 
 
-def test_label_is_now_until_oct31_and_past_from_nov1():
-    before = BR.render_setups(A, today="2026-10-31")
-    after = BR.render_setups(A, today="2026-11-01")
+def test_a_setups_has_no_season_label():
+    """11-22: A룸은 상시 세팅 기록으로 바꿔 «지난 세팅»/«10월 31일까지» 라벨과 날짜 스크립트를 넣지 않는다."""
+    html = BR.render_setups(A, today="2026-10-31")
+    assert 'id="setupSeason"' not in html
+    assert "data-until" not in html
+    assert "지난 세팅" not in html
+    assert "toISOString().slice(0,10)" not in html
+
+
+def test_b_setups_season_still_rendered_if_present():
+    """season 이 있는 방은 기존 «지금/지난» 전환이 그대로 동작해야 한다."""
+    room = {"setups": {"title": "t", "intro": "i", "note": "n",
+                       "season": {"until": "2026-11-01", "now": "지금 세팅", "past": "지난 세팅"},
+                       "items": [{"src": "/img/aset-1001-1.jpg", "alt": "x"}]}}
+    before = BR.render_setups(room, today="2026-10-31")
+    after = BR.render_setups(room, today="2026-11-01")
     assert _visible(before, "now") and not _visible(before, "past")
     assert _visible(after, "past") and not _visible(after, "now")
-    assert "10월 31일까지" in before and "지난 세팅" in after
-
-
-def test_page_script_flips_label_by_visit_date():
-    html = BR.render_setups(A, today="2026-10-01")
-    assert 'data-until="2026-11-01"' in html
-    assert "toISOString().slice(0,10)" in html and "today>=s.dataset.until" in html
 
 
 def test_owner_note_present_and_no_shoot_dates():
-    """10-01 대표 «일자는 빼주세요» — 사진 아래 촬영일·alt 속 날짜를 쓰지 않는다(운영 기간 라벨 «10월 31일까지»는 별개)."""
+    """10-01 대표 «일자는 빼주세요» — 사진 아래 촬영일·alt 속 날짜를 쓰지 않는다."""
     html = (ROOT / "a.html").read_text(encoding="utf-8").replace(chr(0xa0), " ").replace(chr(0x2060), "")
     sec = re.search(r'<section id="setups">(.*?)</section>', html, re.S).group(1)
     assert "매일 조금씩 디테일이 달라질 수 있습니다" in sec
-    assert "블랙 호리존을 이렇게 꾸몄어요" in sec and "A룸을 이렇게" not in sec   # 10-01 대표 최종 «블랙호리존을 이렇게 꾸몄어요 로 변경»
+    assert "A룸을 입맛대로 세팅해보세요" in sec
     assert "aset-1001-12" not in sec   # 원창 장식 사진은 공간 갤러리로(같은 날 대표 지시)
+    all_items = (A["setups"].get("hero") or []) + (A["setups"].get("trio") or []) + A["setups"]["items"]
     imgs = re.findall(r"<img [^>]*>", sec)
-    assert len(imgs) == len(A["setups"]["items"]) >= 8
+    assert len(imgs) == len(all_items) >= 5   # 11-24: hero(1)+trio(3)+2열(2)
     assert "촬영" not in sec, "촬영일 표기가 남아 있다"
-    gallery = sec.split('<div class="gal"', 1)[1]
-    assert not re.search(r"\d+월 \d+일", gallery), "사진 쪽에 날짜가 남아 있다"
-    for it in A["setups"]["items"]:
+    assert not re.search(r"\d+월 \d+일", sec), "사진 쪽에 날짜가 남아 있다"
+    for it in all_items:
         assert it["src"] in sec and "date" not in it
 
 
 def test_b_room_has_no_setups_section():
+    # 11-24 대표: B룸 인물(모델) 사진 제거 → 결과/세팅 섹션 없음.
     assert BR.render_setups(B) == ""
     assert 'id="setups"' not in (ROOT / "b.html").read_text(encoding="utf-8")
 
 
 def test_setup_images_exist_with_800_rung():
-    for it in A["setups"]["items"]:
+    all_items = (A["setups"].get("hero") or []) + (A["setups"].get("trio") or []) + A["setups"]["items"]
+    for it in all_items:
         p = ROOT / it["src"].lstrip("/")
         assert p.exists(), p
         assert (ROOT / (it["src"][:-4] + "-800.jpg").lstrip("/")).exists()

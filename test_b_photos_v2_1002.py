@@ -4,9 +4,9 @@
 대표 확인: 11/11 /b 동결의 예외로 «측정이 섞여도 괜찮음». 밝기는 다시 손대지 않는다(대표 확인판) ⇒ 자르기·크기 조정만.
   · 순서 = 대표가 직접 바꾼 아워 B 리스팅(62341) 최종 순서(10-02 10:1x «/b도 맞춰 주세요», 마케팅팀이 공개 페이지·편집폼에서 읽음).
   · 첫 화면(room-b)·og-b = 리스팅 커버 broom_20261001_01 (카운터·커피머신). 가로 4:3 그대로 1600/1200/800.
-  · 갤러리 = 리스팅 2~12번 11장(아래 GALLERY 순서). 01 을 갤러리에 한 번 더 넣지 않고 11칸으로 줄인다. 끝 영상(b-table-1001.mp4)은 그대로.
+  · 갤러리 = 11-24 대표: B룸 원본(리뉴얼 후)에서 진단 기준 큐레이션 — 가로 10장 + 세로 2장(원본 비율 유지, 크롭 없음). 끝 영상은 제거.
   · 쓰지 않는 사진: 14(대표가 리스팅에서 뺌 — 첫 화면·og 포함 /b 에서도 안 씀)·09(08과 거의 같음)·10(11과 거의 같음). 평면도는 리스팅에만.
-  · 가로 사진을 3:4 로 자를 때 가운데 대상이 잘리지 않게 사진마다 가로 위치(ax, 0=왼쪽 끝·1=오른쪽 끝)를 개발팀이 사진을 보고 정했다.
+  · 11-24 대표: 가로(4:3) 원본을 3:4로 자르던 크롭을 풀고 원본 비율(1000x750)로 다시 뽑았다. ax 자르기 위치는 더 이상 쓰지 않는다.
   · 새 파일 이름(-1002) — 캐시된 옛 사진이 새 alt 와 짝지어지지 않게(10-01 교체와 같은 이유).
 """
 import json
@@ -18,22 +18,19 @@ from PIL import Image, ImageChops, ImageStat
 ROOT = Path(__file__).parent
 V2 = Path(r"F:\무인 렌탈스튜디오 인수\source\촬영_2026-09-29\보정_v2")
 V1 = Path(r"F:\무인 렌탈스튜디오 인수\source\촬영_2026-09-29\보정")
+V3 = Path(r"F:\무인 렌탈스튜디오 인수\아워플레이스\B룸 사진\리뉴얼 후 사진")  # 11-24: 진단 기준 큐레이션 원본
+V4 = V3 / "11월"  # 11-24: B 공간 갤러리 교체 원본(DJI 드론, 16:9)
 
 HERO_SRC = V2 / "broom_20261001_01.jpg"
 HERO_ALT = "B룸 화이트 티타임 카페 — 커피머신 카운터와 레이스 티테이블"
 # (소스, ax, alt) — 순서 = 갤러리 1~11칸 = 리스팅 2~12번
 GALLERY = [
-    (V1 / "broom_20261001_05.jpg", 0.50, "B룸 카운터 — 디저트 상자와 케이크 진열"),
-    (V2 / "broom_20261001_main1.jpg", 0.50, "B룸 전경 — 카운터와 원형 티테이블"),
-    (V2 / "broom_20261001_02.jpg", 0.25, "B룸 창가 — 곰인형과 원형 티테이블"),
-    (V2 / "broom_20261001_03.jpg", 0.30, "B룸 창가 — 레이스 커튼과 곰인형"),
-    (V2 / "broom_20261001_04.jpg", 0.50, "B룸 창가 자리 — 티테이블과 쿠션 의자"),
-    (V2 / "broom_20261001_08.jpg", 0.50, "B룸 디저트 스탠드 — 3단 스탠드와 찻잔"),
-    (V2 / "broom_20261001_06.jpg", 0.50, "B룸 디저트 — 조각 케이크 근접"),
-    (V2 / "broom_20261001_11.jpg", 0.35, "B룸 화장대 — 조명 거울과 의자"),
-    (V2 / "broom_20261001_13.jpg", 0.40, "B룸 탈의 공간 — 커튼과 스팀다리미"),
-    (V2 / "broom_20261001_15.jpg", 0.50, "B룸 소품 코너 — 스탠드 조명과 화분"),
-    (V2 / "broom_20261001_16.jpg", 0.30, "B룸 거울 코너 — 앤티크 거울과 촛대"),
+    (V4 / "DJI_20261124143900_0042_D.JPG", 0.50, "B룸 전경 — 티테이블과 통창"),
+    (V4 / "DJI_20261124144013_0046_D.JPG", 0.50, "B룸 전경 — 앤티크 서랍장과 주방"),
+    (V4 / "DJI_20261124144155_0052_D.JPG", 0.50, "B룸 디저트 테이블 — 케이크와 티세트"),
+    (V4 / "DJI_20261124144233_0055_D.JPG", 0.50, "B룸 주방과 통창"),
+    (V4 / "DJI_20261124144437_0058_D.JPG", 0.50, "B룸 파우더룸 — 화장대와 의자"),
+    (V4 / "DJI_20261124144533_0061_D.JPG", 0.50, "B룸 밀크셰이크 디저트"),
 ]
 OLD = ("galB-1001-", "room-b-1001", "og-b-1001")
 SURFACES = ("rooms.json", "b.html", "index.html", "build_og.py", "test_b_copy_fixture.json")
@@ -61,9 +58,9 @@ def test_rooms_json_hero_og_and_gallery_order():
     assert b["hero"]["image"] == "/img/room-b-1002.jpg" and b["hero"]["alt"] == HERO_ALT
     assert b["seo"]["ogImage"] == "/img/og-b-1002.jpg"
     gal = b["gallery"]
-    assert [g["src"] for g in gal[:11]] == [f"/img/galB-1002-{i}.jpg" for i in range(1, 12)]
-    assert [g["alt"] for g in gal[:11]] == [alt for _, _, alt in GALLERY]
-    assert len(gal) == 12 and gal[11].get("video") == "/img/b-table-1001.mp4", "11칸 + 끝 영상(그대로)"
+    assert [g["src"] for g in gal] == ["/img/galB-1003-%d.jpg" % i for i in (1, 2, 5, 6, 7, 8)]
+    assert [g["alt"] for g in gal] == [alt for _, _, alt in GALLERY]
+    assert len(gal) == 6, "B 공간 갤러리 = 11월 16:9 6장(플리커 3·4 제거)"
 
 
 def test_no_old_b_photo_reference_left():
@@ -79,10 +76,9 @@ def test_b_html_and_hub_point_at_new_files():
     assert 'content="https://www.nuviestudio.com/img/og-b-1002.jpg"' in B
     assert 'src="/img/room-b-1002.jpg"' in B and "/img/room-b-1002-800.jpg 800w" in B
     assert HERO_ALT in B
-    for i in range(1, 12):
-        assert f"/img/galB-1002-{i}.jpg" in B, i
-    assert "/img/galB-1002-12" not in B, "갤러리는 11칸"
-    assert "/img/b-table-1001.mp4" in B
+    for i in (1, 2, 5, 6, 7, 8):
+        assert f"/img/galB-1003-{i}.jpg" in B, i
+    assert "/img/b-table-1001.mp4" not in B, "B 상세 영상 제거됨(11-24)"
     assert "/img/room-b-1002.jpg" in HUB
     assert "light:{src:'/img/room-b-1002.jpg'" in HUB, "허브 라이트 테마 = 새 B룸 첫 화면"
     slides = re.findall(r'class="mgal-slide"><img[^>]*src="(/img/galB-1002-\d+)\.jpg"', HUB)
@@ -92,23 +88,20 @@ def test_b_html_and_hub_point_at_new_files():
 
 
 def test_image_files_sizes():
-    for i in range(1, 12):
-        assert Image.open(ROOT / f"img/galB-1002-{i}.jpg").size == (825, 1100), i
-        assert Image.open(ROOT / f"img/galB-1002-{i}-800.jpg").size == (800, 1067), i
+    b = _room_b()
+    for i, g in enumerate(b["gallery"], 1):
+        assert Image.open(ROOT / g["src"].lstrip("/")).size == (g["w"], g["h"]), i
     for suf, size in (("", (1600, 1200)), ("-1200", (1200, 900)), ("-800", (800, 600))):
         assert Image.open(ROOT / f"img/room-b-1002{suf}.jpg").size == size, suf
     assert Image.open(ROOT / "img/og-b-1002.jpg").size == (1200, 630)
 
 
-def test_gallery_pixels_are_the_v2_source_cropped_at_ax_without_retouch():
-    """자르기 위치와 «밝기 무보정»을 함께 잠근다: 소스를 ax 로 자른 것과 평균 차이가 작아야 한다."""
-    for i, (src, ax, _) in enumerate(GALLERY, 1):
+def test_gallery_pixels_are_source_resized_without_crop():
+    """11-24 대표: B 갤러리 가로 원본 크롭 해제 — 3:4 자르기 없이 4:3 원본을 그대로 축소(밝기 무보정)."""
+    for (src, _ax, _), g in zip(GALLERY, _room_b()["gallery"]):
         assert src.exists(), f"원본 없음: {src}"
-        out = Image.open(ROOT / f"img/galB-1002-{i}.jpg")
-        assert _diff(out, _crop34(src, ax, (825, 1100))) < 4, i
-        # 다른 위치로 잘랐다면 차이가 커야 한다(이 검사가 위치를 실제로 구별하는지)
-        if ax != 0.5:
-            assert _diff(out, _crop34(src, 0.5, (825, 1100))) > _diff(out, _crop34(src, ax, (825, 1100))), i
+        out = Image.open(ROOT / g["src"].lstrip("/"))
+        assert _diff(out, Image.open(src).convert("RGB").resize(out.size, Image.LANCZOS)) < 4, g["src"]
 
 
 def test_hero_is_source_01_resized_without_retouch():
@@ -123,5 +116,5 @@ def test_freeze_fixture_follows_the_exception():
     fx = json.loads((ROOT / "test_b_copy_fixture.json").read_text(encoding="utf-8"))
     assert fx["hero_img"] == "/img/room-b-1002.jpg"
     assert fx["og_image"] == "https://www.nuviestudio.com/img/og-b-1002.jpg"
-    assert [g[0] for g in fx["gallery"][:11]] == [f"/img/galB-1002-{i}.jpg" for i in range(1, 12)]
-    assert [g[1] for g in fx["gallery"][:11]] == [alt for _, _, alt in GALLERY]
+    assert [g[0] for g in fx["gallery"]] == [g["src"] for g in _room_b()["gallery"]]
+    assert [g[1] for g in fx["gallery"]] == [alt for _, _, alt in GALLERY]

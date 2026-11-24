@@ -17,19 +17,21 @@ SELF = "배경을 꾸미지 않고 찍으실 계획이라면, 세트가 완성�
 def test_a_notes_and_seo_title():
     rooms = json.loads((ROOT / "rooms.json").read_text(encoding="utf-8"))
     a = next(r for r in rooms["rooms"] if r["slug"] == "a")
-    body = next(b for b in a["blocks"] if b["head"] == "미리 알아두세요")["body"]
+    # 11-22 대표 «제거 리스트» — A룸 상세에서는 전술 팁·치수를 뺀다(홈 «처음이세요»에는 유지).
     for line in ("먼저 찍고 싶은 한 컷을 정하고, 그 뒤에 둘 것 하나부터 옮겨 보세요.", "진열 선반 하나만 세워도 배경이 달라져요.",
-                 "블랙 호리존에서는 맨발이나 실내화로, 신발을 신으시면 바닥에 마스킹테이프를 붙여 주세요(비치돼 있어요).",
-                 "엘리베이터가 없는 4층이고 건물 주차장이 없어요."):
-        assert line in body, line
-    assert "누비는 꾸민 만큼 사진이 달라지는 곳이에요." not in body, "히어로와 겹치는 둘째 문장은 /a 에서 뺀다"
-    assert SELF not in body
+                 "가로 4M × 세로 2.5M × 높이 2.3M"):
+        assert line not in A, line
+    assert "미리 알아두세요" not in [b["head"] for b in a["blocks"]]
+    prep = " ".join(it["body"] for it in a["prep"]["items"])
+    assert "마스킹테이프" in prep and "자연광" in prep
+    notice = " ".join(it["body"] for it in a["notice"]["items"])
+    assert "엘리베이터" in notice and "주차" in notice
     assert a["seo"]["title"] == "A룸 동양풍·블랙 호리존 | 배경을 바꿀 수 있는 코스프레 스튜디오 누비"
     assert "배경을 바꿀 수 있는 코스프레 스튜디오 누비" in A
 
 
 def test_firstvisit_first_ten_minutes_and_self_select_block():
-    assert "먼저 찍고 싶은 한 컷을 정하고, 그 뒤에 둘 것 하나부터 옮겨 보세요.<br>진열 선반 하나만 세워도 배경이 달라져요." in HUB
+    assert "정해진 한 스팟이 아니라, 배치를 바꿔가며 나만의 컷을 만드시면 됩니다.<br><br>먼저 찍고 싶은 한 컷을 정하고, 그 뒤에 둘 것 하나부터 옮겨 보세요." in HUB
     i, j = HUB.index('id="selfSelect"'), HUB.index('<section id="firstvisit"')
     assert j < i < HUB.index("처음이세요? 막막하지 않게"), "선언은 «처음이세요» 제목 바로 앞 한 번"
     blk = HUB[i:i + 600]
