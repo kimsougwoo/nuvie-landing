@@ -509,6 +509,10 @@ def render_jsonld(room: dict, other: dict, catalog: dict, reviews_doc: dict) -> 
         product["additionalProperty"] = [
             {"@type": "PropertyValue", "name": "블랙 호리존(BLACK CYC) 크기", "value": room["blackCyc"]}
         ]
+    if room.get("jsonldProps"):
+        product["additionalProperty"] = [
+            {"@type": "PropertyValue", "name": p["name"], "value": p["value"]} for p in room["jsonldProps"]
+        ]
     if reviews_doc.get("updated"):
         product["dateModified"] = reviews_doc["updated"]
     # 2026-09-28: aggregateRating·review[] 를 내보내지 않는다. 후기는 전부 아워플레이스 것이라
