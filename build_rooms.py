@@ -600,7 +600,7 @@ def render_props_teaser(room: dict) -> str:
         '<ul style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">' + chips(items) + "</ul>"
         + fabric_line + paid_line +
         '<p style="margin:18px 0 0;font-size:12.5px;color:var(--faint)">비치 품목과 수량은 촬영·세팅 상황에 따라 달라질 수 있어요.</p>' + "</div>"
-        "</div></section>"
+        "</section>"
     )
 
 
