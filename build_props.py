@@ -209,8 +209,12 @@ def render_items(items, key):
 
 
 def render_paid(rows, room):
-    """유료 장비 — 매출 요소라 작은 썸네일 표 대신 «사진 카드 + 큰 금액»으로 보여준다."""
+    """유료 장비 — 사진 카드 + 큰 금액. 총액 상한은 «유료 장비» 머리 바로 아래."""
     paid_total = sum(int(r["price"].replace(",", "").replace("원", "")) for r in rows)
+    label = ("%d종 모두 " % len(rows)) if len(rows) > 1 else ""
+    allmax = ('<p class="allmax">' + label + '추가 시 최대 +%s원 (대관료 별도)</p>'
+              % format(paid_total, ","))
+
     out = ['        <ul class="items paid">']
     for r in rows:
         pid = r.get("photo")
@@ -224,12 +228,14 @@ def render_paid(rows, room):
                    '<span class="price">%s</span></li>'
                    % (ph, esc(r["name"]), esc(r.get("sub", "")), benefit, esc(r["price"])))
     out.append("        </ul>")
-    return ('          <div class="ledger" id="paid-%s">\n' % room
-            + '            <div class="paidhead"><span class="cap">유료 장비</span>'
-            + '<span class="capnote">대관 1회당 · 이용 시간과 무관</span></div>\n'
-            + '            <p class="allmax">3종 모두 추가 시 최대 +%s원 (대관료 별도)</p>\n' % format(paid_total, ",")
-            + "\n".join(out)
-            + "\n          </div>")
+
+    head = ('          <div class="ledger" id="paid-' + esc(room) + '">\n'
+            '            <div class="paidhead"><span class="cap">유료 장비</span>'
+            '<span class="capnote">대관 1회당 · 이용 시간과 무관</span></div>\n'
+            + allmax)
+    return head + "\n" + "\n".join(out) + "\n          </div>"
+
+
 def render_fabrics(fabrics):
     order = ["오간자", "쉬폰", "공단", "흑백"]
     label = {"오간자": "오간자", "쉬폰": "쉬폰", "공단": "공단", "흑백": "수묵 프린트"}

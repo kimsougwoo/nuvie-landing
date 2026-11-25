@@ -633,12 +633,14 @@ def render_paid_cards(room: dict) -> str:
         thumb = ('<span class="pc-ph"><img src="%s" alt="" loading="lazy" width="112" height="84"></span>' % src) if src else '<span class="pc-ph"></span>'
         items.append('<li>%s<span class="pc-b"><b>%s</b><span class="pc-p">%s</span></span></li>'
                      % (thumb, esc(r["name"]), esc(r["price"])))
+    label = ("%d종 모두 " % len(rows)) if len(rows) > 1 else ""
+    allmax = ('<p class="pc-all">' + label + '추가 시 최대 +%s원 (대관료 별도)</p>'
+              % format(total, ","))
     return ('<div class="paidcards"><div class="pc-head"><span>유료 장비</span>'
             '<span>대관 1회당 · 이용 시간과 무관</span></div>'
-            '<p class="pc-all">모두 추가 시 최대 +%s원 (대관료 별도)</p>'
-            '<ul>%s</ul>'
-            '<p class="pc-note">예약 화면의 «추가 대여»에서 함께 결제할 수 있어요.</p></div>'
-            % (format(total, ","), "".join(items)))
+            + allmax
+            + '<ul>' + "".join(items) + '</ul>'
+            '<p class="pc-note">예약 화면의 «추가 대여»에서 함께 결제할 수 있어요.</p></div>')
 
 def build_page(room: dict, other: dict, catalog: dict, business: dict, reviews_doc: dict, template: str) -> str:
     p = room["pricing"]
