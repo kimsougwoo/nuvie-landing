@@ -31,7 +31,7 @@ def test_hub_room_cards():
     assert ("비치 조명은 무료입니다 —<br>지속광 3대 · 순간광 2대(동조기 포함) · 모디파이어 7종 · 스탠드 7대 · 붐암 1개 · 스모그머신(무료)<br>"
             "유료 장비(대관 1회당, 이용 시간과 무관) —<br>"
             "FC-60B 세트 10,000원 · 파보튜브 15C 10,000원 · 브이플랫(1대·A·B 공용) 5,000원") in hub
-    assert ("비치 조명은 무료입니다 —<br>지속광 1대 · 팔각 소프트박스 · 스탠드 5대<br>"
+    assert ("비치 조명은 무료입니다 —<br>지속광 1대 · 순간광 2대(동조기 포함) · 팔각 소프트박스 · 스탠드 5대<br>"
             "유료 장비(대관 1회당, 이용 시간과 무관) —<br>브이플랫(1대·A·B 공용) 5,000원") in hub
 
 
@@ -46,15 +46,24 @@ def test_faq_jsonld_and_body_and_llms():
 
 
 def test_room_pages_price_note():
-    assert ("비치 조명은 무료입니다 — 지속광 3대 · 순간광 2대(동조기 포함) · 모디파이어 7종 · 스탠드 7대 · 붐암 1개 · 스모그머신(무료)<br>"
-            "유료 장비(대관 1회당, 이용 시간과 무관) — "
-            "FC-60B 세트 10,000원 · 파보튜브 15C 10,000원 · 브이플랫(1대·A·B 공용) 5,000원") in _t("a.html")
+    """2026-11-25: 한 문단 몰아쓰기 → 라벨 줄(인원 추가/비치 조명/유료 장비/예약 기준)로 분리."""
+    a = _t("a.html")
+    for label in ("인원 추가", "비치 조명", "유료 장비", "예약 기준"):
+        assert label in a, label
+    assert "무료 — 지속광 3대" in a
+    assert "순간광 2대(동조기)" in a
+    assert "5,500" in a
+
     b = _t("b.html")
-    assert ("비치 조명은 무료입니다 — 지속광 1대 · 팔각 소프트박스 · 스탠드 5대<br>"
-            "유료 장비(대관 1회당, 이용 시간과 무관) — 브이플랫(1대·A·B 공용) 5,000원") in b
+    assert "무료 — 지속광 1대" in b
     assert "FC-60B" not in b and "파보튜브" not in b, "B룸 페이지에 A룸 전용 유료 장비를 적지 않는다"
 
 
 def test_vflat_on_every_public_surface():
-    for name in ("index.html", "a.html", "b.html", "llms.txt"):
-        assert "브이플랫(1대·A·B 공용) 5,000원" in _t(name), name
+    """브이플랫 5,000원은 네 표면 모두에 남는다 — /a·/b는 유료 카드(사진+금액), 홈·llms는 문장."""
+    assert "브이플랫(1대·A·B 공용) 5,000원" in _t("index.html")
+    assert "브이플랫(1대·A·B 공용) 5,000원" in _t("llms.txt")
+    for name in ("a.html", "b.html"):
+        s = _t(name)
+        assert "브이플랫" in s, name
+        assert "5,000원" in s, name

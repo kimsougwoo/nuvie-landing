@@ -645,27 +645,28 @@ def render_paid_cards(room: dict) -> str:
 def build_page(room: dict, other: dict, catalog: dict, business: dict, reviews_doc: dict, template: str) -> str:
     p = room["pricing"]
     price_line = (
-        f'평일 <b style="font-weight:700">{won(p["weekday"])}</b> / '
-        f'주말 <b style="font-weight:700">{won(p["weekend"])}</b> · 시간당 · '
-        f'최소 {p["minHours"]}시간 · {p["baseGuests"]}인 기준 · '
-        f'{"부가세 포함" if p["taxIncluded"] else "부가세 별도"}'
+        '<div class="p-price">'
+        f'<div class="p-amount"><span class="p-k">평일</span><b>{won(p["weekday"])}</b>'
+        f'<span class="p-div">/</span><span class="p-k">주말</span><b>{won(p["weekend"])}</b></div>'
+        f'<div class="p-meta">시간당 · 최소 {p["minHours"]}시간 · {p["baseGuests"]}인 기준 · '
+        f'{"부가세 포함" if p["taxIncluded"] else "부가세 별도"}</div>'
+        "</div>"
     )
     # 추가요금 고지 — 룸 페이지엔 FAQ 가 없어 조건이 통째로 빠져 있었다(2026-08-04 검수).
     # CTA 를 태우는 페이지에서 조건을 숨기면 기대 불일치 = 보이스 1층(정직) 위반이다.
     # 10-01 대표(9a 중계): 문장 두 개를 잇는 « · » 는 줄바꿈으로 바꾼다(짧은 항목 목록인 가격 줄은 « · » 그대로).
     # 11-20 대표: 무료/유료 장비는 세 면(메인·/a·/b)이 같은 문형으로 적는다.
     #   무료 = rooms.json freeEquipment 목록, 유료 = equipmentFees(품목별 금액).
-    free_note = ""
-    if p.get("freeEquipment"):
-        free_note = "비치 조명은 무료입니다 — " + " · ".join(p["freeEquipment"]) + "<br>"
-    equipment_fee_text = " · ".join(
-        f'{fee["label"]} {won(fee["amount"])}' for fee in p["equipmentFees"]
-    )
-    equipment_fee_note = f'유료 장비(대관 1회당, 이용 시간과 무관) — {equipment_fee_text}'
+    # 2026-11-25 대표: 한 문단에 몰아넣어 읽기 어렵다 → 라벨 줄로 나눈다(가격·인원·조명·예약 기준).
+    # 카드 안에서는 «무료»가 라벨로 이미 말해지므로 중복 표기를 덜어 문장을 짧게 유지한다.
+    free_list = " · ".join(p["freeEquipment"]).replace("(무료)", "").replace("동조기 포함", "동조기") if p.get("freeEquipment") else ""
     price_conditions = (
-        f'{p["baseGuests"] + 1}인째부터 시간당 {won(p["extraGuestPerHour"])}이 자동 추가돼요<br>'
-        f'{free_note}{equipment_fee_note}<br>'
-        f'주말은 {p["weekendDefinition"]} 기준<br>실제 결제 금액은 예약 페이지에서 확인하실 수 있어요.'
+        '<dl class="p-cond">'
+        f'<div><dt>인원 추가</dt><dd>{p["baseGuests"] + 1}인째부터 시간당 {won(p["extraGuestPerHour"])}</dd></div>'
+        f'<div><dt>비치 조명</dt><dd>무료 — {free_list}</dd></div>'
+        f'<div><dt>유료 장비</dt><dd>대관 1회당 · 품목별 금액은 아래 참고</dd></div>'
+        f'<div><dt>예약 기준</dt><dd>주말은 {p["weekendDefinition"]} · 최종 금액은 아워플레이스 예약 화면에서 확인</dd></div>'
+        "</dl>"
     )
     # ⚠️ 룸 간 가격 비교 금지(대표 2026-07-26): 이 페이지엔 이 룸 값만 적는다.
     #    다른 룸 카드(OTHER_*)에 가격을 넣지 않는 것도 같은 이유다.
