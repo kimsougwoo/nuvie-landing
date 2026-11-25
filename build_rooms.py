@@ -584,7 +584,7 @@ def render_props_teaser(room: dict) -> str:
                      + ' (대관 1회당 · 이용 시간과 무관)</p>')
     fabric_line = (
         '<p style="margin:18px 0 0;font-size:13px;color:var(--dim)">'
-        '원단 14색 — 오간자 7 · 쉬폰 4 · 공단 2 · 수묵 프린트 1 (전부 무료, 사진은 «전체 보기»)</p>'
+        '원단 14색 — 오간자 7 · 쉬폰 4 · 공단 2 · 수묵 프린트 1 · 전부 무료</p>'
     ) if slug == "a" else ""
 
     return (
@@ -593,15 +593,13 @@ def render_props_teaser(room: dict) -> str:
         '<div><div style="font-size:clamp(20px,2.4vw,28px);letter-spacing:-.02em;color:var(--ink)">'
         + esc(room["label"]) + " 비치 소품</div>"
         '<p class="desc" style="margin:8px 0 0;font-size:14px;color:var(--dim)">장비 ' + str(len(eq))
-        + ' · 소품 ' + str(len(items)) + ' — 이 룸에 있는 것만 적었습니다. 유료는 «(유료 …)»로 표시했습니다.</p></div>' + link + "</div>"
+        + ' · 소품 ' + str(len(items)) + ' — 이 룸에 있는 것만 적었습니다. 유료 장비는 금액으로 적었습니다.</p></div>' + link + "</div>"
         '<div style="font-family:var(--label-font);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:14px 0 9px">장비</div>'
-        '<ul style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px">' + chips(eq) + "</ul>"
+        '<ul style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">' + chips(eq) + "</ul>"
         '<div style="font-family:var(--label-font);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:20px 0 9px">소품</div>'
-        '<ul style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px">' + chips(items) + "</ul>"
+        '<ul style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">' + chips(items) + "</ul>"
         + fabric_line + paid_line +
-        '<div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:18px 0 0">'
-        '<p style="margin:0;font-size:12.5px;color:var(--faint)">비치 품목과 수량은 촬영·세팅 상황에 따라 달라질 수 있어요.</p>'
-        + link + "</div>"
+        '<p style="margin:18px 0 0;font-size:12.5px;color:var(--faint)">비치 품목과 수량은 촬영·세팅 상황에 따라 달라질 수 있어요.</p>' + "</div>"
         "</div></section>"
     )
 
