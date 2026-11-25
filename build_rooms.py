@@ -570,7 +570,7 @@ def render_props_teaser(room: dict) -> str:
     def chips(names):
         return "".join(
             '<li style="background:var(--panel);border:1px solid var(--line);border-radius:2px;'
-            'padding:10px 12px;font-size:13px;color:var(--dim);line-height:1.4">' + esc(n) + "</li>"
+            'padding:10px 12px;font-size:13px;color:var(--dim);line-height:1.55">' + esc(n) + "</li>"
             for n in names)
 
     link = ('<a class="btn line" style="padding:11px 20px;font-size:13.5px;white-space:nowrap" href="/props#' + slug + '">'
