@@ -38,7 +38,8 @@ window.NUVIE.rooms = {
           "label": "브이플랫(1대·A·B 공용)",
           "amount": 5000
         }
-      ]
+      ],
+      "equipmentTotalMax": 25000
     },
     "capacity": {
       "min": 1,
@@ -64,6 +65,7 @@ window.NUVIE.rooms = {
       "weekendDefinition": "토·일·공휴일",
       "freeEquipment": [
         "지속광 1대",
+        "순간광 2대(동조기 포함)",
         "팔각 소프트박스",
         "스탠드 5대"
       ],
@@ -72,7 +74,8 @@ window.NUVIE.rooms = {
           "label": "브이플랫(1대·A·B 공용)",
           "amount": 5000
         }
-      ]
+      ],
+      "equipmentTotalMax": 5000
     },
     "capacity": {
       "min": 1,

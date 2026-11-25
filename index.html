@@ -135,6 +135,7 @@
       <a href="#availability" class="nav" data-nav="availability"><span class="no">03</span> 예약</a>
       <a href="#location" class="nav" data-nav="location"><span class="no">04</span> 오시는 길</a>
       <a href="#faq" class="nav" data-nav="faq"><span class="no">05</span> FAQ</a>
+      <a href="/props" class="nav"><span class="no">06</span> 비치 소품</a>
     </nav>
     <div class="book" style="margin-top:24px;display:flex;flex-direction:column;gap:9px">
       <!-- 라벨-목적지 일치(2026-07-29) — 종전 「예약하기」는 룸 중립인데 목적지는 A룸(place/61823) 고정이었다.
@@ -293,6 +294,7 @@
       <a class="nv-chip" href="#availability">빈 시간</a>
       <a class="nv-chip" href="#location">오시는 길</a>
       <a class="nv-chip" href="#faq">FAQ</a>
+      <a class="nv-chip" href="/props">비치 소품</a>
     </nav>
 
     <section class="info" style="display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
@@ -351,7 +353,7 @@
           <div class="room-booking-info" aria-labelledby="roomInfoTitleB">
             <h3 id="roomInfoTitleB">예약 전 확인</h3>
             <p>평일 40,000원 / 주말 45,000원 (시간당⁠·⁠4인 기준) · 최소 2시간 · <a href="https://www.hourplace.co.kr/place/62341" target="_blank" rel="noopener" data-hp="b|price_link" style="color:var(--accent);font-weight:600;white-space:nowrap">B룸 예약 &rarr;</a><br>준비⁠·⁠정리 시간도 이용 시간에 포함됩니다.</p>
-            <p>비치 조명은 무료입니다 —<br>지속광 1대 · 팔각 소프트박스 · 스탠드 5대<br>유료 장비(대관 1회당, 이용 시간과 무관) —<br>브이플랫(1대⁠·⁠A⁠·⁠B 공용) 5,000원</p>
+            <p>비치 조명은 무료입니다 —<br>지속광 1대 · 순간광 2대(동조기 포함) · 팔각 소프트박스 · 스탠드 5대<br>유료 장비(대관 1회당, 이용 시간과 무관) —<br>브이플랫(1대⁠·⁠A⁠·⁠B 공용) 5,000원</p>
             <p>가구⁠·⁠소품은 자유롭게 옮겨 쓰셔도 됩니다.<br>퇴실 때 제자리로만 돌려주세요.</p>
             <p>개인 천⁠·⁠소품 반입 가능<br>건물 주차장은 없습니다<br>커피머신은 촬영 소품이라 사용은 어렵습니다.</p>
             <a id="roomInfoBookB" class="btn room-booking-cta" href="#availability" data-book="b">B룸 예약 가능 시간 확인</a>
@@ -1135,7 +1137,7 @@
       var cell=document.createElement('div');
       cell.className='cell';
       cell.setAttribute('data-datekey',key);
-      cell.style.cssText='min-height:96px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 7px 9px;display:flex;flex-direction:column;gap:3px;overflow:hidden'+(inMonth?(isPast?';opacity:.6;--op:.6':''):(outPast?';opacity:.6;--op:.6':';opacity:.65;--op:.65'))+(isToday?';background:color-mix(in srgb, var(--accent) 9%, transparent)':'');
+      cell.style.cssText='min-height:96px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 7px 9px;display:flex;flex-direction:column;gap:3px;overflow:hidden'+(inMonth?(isPast?';opacity:.68;--op:.68':''):(outPast?';opacity:.68;--op:.68':';opacity:.72;--op:.72'))+(isToday?';background:color-mix(in srgb, var(--accent) 9%, transparent)':'');
       // 선택일 표시는 cssText 대입 «뒤»에 준다 — 앞에 두면 cssText 가 통째로 덮어써 눌린 날 표시가 사라졌다(2026-09-29 실측).
       //   셀이 overflow:hidden 이라 바깥 outline 은 잘리므로 안쪽으로(offset -2px) 그린다.
       if(key===SELECTED_KEY){cell.style.outline='2px solid var(--accent)';cell.style.outlineOffset='-2px';}

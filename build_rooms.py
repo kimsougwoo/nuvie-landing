@@ -1,4 +1,4 @@
-"""룸 페이지 생성기 — rooms.json(값) + room.template.html(틀) -> a.html · b.html · rooms.data.js · sitemap.xml
+﻿"""룸 페이지 생성기 — rooms.json(값) + room.template.html(틀) -> a.html · b.html · rooms.data.js · sitemap.xml
 
     python build_rooms.py            # 생성
     python build_rooms.py --check    # 생성물이 최신인지만 검사(쓰지 않음, CI/테스트용)
@@ -540,6 +540,106 @@ def render_jsonld(room: dict, other: dict, catalog: dict, reviews_doc: dict) -> 
 # ---------------------------------------------------------------- 페이지 조립
 
 
+
+def render_props_teaser(room: dict) -> str:
+    """A/B 상세 안 «비치 소품 전체 인라인» — 2026-11-25 대표(D안) · 내부작업 검수 반영.
+
+    조건: ①상세에는 사진 0장(히어로 제외) ②원단은 1줄(이미지 4장 넣지 않음)
+          ③렌더 스킵(content-visibility) ④링크 2곳(위·아래) + «무엇이 있는지» 문구
+    값은 props.json 하나만 쓴다. 사진은 /props#<slug> 에서만.
+    """
+    import json as _json
+    path = ROOT / "props.json"
+    if not path.exists():
+        return ""
+    doc = _json.loads(path.read_text(encoding="utf-8"))
+    slug = room["slug"]
+    paid_by_name = {r["name"]: r["price"] for r in doc.get("paid", {}).get(slug, [])}
+    eq = []
+    for x in doc.get("equipment", {}).get(slug, []):
+        label = x["name"] + (" · " + x["sub"] if x.get("sub") else "")
+        if x.get("tag") == "유료":
+            label += " (유료 " + paid_by_name.get(x["name"], "") + ")"
+        eq.append(label)
+    rm = next((r for r in doc.get("rooms", []) if r["slug"] == slug), {"items": []})
+    items = [x["name"] + (" · " + x["sub"] if x.get("sub") else "") for x in rm["items"]]
+    total = len(eq) + len(items)
+    extra = " · 원단 14색" if slug == "a" else ""
+    link_label = "사진으로 전체 보기 (" + room["label"] + " " + str(total) + "종" + extra + ")"
+
+    def chips(names):
+        return "".join(
+            '<li style="background:var(--panel);border:1px solid var(--line);border-radius:2px;'
+            'padding:10px 12px;font-size:13px;color:var(--dim);line-height:1.4">' + esc(n) + "</li>"
+            for n in names)
+
+    link = ('<a class="btn line" style="padding:11px 20px;font-size:13.5px;white-space:nowrap" href="/props#' + slug + '">'
+            + esc(link_label) + " &rarr;</a>")
+    paid_rows = doc.get("paid", {}).get(slug, [])
+    paid_line = ""
+    if paid_rows:
+        parts = " · ".join('%s %s' % (r["name"].split(" + ")[0], r["price"]) for r in paid_rows)
+        paid_line = ('<p style="margin:0 0 14px;font-size:13px;color:var(--dim)">'
+                     '<b style="color:var(--ink);font-weight:600">유료 장비</b> — ' + esc(parts)
+                     + ' (대관 1회당 · 이용 시간과 무관)</p>')
+    fabric_line = (
+        '<p style="margin:18px 0 0;font-size:13px;color:var(--dim)">'
+        '원단 14색 — 오간자 7 · 쉬폰 4 · 공단 2 · 수묵 프린트 1 (전부 무료, 사진은 «전체 보기»)</p>'
+    ) if slug == "a" else ""
+
+    return (
+        '<section class="sec" id="props-teaser"><div class="inner">'
+        '<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px">'
+        '<div><div style="font-size:clamp(20px,2.4vw,28px);letter-spacing:-.02em;color:var(--ink)">'
+        + esc(room["label"]) + " 비치 소품</div>"
+        '<p class="desc" style="margin:8px 0 0;font-size:14px;color:var(--dim)">장비 ' + str(len(eq))
+        + ' · 소품 ' + str(len(items)) + ' — 이 룸에 있는 것만 적었습니다. 유료는 «(유료 …)»로 표시했습니다.</p></div>' + link + "</div>"
+        '<div style="font-family:var(--label-font);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:14px 0 9px">장비</div>'
+        '<ul style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px">' + chips(eq) + "</ul>"
+        '<div style="font-family:var(--label-font);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:20px 0 9px">소품</div>'
+        '<ul style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px">' + chips(items) + "</ul>"
+        + fabric_line + paid_line +
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:18px 0 0">'
+        '<p style="margin:0;font-size:12.5px;color:var(--faint)">비치 품목과 수량은 촬영·세팅 상황에 따라 달라질 수 있어요.</p>'
+        + link + "</div>"
+        "</div></section>"
+    )
+
+
+def render_paid_cards(room: dict) -> str:
+    """요금·예약 카드 안 «유료 장비» — 사진 56px + 이름 + 금액, 총액 상한 1줄.
+    (내부작업 판정: 버튼 금지 · 예약 화면의 추가 대여 안내만 · 총액 사전 공개)"""
+    import json as _json
+    path = ROOT / "props.json"
+    if not path.exists():
+        return ""
+    doc = _json.loads(path.read_text(encoding="utf-8"))
+    rows = doc.get("paid", {}).get(room["slug"], [])
+    if not rows:
+        return ""
+    total = int(room["pricing"].get("equipmentTotalMax") or
+                sum(int(r["price"].replace(",", "").replace("원", "")) for r in rows))
+    photo_dir = ROOT / "img" / "props"
+    items = []
+    for r in rows:
+        pid = r.get("photo")
+        src = None
+        if pid:
+            for ext in ("jpg", "jpeg", "png", "webp"):
+                p = photo_dir / (pid + "." + ext)
+                if p.exists():
+                    src = "/img/props/%s.%s" % (pid, ext)
+                    break
+        thumb = ('<span class="pc-ph"><img src="%s" alt="" loading="lazy" width="112" height="84"></span>' % src) if src else '<span class="pc-ph"></span>'
+        items.append('<li>%s<span class="pc-b"><b>%s</b><span class="pc-p">%s</span></span></li>'
+                     % (thumb, esc(r["name"]), esc(r["price"])))
+    return ('<div class="paidcards"><div class="pc-head"><span>유료 장비</span>'
+            '<span>대관 1회당 · 이용 시간과 무관</span></div>'
+            '<p class="pc-all">모두 추가 시 최대 +%s원 (대관료 별도)</p>'
+            '<ul>%s</ul>'
+            '<p class="pc-note">예약 화면의 «추가 대여»에서 함께 결제할 수 있어요.</p></div>'
+            % (format(total, ","), "".join(items)))
+
 def build_page(room: dict, other: dict, catalog: dict, business: dict, reviews_doc: dict, template: str) -> str:
     p = room["pricing"]
     price_line = (
@@ -640,11 +740,13 @@ def build_page(room: dict, other: dict, catalog: dict, business: dict, reviews_d
         "GALLERY_DESC": esc(room.get("galleryDesc") or f"{room['label']}에서 찍힌 장면들이에요."),
         "ABOUT_LEAD": (f'<p class="desc" data-reveal style="margin:0 0 26px">{esc(room["aboutLead"])}</p>' if room.get("aboutLead") else ""),
         "SETUPS": render_setups(room, no=setups_no) if setups_no else "",
+        "PROPS_TEASER": render_props_teaser(room),
         "PREP": render_prep(room, no=prep_no) if prep_no else "",
         "REVIEWS": render_reviews(room, reviews_doc, no=reviews_no),
         "NOTICE": render_notice(room, no=notice_no) if notice_no else "",
         "PRICE_LINE": price_line,
         "PRICE_CONDITIONS": price_conditions,
+        "PAID_CARDS": render_paid_cards(room),
         "BOOK_RATING": (f'<div style="display:flex;align-items:center;gap:6px;margin:0 0 14px;color:var(--dim);font-size:12.5px"><span style="color:var(--accent)">★</span> {esc(str(rv_rating))} · 후기 {esc(str(rv_count))}건</div>' if room.get("bookRating") and rv_rating and rv_count else ""),
         "BOOKING_HREF": booking_href(room, catalog),
         "BOOKING_NOTE": booking_note,
@@ -730,6 +832,9 @@ def build_sitemap(rooms: list[dict]) -> str:
     )
     urls = [("/", "weekly", "1.0", root_lastmod)]
     urls += [(f"/{r['slug']}", "weekly", "0.9", room_lastmod) for r in rooms]
+    # 2026-11-25: 비치 소품 — 룸 탭 전환형 단일 페이지(/props)
+    if (ROOT / "props.html").exists():
+        urls.append(("/props", "monthly", "0.6", _source_lastmod(ROOT / "props.html")))
     body = "\n".join(
         f"  <url><loc>{SITE}{loc}</loc><lastmod>{lastmod}</lastmod>"
         f"<changefreq>{cf}</changefreq><priority>{pr}</priority></url>"

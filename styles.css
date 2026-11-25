@@ -49,7 +49,9 @@ html{scroll-behavior:smooth}
     /* --faint 2026-08-05: #8A8A8E → #6E6E72. 흰 배경에서 3.21:1 로 AA(4.5) 미달이었다(실측).
        후기 작성자·날짜, 예약 안내문, 푸터가 전부 이 토큰이라 라이트 모드에서 본문급 텍스트가 규격 미달로 나갔다.
        새 값 = 흰 배경 5.11:1 · 패널(#F5F5F6) 위 4.68:1 로 둘 다 통과. 다크(#7F7F84)는 4.83:1 이라 그대로 둔다. */
-    --ink:#181818; --dim:#5E5E61; --faint:#6E6E72;
+    /* 2026-11-25 대표 승인: 따뜻한 라이트 패널(#EEE6E3 계열) 위에서 --faint 가 4.0:1 로
+     AA 미달이었다(impeccable detect 실측). #6E6E72 → #5C5C63 로 올려 4.5:1 이상 확보. */
+  --ink:#181818; --dim:#5E5E61; --faint:#5C5C63;
     --accent:#5E5E61; --accentSoft:#181818; --onAccent:#FFFFFF;
     --btnBg:#000000; --btnFg:#FFFFFF; --btnHover:#2A2A2C;
     --roomA:#5E5E61; --roomB:#5E5E61;
@@ -693,3 +695,20 @@ body{word-break:keep-all;overflow-wrap:break-word}
 .galvid-btn[data-state="paused"]::after{display:none}
 .galvid-btn[data-state="paused"]::before{left:14px;top:10px;width:0;height:0;background:none;border-radius:0;border-style:solid;border-width:8px 0 8px 12px;border-color:transparent transparent transparent #FFF}
 .galvid-btn:focus-visible{outline:2px solid #FFF;outline-offset:2px}
+
+/* 2026-11-25: 상세 안 «비치 소품 전체 인라인» — 초기 렌더에서 제외(내부작업 검수 D안) */
+#props-teaser{content-visibility:auto;contain-intrinsic-size:auto 460px}
+
+/* 요금 카드 안 유료 장비 — 2026-11-25 (사진 + 금액 + 총액 상한) */
+.paidcards{margin:0 0 18px;border-top:1px solid var(--line);padding-top:14px}
+.pc-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:12px;color:var(--dim)}
+.pc-head span:first-child{font-family:var(--label-font);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.paidcards ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.paidcards li{display:flex;gap:10px;align-items:center}
+.pc-ph{display:block;flex:none;width:56px;height:42px;background:var(--panel);border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.pc-ph img{display:block;width:100%;height:100%;object-fit:contain}
+.pc-b{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pc-b b{font-size:12.5px;font-weight:500;color:var(--ink);line-height:1.35}
+.pc-p{font-size:13px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.pc-all{margin:10px 0 0;font-size:12px;color:var(--dim)}
+.pc-note{margin:4px 0 0;font-size:12px;color:var(--faint)}
