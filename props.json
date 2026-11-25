@@ -1,427 +1,433 @@
 {
- "equipment": {
-  "a": [
-   {
-    "id": "fs300b",
-    "name": "지속광 난라이트 FS-300B",
-    "tag": "무료",
-    "group": "지속광"
-   },
-   {
-    "id": "sl150",
-    "name": "지속광 고독스 SL150",
-    "tag": "무료",
-    "group": "지속광"
-   },
-   {
-    "id": "300w",
-    "name": "지속광 300W",
-    "tag": "무료",
-    "group": "지속광"
-   },
-   {
-    "id": "e600",
-    "name": "순간광 포맥스 E600",
-    "sub": "본체",
-    "tag": "무료",
-    "group": "순간광"
-   },
-   {
-    "id": "trigger-rx1",
-    "name": "포멕스 POTON RX-1 무선동조기",
-    "sub": "E600 동조",
-    "tag": "무료",
-    "group": "순간광"
-   },
-   {
-    "id": "softbox",
-    "name": "사각 소프트박스",
-    "tag": "무료",
-    "group": "모디파이어"
-   },
-   {
-    "id": "genbol",
-    "name": "젬볼",
-    "tag": "무료",
-    "group": "모디파이어"
-   },
-   {
-    "id": "beauty",
-    "name": "뷰티디쉬",
-    "tag": "무료",
-    "group": "모디파이어"
-   },
-   {
-    "id": "hard-reflector",
-    "name": "하드 리플렉터",
-    "tag": "무료",
-    "group": "모디파이어"
-   },
-   {
-    "id": "reflector",
-    "name": "반사판",
-    "tag": "무료",
-    "group": "모디파이어"
-   },
-   {
-    "id": "snoot",
-    "name": "스누트",
-    "tag": "무료",
-    "group": "모디파이어"
-   },
-   {
-    "id": "c-stand",
-    "name": "C스탠드 + 붐암 세트",
-    "tag": "무료",
-    "group": "스탠드·그립"
-   },
-   {
-    "id": "a-stand",
-    "name": "A스탠드",
-    "tag": "무료",
-    "group": "스탠드·그립"
-   },
-   {
-    "id": "smoke",
-    "name": "스모그머신",
-    "sub": "A룸",
-    "tag": "무료",
-    "group": "기타",
-    "hideLabel": true
-   }
-  ],
-  "b": [
-   {
-    "id": "fs300",
-    "name": "지속광 난라이트 FS-300",
-    "tag": "무료",
-    "group": "지속광"
-   },
-   {
-    "id": "e600-b",
-    "name": "순간광 포맥스 E600",
-    "sub": "2대 · 본체",
-    "tag": "무료",
-    "group": "순간광"
-   },
-   {
-    "id": "trigger-rx1-b",
-    "name": "포멕스 POTON RX-1 무선동조기",
-    "sub": "E600 동조",
-    "tag": "무료",
-    "group": "순간광"
-   },
-   {
-    "id": "octa-softbox",
-    "name": "팔각 소프트박스",
-    "tag": "무료",
-    "group": "모디파이어"
-   },
-   {
-    "id": "a-stand-b",
-    "name": "A스탠드",
-    "tag": "무료",
-    "group": "스탠드·그립"
-   },
-   {
-    "id": "vflat-b",
-    "name": "브이플랫",
-    "sub": "양면 화이트/블랙 · 1대",
-    "tag": "유료",
-    "group": "배경"
-   }
-  ]
- },
- "paid": {
-  "a": [
-   {
-    "name": "난라이트 FC-60B + 프로젝션 어태치먼트(PJ-FMM 19°) 세트",
-    "sub": "A룸 · 세트당",
-    "price": "10,000원",
-    "photo": "fc60b",
-    "benefit": "배경에 패턴·빛을 투사합니다"
-   },
-   {
-    "name": "난라이트 파보튜브 15C",
-    "sub": "A룸 · 1대당 · 최대 2대 · 풀컬러 · 삼각대 포함",
-    "price": "10,000원",
-    "photo": "pavotube15c",
-    "benefit": "색 조명 1대 · 풀컬러 · 삼각대 포함"
-   },
-   {
-    "name": "브이플랫",
-    "sub": "양면 화이트/블랙 · 반사·빛 흡수용 · 1대 · A·B룸 공용",
-    "price": "5,000원",
-    "photo": "vflat-b",
-    "benefit": "반사·빛 흡수 양면 · A·B 공용 1대"
-   }
-  ],
-  "b": [
-   {
-    "name": "브이플랫",
-    "sub": "양면 화이트/블랙 · 반사·빛 흡수용 · 1대 · A·B룸 공용",
-    "price": "5,000원",
-    "photo": "vflat-b",
-    "benefit": "반사·빛 흡수 양면 · A·B 공용 1대"
-   }
-  ]
- },
- "rooms": [
-  {
-   "slug": "a",
-   "label": "A룸 · 동양풍 · 블랙 호리존",
-   "short": "A룸",
-   "items": [
+  "equipment": {
+    "a": [
+      {
+        "id": "fs300b",
+        "name": "지속광 난라이트 FS-300B",
+        "tag": "무료",
+        "group": "지속광"
+      },
+      {
+        "id": "sl150",
+        "name": "지속광 고독스 SL150",
+        "tag": "무료",
+        "group": "지속광"
+      },
+      {
+        "id": "300w",
+        "name": "지속광 300W",
+        "tag": "무료",
+        "group": "지속광"
+      },
+      {
+        "id": "e600",
+        "name": "순간광 포맥스 E600",
+        "sub": "본체",
+        "tag": "무료",
+        "group": "순간광"
+      },
+      {
+        "id": "trigger-rx1",
+        "name": "포멕스 POTON RX-1 무선동조기",
+        "sub": "E600 동조",
+        "tag": "무료",
+        "group": "순간광"
+      },
+      {
+        "id": "softbox",
+        "name": "사각 소프트박스",
+        "tag": "무료",
+        "group": "모디파이어"
+      },
+      {
+        "id": "genbol",
+        "name": "젬볼",
+        "tag": "무료",
+        "group": "모디파이어"
+      },
+      {
+        "id": "beauty",
+        "name": "뷰티디쉬",
+        "tag": "무료",
+        "group": "모디파이어"
+      },
+      {
+        "id": "hard-reflector",
+        "name": "하드 리플렉터",
+        "tag": "무료",
+        "group": "모디파이어"
+      },
+      {
+        "id": "reflector",
+        "name": "반사판",
+        "tag": "무료",
+        "group": "모디파이어"
+      },
+      {
+        "id": "snoot",
+        "name": "스누트",
+        "tag": "무료",
+        "group": "모디파이어"
+      },
+      {
+        "id": "c-stand",
+        "name": "C스탠드 + 붐암 세트",
+        "tag": "무료",
+        "group": "스탠드·그립"
+      },
+      {
+        "id": "a-stand",
+        "name": "A스탠드",
+        "tag": "무료",
+        "group": "스탠드·그립"
+      },
+      {
+        "id": "smoke",
+        "name": "스모그머신",
+        "sub": "A룸",
+        "tag": "무료",
+        "group": "기타",
+        "hideLabel": true
+      }
+    ],
+    "b": [
+      {
+        "id": "fs300",
+        "name": "지속광 난라이트 FS-300",
+        "tag": "무료",
+        "group": "지속광"
+      },
+      {
+        "id": "e600-b",
+        "name": "순간광 포맥스 E600",
+        "sub": "2대 · 본체",
+        "tag": "무료",
+        "group": "순간광"
+      },
+      {
+        "id": "trigger-rx1-b",
+        "name": "포멕스 POTON RX-1 무선동조기",
+        "sub": "E600 동조",
+        "tag": "무료",
+        "group": "순간광"
+      },
+      {
+        "id": "softbox",
+        "name": "사각 소프트박스",
+        "tag": "무료",
+        "group": "모디파이어"
+      },
+      {
+        "id": "octa-softbox",
+        "name": "팔각 소프트박스",
+        "tag": "무료",
+        "group": "모디파이어"
+      },
+      {
+        "id": "a-stand-b",
+        "name": "A스탠드",
+        "tag": "무료",
+        "group": "스탠드·그립"
+      },
+      {
+        "id": "vflat-b",
+        "name": "브이플랫",
+        "sub": "양면 화이트/블랙 · 1대",
+        "tag": "유료",
+        "group": "배경"
+      }
+    ]
+  },
+  "paid": {
+    "a": [
+      {
+        "name": "난라이트 FC-60B + 프로젝션 어태치먼트(PJ-FMM 19°) 세트",
+        "sub": "A룸 · 세트당",
+        "price": "10,000원",
+        "photo": "fc60b",
+        "benefit": "배경에 패턴·빛을 투사합니다"
+      },
+      {
+        "name": "난라이트 파보튜브 15C",
+        "sub": "A룸 · 1대당 · 최대 2대 · 풀컬러 · 삼각대 포함",
+        "price": "10,000원",
+        "photo": "pavotube15c",
+        "benefit": "색 조명 1대 · 풀컬러 · 삼각대 포함"
+      },
+      {
+        "name": "브이플랫",
+        "sub": "양면 화이트/블랙 · 반사·빛 흡수용 · 1대 · A·B룸 공용",
+        "price": "5,000원",
+        "photo": "vflat-b",
+        "benefit": "반사·빛 흡수 양면 · A·B 공용 1대"
+      }
+    ],
+    "b": [
+      {
+        "name": "브이플랫",
+        "sub": "양면 화이트/블랙 · 반사·빛 흡수용 · 1대 · A·B룸 공용",
+        "price": "5,000원",
+        "photo": "vflat-b",
+        "benefit": "반사·빛 흡수 양면 · A·B 공용 1대"
+      }
+    ]
+  },
+  "rooms": [
     {
-     "id": "nahan",
-     "name": "나한상",
-     "sub": "평상",
-     "tag": "무료"
+      "slug": "a",
+      "label": "A룸 · 동양풍 · 블랙 호리존",
+      "short": "A룸",
+      "items": [
+        {
+          "id": "nahan",
+          "name": "나한상",
+          "sub": "평상",
+          "tag": "무료"
+        },
+        {
+          "id": "jwatak",
+          "name": "좌탁",
+          "sub": "찻상",
+          "tag": "무료"
+        },
+        {
+          "id": "serye",
+          "name": "두루마리 · 필가 · 서예 쉬폰",
+          "tag": "무료"
+        },
+        {
+          "id": "drape",
+          "name": "드레이핑 천",
+          "tag": "무료"
+        },
+        {
+          "id": "byeongpung",
+          "name": "자수 병풍",
+          "tag": "무료"
+        },
+        {
+          "id": "lattice",
+          "name": "격자 스크린",
+          "sub": "창호",
+          "tag": "무료"
+        },
+        {
+          "id": "stool",
+          "name": "중국풍 스툴",
+          "tag": "무료"
+        },
+        {
+          "id": "cushion",
+          "name": "방석",
+          "tag": "무료"
+        },
+        {
+          "id": "vase",
+          "name": "청화백자 화병",
+          "tag": "무료"
+        },
+        {
+          "id": "lamp",
+          "name": "등잔 · 촛대",
+          "tag": "무료"
+        },
+        {
+          "id": "drum",
+          "name": "고서",
+          "tag": "무료"
+        },
+        {
+          "id": "tile",
+          "name": "기와 · 목재 소품",
+          "tag": "무료"
+        },
+        {
+          "id": "fan",
+          "name": "부채 · 지우산 등 동양풍 소품",
+          "tag": "무료"
+        }
+      ]
     },
     {
-     "id": "jwatak",
-     "name": "좌탁",
-     "sub": "찻상",
-     "tag": "무료"
-    },
-    {
-     "id": "serye",
-     "name": "두루마리 · 필가 · 서예 쉬폰",
-     "tag": "무료"
-    },
-    {
-     "id": "drape",
-     "name": "드레이핑 천",
-     "tag": "무료"
-    },
-    {
-     "id": "byeongpung",
-     "name": "자수 병풍",
-     "tag": "무료"
-    },
-    {
-     "id": "lattice",
-     "name": "격자 스크린",
-     "sub": "창호",
-     "tag": "무료"
-    },
-    {
-     "id": "stool",
-     "name": "중국풍 스툴",
-     "tag": "무료"
-    },
-    {
-     "id": "cushion",
-     "name": "방석",
-     "tag": "무료"
-    },
-    {
-     "id": "vase",
-     "name": "청화백자 화병",
-     "tag": "무료"
-    },
-    {
-     "id": "lamp",
-     "name": "등잔 · 촛대",
-     "tag": "무료"
-    },
-    {
-     "id": "drum",
-     "name": "고서",
-     "tag": "무료"
-    },
-    {
-     "id": "tile",
-     "name": "기와 · 목재 소품",
-     "tag": "무료"
-    },
-    {
-     "id": "fan",
-     "name": "부채 · 지우산 등 동양풍 소품",
-     "tag": "무료"
+      "slug": "b",
+      "label": "B룸 · 화이트 티타임 카페",
+      "short": "B룸",
+      "items": [
+        {
+          "id": "lace-table",
+          "name": "레이스 원형 테이블",
+          "tag": "무료"
+        },
+        {
+          "id": "bistro-chair",
+          "name": "흰 접이식 비스트로 의자",
+          "tag": "무료"
+        },
+        {
+          "id": "loveseat",
+          "name": "핑크 러브시트",
+          "tag": "무료"
+        },
+        {
+          "id": "windsor",
+          "name": "원목 윈저 체어",
+          "tag": "무료"
+        },
+        {
+          "id": "trolley",
+          "name": "3단 스테인리스 트롤리",
+          "tag": "무료"
+        },
+        {
+          "id": "drawer",
+          "name": "원목 서랍장",
+          "tag": "무료"
+        },
+        {
+          "id": "powder-desk",
+          "name": "파우더룸 데스크",
+          "tag": "무료"
+        },
+        {
+          "id": "mirror",
+          "name": "금장 앤티크 거울",
+          "tag": "무료"
+        },
+        {
+          "id": "lace-curtain",
+          "name": "레이스 커튼",
+          "tag": "무료"
+        },
+        {
+          "id": "teaset",
+          "name": "티세트",
+          "sub": "찻잔 · 받침",
+          "tag": "무료"
+        },
+        {
+          "id": "tray",
+          "name": "은트레이",
+          "tag": "무료"
+        },
+        {
+          "id": "cake-stand",
+          "name": "3단 케이크 스탠드",
+          "tag": "무료"
+        },
+        {
+          "id": "cake-model",
+          "name": "케이크 모형",
+          "tag": "무료"
+        },
+        {
+          "id": "milkshake",
+          "name": "밀크셰이크 모형",
+          "tag": "무료"
+        },
+        {
+          "id": "candle",
+          "name": "금장 촛대",
+          "tag": "무료"
+        },
+        {
+          "id": "cushion-b",
+          "name": "쿠션",
+          "tag": "무료"
+        },
+        {
+          "id": "plant",
+          "name": "화분 · 양치식물",
+          "tag": "무료"
+        },
+        {
+          "id": "bear",
+          "name": "곰인형",
+          "tag": "무료"
+        },
+        {
+          "id": "chalkboard",
+          "name": "칠판 입간판",
+          "tag": "무료"
+        },
+        {
+          "id": "coffee-machine",
+          "name": "커피머신",
+          "sub": "촬영 소품 · 작동 불가",
+          "tag": "무료"
+        }
+      ]
     }
-   ]
-  },
-  {
-   "slug": "b",
-   "label": "B룸 · 화이트 티타임 카페",
-   "short": "B룸",
-   "items": [
+  ],
+  "fabrics": [
     {
-     "id": "lace-table",
-     "name": "레이스 원형 테이블",
-     "tag": "무료"
+      "name": "민트 · 아쿠아",
+      "mat": "오간자",
+      "color": "#abd1c4"
     },
     {
-     "id": "bistro-chair",
-     "name": "흰 접이식 비스트로 의자",
-     "tag": "무료"
+      "name": "골드 올리브",
+      "mat": "오간자",
+      "color": "#8f9464"
     },
     {
-     "id": "loveseat",
-     "name": "핑크 러브시트",
-     "tag": "무료"
+      "name": "세이지 · 다크그린",
+      "mat": "오간자",
+      "color": "#7a7b5f"
     },
     {
-     "id": "windsor",
-     "name": "원목 윈저 체어",
-     "tag": "무료"
+      "name": "실버 · 화이트",
+      "mat": "오간자",
+      "color": "#e3c9bd"
     },
     {
-     "id": "trolley",
-     "name": "3단 스테인리스 트롤리",
-     "tag": "무료"
+      "name": "레드 · 코랄",
+      "mat": "오간자",
+      "color": "#cd4142"
     },
     {
-     "id": "drawer",
-     "name": "원목 서랍장",
-     "tag": "무료"
+      "name": "마젠타 · 푸시아",
+      "mat": "오간자",
+      "color": "#932c3d"
     },
     {
-     "id": "powder-desk",
-     "name": "파우더룸 데스크",
-     "tag": "무료"
+      "name": "차콜 그레이",
+      "mat": "오간자",
+      "color": "#8a7d72"
     },
     {
-     "id": "mirror",
-     "name": "금장 앤티크 거울",
-     "tag": "무료"
+      "name": "핑크",
+      "mat": "쉬폰",
+      "color": "#f8afb6"
     },
     {
-     "id": "lace-curtain",
-     "name": "레이스 커튼",
-     "tag": "무료"
+      "name": "화이트",
+      "mat": "쉬폰",
+      "color": "#f3e7d6"
     },
     {
-     "id": "teaset",
-     "name": "티세트",
-     "sub": "찻잔 · 받침",
-     "tag": "무료"
+      "name": "레드",
+      "mat": "쉬폰",
+      "color": "#bd5b52"
     },
     {
-     "id": "tray",
-     "name": "은트레이",
-     "tag": "무료"
+      "name": "블랙",
+      "mat": "쉬폰",
+      "color": "#2a2420"
     },
     {
-     "id": "cake-stand",
-     "name": "3단 케이크 스탠드",
-     "tag": "무료"
+      "name": "화이트",
+      "mat": "공단",
+      "color": "#f1e9dd"
     },
     {
-     "id": "cake-model",
-     "name": "케이크 모형",
-     "tag": "무료"
+      "name": "블랙",
+      "mat": "공단",
+      "color": "#17130f"
     },
     {
-     "id": "milkshake",
-     "name": "밀크셰이크 모형",
-     "tag": "무료"
-    },
-    {
-     "id": "candle",
-     "name": "금장 촛대",
-     "tag": "무료"
-    },
-    {
-     "id": "cushion-b",
-     "name": "쿠션",
-     "tag": "무료"
-    },
-    {
-     "id": "plant",
-     "name": "화분 · 양치식물",
-     "tag": "무료"
-    },
-    {
-     "id": "bear",
-     "name": "곰인형",
-     "tag": "무료"
-    },
-    {
-     "id": "chalkboard",
-     "name": "칠판 입간판",
-     "tag": "무료"
-    },
-    {
-     "id": "coffee-machine",
-     "name": "커피머신",
-     "sub": "촬영 소품 · 작동 불가",
-     "tag": "무료"
+      "name": "수묵 프린트",
+      "mat": "흑백",
+      "color": "#c6b9a7"
     }
-   ]
-  }
- ],
- "fabrics": [
-  {
-   "name": "민트 · 아쿠아",
-   "mat": "오간자",
-   "color": "#abd1c4"
-  },
-  {
-   "name": "골드 올리브",
-   "mat": "오간자",
-   "color": "#8f9464"
-  },
-  {
-   "name": "세이지 · 다크그린",
-   "mat": "오간자",
-   "color": "#7a7b5f"
-  },
-  {
-   "name": "실버 · 화이트",
-   "mat": "오간자",
-   "color": "#e3c9bd"
-  },
-  {
-   "name": "레드 · 코랄",
-   "mat": "오간자",
-   "color": "#cd4142"
-  },
-  {
-   "name": "마젠타 · 푸시아",
-   "mat": "오간자",
-   "color": "#932c3d"
-  },
-  {
-   "name": "차콜 그레이",
-   "mat": "오간자",
-   "color": "#8a7d72"
-  },
-  {
-   "name": "핑크",
-   "mat": "쉬폰",
-   "color": "#f8afb6"
-  },
-  {
-   "name": "화이트",
-   "mat": "쉬폰",
-   "color": "#f3e7d6"
-  },
-  {
-   "name": "레드",
-   "mat": "쉬폰",
-   "color": "#bd5b52"
-  },
-  {
-   "name": "블랙",
-   "mat": "쉬폰",
-   "color": "#2a2420"
-  },
-  {
-   "name": "화이트",
-   "mat": "공단",
-   "color": "#f1e9dd"
-  },
-  {
-   "name": "블랙",
-   "mat": "공단",
-   "color": "#17130f"
-  },
-  {
-   "name": "수묵 프린트",
-   "mat": "흑백",
-   "color": "#c6b9a7"
-  }
- ]
+  ]
 }

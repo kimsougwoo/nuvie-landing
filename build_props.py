@@ -266,6 +266,9 @@ def render_equipment(items):
     """장비도 소품과 같은 «사진 카드»로. 아워 A룸 표기처럼 지속광→순간광→모디파이어→스탠드 순으로 묶는다."""
     buckets = {}
     for it in items:
+        # 유료 장비는 «유료 장비» 카드에서 금액과 함께 한 번만 보여준다(칩 중복 금지).
+        if it.get("tag") == "유료":
+            continue
         buckets.setdefault(it.get("group", "기타"), []).append(it)
     out = []
     for g in EQ_ORDER:

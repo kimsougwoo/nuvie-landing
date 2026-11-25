@@ -554,16 +554,19 @@ def render_props_teaser(room: dict) -> str:
         return ""
     doc = _json.loads(path.read_text(encoding="utf-8"))
     slug = room["slug"]
-    paid_by_name = {r["name"]: r["price"] for r in doc.get("paid", {}).get(slug, [])}
+    # 유료 장비는 아래 «유료 장비» 줄에서 금액과 함께 한 번만 적는다(칩 중복 금지).
+    paid_rows = doc.get("paid", {}).get(slug, [])
     eq = []
+    eq_paid = 0
     for x in doc.get("equipment", {}).get(slug, []):
-        label = x["name"] + (" · " + x["sub"] if x.get("sub") else "")
         if x.get("tag") == "유료":
-            label += " (유료 " + paid_by_name.get(x["name"], "") + ")"
+            eq_paid += 1
+            continue
+        label = x["name"] + (" · " + x["sub"] if x.get("sub") else "")
         eq.append(label)
     rm = next((r for r in doc.get("rooms", []) if r["slug"] == slug), {"items": []})
     items = [x["name"] + (" · " + x["sub"] if x.get("sub") else "") for x in rm["items"]]
-    total = len(eq) + len(items)
+    total = len(eq) + len(items) + eq_paid
     extra = " · 원단 14색" if slug == "a" else ""
     link_label = "사진으로 전체 보기 (" + room["label"] + " " + str(total) + "종" + extra + ")"
 
@@ -575,7 +578,6 @@ def render_props_teaser(room: dict) -> str:
 
     link = ('<a class="btn line" style="padding:11px 20px;font-size:13.5px;white-space:nowrap" href="/props#' + slug + '">'
             + esc(link_label) + " &rarr;</a>")
-    paid_rows = doc.get("paid", {}).get(slug, [])
     paid_line = ""
     if paid_rows:
         parts = " · ".join('%s %s' % (r["name"].split(" + ")[0], r["price"]) for r in paid_rows)
@@ -592,7 +594,7 @@ def render_props_teaser(room: dict) -> str:
         '<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px">'
         '<div><div style="font-size:clamp(20px,2.4vw,28px);letter-spacing:-.02em;color:var(--ink)">'
         + esc(room["label"]) + " 비치 소품</div>"
-        '<p class="desc" style="margin:8px 0 0;font-size:14px;color:var(--dim)">장비 ' + str(len(eq))
+        '<p class="desc" style="margin:8px 0 0;font-size:14px;color:var(--dim)">장비 ' + str(len(eq) + eq_paid)
         + ' · 소품 ' + str(len(items)) + ' — 이 룸에 있는 것만 적었습니다. 유료 장비는 금액으로 적었습니다.</p></div>' + link + "</div>"
         '<div style="font-family:var(--label-font);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:14px 0 9px">장비</div>'
         '<ul style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">' + chips(eq) + "</ul>"
