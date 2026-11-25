@@ -15,8 +15,8 @@
 .panel[hidden]{display:none}
 
 .banner{position:relative;background:#0a0908;overflow:hidden;border-bottom:1px solid var(--line)}
-.banner img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55}
-.banner .sc{position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,6,6,.93) 0%,rgba(6,6,6,.6) 58%,rgba(6,6,6,.3) 100%)}
+.banner img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.9}
+.banner .sc{position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,6,6,.95) 0%,rgba(6,6,6,.55) 45%,rgba(6,6,6,.12) 100%)}
 .banner .in{position:relative;max-width:1560px;margin:0 auto;padding:56px 40px 52px}
 .banner .crumb{font-size:12px;letter-spacing:.04em;color:rgba(255,255,255,.62);margin:0 0 16px}
 .banner .crumb a{color:inherit;text-decoration:none}
