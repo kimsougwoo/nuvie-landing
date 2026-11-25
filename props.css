@@ -122,8 +122,8 @@ ul.swatches .mat{color:var(--dim);font-size:12px;letter-spacing:.08em;text-trans
 
 /* 유료 장비 — 사진 카드 + 큰 금액 (2026-11-25 대표: «매출 요소인데 너무 작다») */
 .ledger{margin-top:44px;border-top:1px solid var(--line);padding-top:24px}
-.paidhead{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
-.paidhead .cap{font-family:var(--label-font);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.paidhead{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+.paidhead .cap{font-size:17px;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
 .paidhead .capnote{font-size:12.5px;color:var(--dim)}
 ul.items.paid{grid-template-columns:repeat(3,1fr);gap:18px}
 ul.items.paid li{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:14px 14px 16px}
@@ -135,9 +135,9 @@ ul.items.paid .price{display:block;margin-top:12px;font-size:19px;font-weight:70
 @media(max-width:620px){ul.items.paid{grid-template-columns:1fr}}
 
 /* 무료/유료 구분 머리 — 유료가 먼저(매출 요소), 무료는 그 아래 */
-.freehead{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:36px 0 14px;padding-top:22px;border-top:1px solid var(--line)}
-.freehead .cap{font-family:var(--label-font);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.freehead{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:40px 0 16px;padding-top:24px;border-top:1px solid var(--line)}
+.freehead .cap{font-size:17px;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
 .freehead .capnote{font-size:12.5px;color:var(--dim)}
 
 ul.items.paid .benefit{display:block;margin-top:7px;font-size:12.5px;line-height:1.55;color:var(--dim)}
-.allmax{margin:14px 0 0;font-size:12.5px;color:var(--dim)}
+.allmax{margin:0 0 16px;font-size:13px;color:var(--body);font-weight:500}

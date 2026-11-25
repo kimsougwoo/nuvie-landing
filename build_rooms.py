@@ -663,7 +663,7 @@ def build_page(room: dict, other: dict, catalog: dict, business: dict, reviews_d
     price_conditions = (
         '<dl class="p-cond">'
         f'<div><dt>인원 추가</dt><dd>{p["baseGuests"] + 1}인째부터 시간당 {won(p["extraGuestPerHour"])}</dd></div>'
-        f'<div><dt>비치 조명</dt><dd>무료 — {free_list}</dd></div>'
+        f'<div><dt>무료 장비</dt><dd>무료 — {free_list}</dd></div>'
         f'<div><dt>유료 장비</dt><dd>대관 1회당 · 품목별 금액은 아래 참고</dd></div>'
         f'<div><dt>예약 기준</dt><dd>주말은 {p["weekendDefinition"]} · 최종 금액은 아워플레이스 예약 화면에서 확인</dd></div>'
         "</dl>"
