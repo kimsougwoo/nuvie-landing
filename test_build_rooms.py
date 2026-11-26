@@ -93,6 +93,8 @@ def test_price_strings_come_from_rooms_json():
             p["extraGuestPerHour"],
         }
         expected.update(fee["amount"] for fee in p["equipmentFees"])
+        if p.get("equipmentTotalMax"):
+            expected.add(p["equipmentTotalMax"])   # 유료 합계 상한(2026-11-25)
         html_text = _read(f"{slug}.html")
         found = _money_values(html_text)
         assert found == expected, (
@@ -201,11 +203,12 @@ def test_sitemap_contains_all_required_paths():
     sitemap = _read("sitemap.xml")
     for loc in ("https://www.nuviestudio.com/",
                 "https://www.nuviestudio.com/a",
-                "https://www.nuviestudio.com/b"):
+                "https://www.nuviestudio.com/b",
+                "https://www.nuviestudio.com/props"):
         assert f"<loc>{loc}</loc>" in sitemap, f"sitemap.xml 에 {loc} 이 없다"
     assert "https://www.nuviestudio.com/privacy" not in sitemap, "noindex 페이지가 sitemap.xml 에 있다"
     lastmods = re.findall(r"<lastmod>([^<]+)</lastmod>", sitemap)
-    assert len(lastmods) == 3, "필수 URL마다 lastmod가 있어야 한다"
+    assert len(lastmods) == len(re.findall(r"<loc>", sitemap)), "sitemap 의 모든 URL 에 lastmod가 있어야 한다"
     assert all(re.fullmatch(r"\d{4}-\d{2}-\d{2}", value) for value in lastmods)
     # cleanUrls:true 라 .html 은 308 된다 — 사이트맵에 리다이렉트 URL 을 넣지 않는다.
     assert ".html</loc>" not in sitemap, "sitemap.xml 에 .html URL 이 있다(cleanUrls 로 리다이렉트된다)"
